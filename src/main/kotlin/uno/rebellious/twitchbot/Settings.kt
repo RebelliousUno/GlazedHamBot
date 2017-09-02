@@ -11,7 +11,7 @@ class Settings {
     private var settings: DataSettings?
     init {
         props.load(this.javaClass.classLoader.getResourceAsStream("settings.properties"))
-        settings = DataSettings(props.getProperty("nick"), props.getProperty("password"), props.getProperty("lastfm"), props.getProperty("channel"))
+        settings = DataSettings(props.getProperty("nick"), props.getProperty("password"), props.getProperty("lastfm"), props.getProperty("channel"), props.getProperty("lastFmUser"))
     }
 
     val nick: String?
@@ -32,6 +32,10 @@ class Settings {
         get() {
             return settings?.CHANNEL
         }
+    val lastFMUser: String?
+        get() {
+            return settings?.LAST_FM_USER
+        }
 }
 
-data class DataSettings(val MY_NICK: String, val MY_PASS: String, val LAST_FM_API: String, val CHANNEL: String)
+data class DataSettings(val MY_NICK: String, val MY_PASS: String, val LAST_FM_API: String, val CHANNEL: String, val LAST_FM_USER: String)

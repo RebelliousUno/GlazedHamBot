@@ -22,7 +22,7 @@ val props = Properties()
 val scanner: Scanner = Scanner(System.`in`)
 val SETTINGS = Settings()
 val channel: String = "#" + SETTINGS.channel
-val lastFMUrl = "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=rebelliousuno&api_key=${SETTINGS.lastFMAPI}&format=json&limit=1"
+val lastFMUrl = "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${SETTINGS.lastFMUser}&api_key=${SETTINGS.lastFMAPI}&format=json&limit=1"
 val twirk: Twirk = TwirkBuilder(channel, SETTINGS.nick, SETTINGS.password)
         .setVerboseMode(true)
         .build()
