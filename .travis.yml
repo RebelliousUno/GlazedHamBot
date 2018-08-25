@@ -1,6 +1,6 @@
 language: java
 install: gradle clean
-script: gradle build
+script: gradle shadowJar
 deploy:
   provider: releases
   api_key: "GITHUB OAUTH TOKEN"
