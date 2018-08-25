@@ -43,6 +43,9 @@ class DatabaseDAO : IDatabase {
         val channelList = "create table if not exists channels (" +
                 "channel text)"
         statement.executeUpdate(channelList)
+        if (getListOfChannels().isEmpty()) { // Set up default Channel
+            addChannel("GlazedHamBot")
+        }
     }
 
     fun connect(channels: Array<String>) {
