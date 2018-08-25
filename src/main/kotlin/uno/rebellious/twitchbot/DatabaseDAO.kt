@@ -6,23 +6,67 @@ import java.sql.Statement
 
 class DatabaseDAO : IDatabase {
 
-    private var connection: Connection? = null
+    //private var connection: Connection? = null
+    private var settingsDB: Connection? = null
+    private var connectionList: HashMap<String, Connection> = HashMap()
 
     init {
-        connect()
-        setup()
+        connectSettings() //Connect to settings DB
+        setupSettings() //Set up Settings DB
+        var channelList = getListOfChannels()
+        println(channelList)
+        connect(channelList)
+        setupAllChannels()
     }
 
-    fun connect() {
-        connection = DriverManager.getConnection("jdbc:sqlite:sample.db")
+    fun connectSettings() {
+        settingsDB = DriverManager.getConnection("jdbc:sqlite:settings.db")
+    }
+
+    fun getListOfChannels(): Array<String> {
+        var statement = settingsDB?.createStatement()!!
+        statement.queryTimeout = 30
+        var channelSelect = "select * from channels"
+        var results = statement.executeQuery(channelSelect)
+        val list = ArrayList<String>()
+        while (results.next()) {
+            var channel = results.getString("channel")
+            list.add(channel)
+        }
+        return list.toTypedArray()
+    }
+
+    private fun setupSettings() {
+        var statement: Statement = settingsDB?.createStatement()!!
+        statement.queryTimeout = 30
+
+        val channelList = "create table if not exists channels (" +
+                "channel text)"
+        statement.executeUpdate(channelList)
+    }
+
+    fun connect(channels: Array<String>) {
+        channels.forEach {
+            val con = DriverManager.getConnection("jdbc:sqlite:${it.toLowerCase()}.db")
+            connectionList[it] = con
+        }
+
     }
 
     fun disconnect() {
-        connection?.close()
+        connectionList.forEach {
+            it.value.close()
+        }
     }
 
-    private fun setup() {
-        var statement: Statement = connection?.createStatement()!!
+    private fun setupAllChannels() {
+        connectionList.forEach {
+            setup(it.value)
+        }
+    }
+
+    private fun setup(connection: Connection) {
+        var statement: Statement = connection.createStatement()!!
         statement.queryTimeout = 30
 
         val responsesTableSql = "create table if not exists responses (" +
@@ -31,7 +75,8 @@ class DatabaseDAO : IDatabase {
         statement.executeUpdate(responsesTableSql)
     }
 
-    override fun findResponse(command: String): String {
+    override fun findResponse(channel: String, command: String): String {
+        val connection = connectionList[channel]
         val sql = "Select response from responses where command = ?"
         val preparedStatement = connection?.prepareStatement(sql)
         preparedStatement?.setString(1, command)
@@ -44,8 +89,27 @@ class DatabaseDAO : IDatabase {
         }
     }
 
-    override fun setResponse(command: String, response: String) {
-        val exists = findResponse(command)
+    fun channelExists(channel: String): Boolean? {
+        val sql = "Select * from channels WHERE channel = ?"
+        val preparedStatement = settingsDB?.prepareStatement(sql)
+        preparedStatement?.setString(1, channel)
+        val results = preparedStatement?.executeQuery()
+        return results?.next()
+    }
+
+    fun addChannel(newChannel: String) {
+        val exists = channelExists(newChannel)
+        if (exists != null && !exists) {
+            val sql = "INSERT INTO channels(channel) VALUES (?)"
+            val preparedStatement = settingsDB?.prepareStatement(sql)
+            preparedStatement?.setString(1, newChannel)
+            preparedStatement?.executeUpdate()
+        }
+    }
+
+    override fun setResponse(channel: String, command: String, response: String) {
+        val connection = connectionList[channel]
+        val exists = findResponse(channel, command)
         val sql = if (exists == "") {
             "INSERT INTO responses(response, command) VALUES (?, ?)"
         } else {
@@ -57,14 +121,16 @@ class DatabaseDAO : IDatabase {
         preparedStatement?.executeUpdate()
     }
 
-    override fun removeResponse(command: String) {
+    override fun removeResponse(channel: String, command: String) {
+        val connection = connectionList[channel]
         val sql = "DELETE FROM responses WHERE command = ?"
         val preparedStatement = connection?.prepareStatement(sql)
         preparedStatement?.setString(1, command)
         preparedStatement?.executeUpdate()
     }
 
-    override fun getAllCommandList(): ArrayList<String> {
+    override fun getAllCommandList(channel: String): ArrayList<String> {
+        val connection = connectionList[channel]
         val sql = "SELECT command FROM responses"
         val preparedStatement = connection?.prepareStatement(sql)
         val results = preparedStatement?.executeQuery()
