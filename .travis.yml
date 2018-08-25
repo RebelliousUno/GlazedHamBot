@@ -9,7 +9,7 @@ script: gradle shadowJar
 deploy:
   provider: releases
   api_key: $githubToken
-  file: "FILE TO UPLOAD"
+  file: "./build/libs/TwitchBot-*.jar"
   skip_cleanup: true
   on:
     tags: true
