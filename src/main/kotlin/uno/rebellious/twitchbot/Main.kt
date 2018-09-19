@@ -98,29 +98,29 @@ class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkL
         val command = splitContent[0].toLowerCase(Locale.ENGLISH)
 
         when {
-            command.startsWith("!song") -> Fuel.get(lastFMUrl).responseString { _, _, result ->
+            command.startsWith("!song") && channel=="RebelliousUno".toLowerCase() -> Fuel.get(lastFMUrl).responseString { _, _, result ->
                 val resultJson: String = result.get().replace("#", "")
                 val json = gson.fromJson<LastFMResponse>(resultJson)
                 val artist = json.recenttracks.track[0].artist.text
                 val track = json.recenttracks.track[0].name
                 val album = json.recenttracks.track[0].album.text
-                twirk.channelMessage("RebelliousUno last listened to $track by $artist from the album $album")
+                twirk.channelMessage("$channel last listened to $track by $artist from the album $album")
             }
             command.startsWith("!addchannel")
-                    && (sender.userType == USER_TYPE.OWNER)
+                    && (channel.toLowerCase() == "glazedhambot")
                     && (splitContent.size > 1) -> {
                 val newChannel = splitContent[1].toLowerCase(Locale.ENGLISH)
                 database.addChannel(newChannel)
                 startTwirkForChannel(newChannel)
             }
             command.startsWith("!hamleave") && (sender.userType == USER_TYPE.OWNER || sender.displayName.toLowerCase() == "rebelliousuno") -> {
-                //database.leaveChannel(channel)
+                database.leaveChannel(channel)
+                twirk.channelMessage("Leaving $channel")
                 stopTwirkForChannel(channel)
             }
 
-            command.startsWith("!listchannels") -> {
+            command.startsWith("!listchannels") && sender.isMod -> {
                 val channelList = database.getListOfChannels()
-                println(channelList)
                 twirk.channelMessage("GlazedHamBot is present in $channelList")
             }
 
@@ -129,18 +129,18 @@ class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkL
                 dbCommands.add("!song")
                 dbCommands.add("!jack")
                 twirk.channelMessage("Command List: " + dbCommands)
-                if (sender.isMod || sender.userType == USER_TYPE.OWNER) {
+                if (sender.isMod || sender.isOwner) {
                     twirk.channelMessage("Mods Only: !jackset, !addcmd, !editcmd, !delcmd")
                 }
             }
             command.startsWith("!addcmd") || command.startsWith("!editcmd")
-                    && splitContent.size > 2 && (sender.isMod || sender.userType == USER_TYPE.OWNER) -> {
+                    && splitContent.size > 2 && (sender.isMod || sender.isOwner) -> {
                 val newCommand = splitContent[1].toLowerCase(Locale.ENGLISH)
                 val newResponse = splitContent[2]
                 database.setResponse(channel, newCommand, newResponse)
             }
             command.startsWith("!delcmd")
-                    && splitContent.size > 1 && (sender.isMod || sender.userType == USER_TYPE.OWNER) -> {
+                    && splitContent.size > 1 && (sender.isMod || sender.isOwner) -> {
                 val removeCommand = splitContent[1].toLowerCase(Locale.ENGLISH)
                 database.removeResponse(channel, removeCommand)
             }
@@ -148,13 +148,13 @@ class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkL
                 splitContent[1].contains("song") -> twirk.channelMessage("!song - shows most recently played song")
                 splitContent[1].contains("jack") -> {
                     twirk.channelMessage("!jack - shows current audience code for Jackbox TV games")
-                    if (sender.isMod || sender.userType == USER_TYPE.OWNER) {
+                    if (sender.isMod || sender.isOwner) {
                         twirk.channelMessage("!jackset CODE - Mod Only - sets the jackbox code to CODE")
                     }
                 }
-                splitContent[1].contains("!addcmd") && (sender.isMod || sender.userType == USER_TYPE.OWNER) -> twirk.channelMessage("!addcmd newcmd The Message To Send - Mod Only - Creates a new GlazedHamBot response")
-                splitContent[1].contains("!editcmd") && (sender.isMod || sender.userType == USER_TYPE.OWNER) -> twirk.channelMessage("!editcmd cmd The Message To Send - Mod Only - Updates a GlazedHamBot response")
-                splitContent[1].contains("!delcmd") && (sender.isMod || sender.userType == USER_TYPE.OWNER) -> twirk.channelMessage("!delcmd cmd - Mod Only - Deletes a GlazedHamBot response")
+                splitContent[1].contains("!addcmd") && (sender.isMod || sender.isOwner) -> twirk.channelMessage("!addcmd newcmd The Message To Send - Mod Only - Creates a new GlazedHamBot response")
+                splitContent[1].contains("!editcmd") && (sender.isMod || sender.isOwner) -> twirk.channelMessage("!editcmd cmd The Message To Send - Mod Only - Updates a GlazedHamBot response")
+                splitContent[1].contains("!delcmd") && (sender.isMod || sender.isOwner) -> twirk.channelMessage("!delcmd cmd - Mod Only - Deletes a GlazedHamBot response")
             }
             command.startsWith("!help") -> twirk.channelMessage("Type !help followed by the command to get more help about that command.  !cmdlist shows the current commands")
             command.startsWith("!jackset") && (sender.isMod || sender.userType == USER_TYPE.OWNER) -> {

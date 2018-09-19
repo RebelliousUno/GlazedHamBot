@@ -7,4 +7,6 @@ public interface IDatabase {
     fun setResponse(channel: String, command: String, response: String)
     fun removeResponse(channel: String, command: String)
     fun getAllCommandList(channel: String): ArrayList<String>
+    fun leaveChannel(channel: String)
+    fun addChannel(newChannel: String)
 }

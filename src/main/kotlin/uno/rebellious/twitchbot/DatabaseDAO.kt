@@ -100,7 +100,7 @@ class DatabaseDAO : IDatabase {
         return results?.next()
     }
 
-    fun addChannel(newChannel: String) {
+    override fun addChannel(newChannel: String) {
         val exists = channelExists(newChannel)
         if (exists != null && !exists) {
             val sql = "INSERT INTO channels(channel) VALUES (?)"
@@ -108,6 +108,13 @@ class DatabaseDAO : IDatabase {
             preparedStatement?.setString(1, newChannel)
             preparedStatement?.executeUpdate()
         }
+    }
+
+    override fun leaveChannel(channel: String) {
+        val sql = "DELETE FROM channels WHERE channel = ?"
+        val preparedStatement = settingsDB?.prepareStatement(sql)
+        preparedStatement?.setString(1, channel)
+        preparedStatement?.executeUpdate()
     }
 
     override fun setResponse(channel: String, command: String, response: String) {
