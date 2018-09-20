@@ -86,9 +86,27 @@ class UnoBotBase constructor(val twirk: Twirk) : TwirkListener {
     }
 }
 
+class Command (val command: String, val helpString: String, val action: (List<String>) -> Any){
+
+}
+
+
 class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkListener {
     private val gson = Gson()
     private var jackboxCode = "NO ROOM CODE SET"
+    private var commandList = ArrayList<Command>()
+    init {
+        val songCommand = Command("!song", "The last song listened to by $channel") {
+            Fuel.get(lastFMUrl).responseString { _, _, result ->
+                val resultJson: String = result.get().replace("#", "")
+                val json = gson.fromJson<LastFMResponse>(resultJson)
+                val artist = json.recenttracks.track[0].artist.text
+                val track = json.recenttracks.track[0].name
+                val album = json.recenttracks.track[0].album.text
+                twirk.channelMessage("$channel last listened to $track by $artist from the album $album")
+            }}
+        commandList.add(songCommand)
+    }
 
     override fun onPrivMsg(sender: TwitchUser, message: TwitchMessage) {
         val content: String = message.getContent().trim()
@@ -97,15 +115,20 @@ class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkL
         val splitContent = content.split(' ', ignoreCase = true, limit = 3)
         val command = splitContent[0].toLowerCase(Locale.ENGLISH)
 
+        commandList
+                .firstOrNull { it.command.startsWith(command) }
+                ?.action?.invoke(splitContent)
+
+
         when {
-            command.startsWith("!song") && channel=="RebelliousUno".toLowerCase() -> Fuel.get(lastFMUrl).responseString { _, _, result ->
-                val resultJson: String = result.get().replace("#", "")
-                val json = gson.fromJson<LastFMResponse>(resultJson)
-                val artist = json.recenttracks.track[0].artist.text
-                val track = json.recenttracks.track[0].name
-                val album = json.recenttracks.track[0].album.text
-                twirk.channelMessage("$channel last listened to $track by $artist from the album $album")
-            }
+//            command.startsWith("!song") && channel=="RebelliousUno".toLowerCase() -> Fuel.get(lastFMUrl).responseString { _, _, result ->
+//                val resultJson: String = result.get().replace("#", "")
+//                val json = gson.fromJson<LastFMResponse>(resultJson)
+//                val artist = json.recenttracks.track[0].artist.text
+//                val track = json.recenttracks.track[0].name
+//                val album = json.recenttracks.track[0].album.text
+//                twirk.channelMessage("$channel last listened to $track by $artist from the album $album")
+//            }
             command.startsWith("!addchannel")
                     && (channel.toLowerCase() == "glazedhambot")
                     && (splitContent.size > 1) -> {
