@@ -5,18 +5,18 @@ package uno.rebellious.twitchbot
 
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.TwirkBuilder
-import com.gikk.twirk.enums.USER_TYPE
 import com.gikk.twirk.events.TwirkListener
 import com.gikk.twirk.types.twitchMessage.TwitchMessage
 import com.gikk.twirk.types.users.TwitchUser
 import com.github.kittinunf.fuel.Fuel
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
+import io.reactivex.Observable
 import io.reactivex.rxkotlin.toObservable
 import java.io.IOException
 import java.util.*
 
-val scanner = Scanner(System.`in`).toObservable().share()
+val scanner: Observable<String> = Scanner(System.`in`).toObservable().share()
 val SETTINGS = Settings()
 val lastFMUrl = "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${SETTINGS.lastFMUser}&api_key=${SETTINGS.lastFMAPI}&format=json&limit=1"
 var threadList = HashMap<String, Thread>()
@@ -60,7 +60,7 @@ fun startTwirkForChannel(channel: String) {
 }
 
 fun stopTwirkForChannel(channel: String) {
-    var thread = threadList[channel]
+    val thread = threadList[channel]
     thread?.interrupt()
 }
 
@@ -68,7 +68,7 @@ fun getOnDisconnectListener(twirk: Twirk): TwirkListener? {
     return UnoBotBase(twirk)
 }
 
-class UnoBotBase constructor(val twirk: Twirk) : TwirkListener {
+class UnoBotBase constructor(private val twirk: Twirk) : TwirkListener {
     override fun onDisconnect() {
         try {
             if (!twirk.connect())
@@ -80,7 +80,7 @@ class UnoBotBase constructor(val twirk: Twirk) : TwirkListener {
     }
 }
 
-class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkListener {
+class PatternCommand constructor(private val twirk: Twirk, private val channel: String) : TwirkListener {
     private val gson = Gson()
     private var jackboxCode = "NO ROOM CODE SET"
     private var commandList = ArrayList<Command>()
@@ -230,7 +230,7 @@ class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkL
     }
 
     override fun onPrivMsg(sender: TwitchUser, message: TwitchMessage) {
-        val content: String = message.getContent().trim()
+        val content: String = message.content.trim()
         if (!content.startsWith(prefix)) return
 
         val splitContent = content.split(' ', ignoreCase = true, limit = 3)

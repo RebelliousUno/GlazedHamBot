@@ -6,8 +6,6 @@ import java.sql.Statement
 
 class DatabaseDAO : IDatabase {
 
-
-    //private var connection: Connection? = null
     private var settingsDB: Connection? = null
     private var connectionList: HashMap<String, Connection> = HashMap()
 
@@ -61,12 +59,6 @@ class DatabaseDAO : IDatabase {
         connectionList[channel] = con
     }
 
-    fun disconnect() {
-        connectionList.forEach {
-            it.value.close()
-        }
-    }
-
     private fun setupAllChannels() {
         connectionList.forEach {
             setup(it.value)
@@ -74,7 +66,7 @@ class DatabaseDAO : IDatabase {
     }
 
     private fun setup(connection: Connection) {
-        var statement: Statement = connection.createStatement()!!
+        val statement: Statement = connection.createStatement()!!
         statement.queryTimeout = 30
 
         val responsesTableSql = "create table if not exists responses (" +
@@ -135,7 +127,6 @@ class DatabaseDAO : IDatabase {
             preparedStatement?.executeUpdate()
             connect(newChannel)
         }
-
     }
 
     override fun leaveChannel(channel: String) {
@@ -173,7 +164,7 @@ class DatabaseDAO : IDatabase {
         val preparedStatement = connection?.prepareStatement(sql)
         val results = preparedStatement?.executeQuery()
         val returnList = ArrayList<String>()
-        while(results?.next()!!) returnList.add("${results.getString("command")}")
+        while(results?.next()!!) returnList.add(results.getString("command"))
         return returnList
     }
 }
