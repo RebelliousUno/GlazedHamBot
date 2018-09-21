@@ -80,20 +80,6 @@ class UnoBotBase constructor(val twirk: Twirk) : TwirkListener {
     }
 }
 
-data class Permission(val isOwnerOnly: Boolean, val isModOnly: Boolean, val isSubOnly: Boolean)
-
-class Command (var prefix: String, val command: String, val helpString: String, val permissions: Permission, val action: (List<String>) -> Any){
-
-    fun canUseCommand(sender: TwitchUser): Boolean {
-        println(sender.toString())
-        if (permissions.isOwnerOnly && !sender.isOwner) return false
-        if (permissions.isModOnly && !(sender.isMod || sender.isOwner)) return false
-        if (permissions.isSubOnly && !(sender.isOwner || sender.isMod || sender.isSub)) return false
-        return true
-    }
-}
-
-
 class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkListener {
     private val gson = Gson()
     private var jackboxCode = "NO ROOM CODE SET"
@@ -112,12 +98,29 @@ class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkL
         commandList.add(setPrefixCommand())
         if (channel == "rebelliousuno") commandList.add(jackSetCommand())
         if (channel == "rebelliousuno") commandList.add(jackCommand())
+        commandList.add(helpCommand())
 
         twirk.channelMessage("Starting up for $channel - prefix is $prefix")
     }
 
+    private fun helpCommand(): Command {
+        return Command(prefix, "help" , "Usage: ${prefix}help cmd - to get help for a particular command", Permission(false, false, false)) {
+            if (it.size > 1) {
+                twirk.channelMessage(commandList.firstOrNull { command -> command.command == it[1] }?.helpString)
+            } else {
+                twirk.channelMessage("Usage: ${prefix}help cmd - to get help for a particular command")
+            }
+        }
+    }
+
+    private fun responseCommand(): Command {
+        return Command(prefix, "", "", Permission(false, false, false)) {
+            twirk.channelMessage(database.findResponse(channel, it[0].substring(1)))
+        }
+    }
+
     private fun setPrefixCommand(): Command {
-        return Command(prefix, "setprefix", "", Permission(true, false, false)) {
+        return Command(prefix, "setprefix", "Usage: '${prefix}setprefix !' - Sets the prefix for commands to '!'", Permission(true, false, false)) {
             if (it.size > 1) {
                 prefix = it[1]
                 database.setPrefixForChannel(channel, prefix)
@@ -129,7 +132,7 @@ class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkL
     }
 
     private fun commandListCommand(): Command {
-        return Command(prefix, "cmdlist", "", Permission(false, false, false)) {
+        return Command(prefix, "cmdlist", "Usage: ${prefix}cmdlist - lists the commands for this channel", Permission(false, false, false)) {
             val dbCommands = database.getAllCommandList(channel).map {
                 prefix + it
             } as ArrayList<String>
@@ -142,14 +145,14 @@ class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkL
     }
 
     private fun delCommand(): Command {
-        return Command(prefix, "delcmd", "", Permission(false, true, false)) {
+        return Command(prefix, "delcmd", "Usage: ${prefix}delcmd cmd - deletes the command 'cmd' (Mod Only - Custom commands only)", Permission(false, true, false)) {
             val removeCommand = it[1].toLowerCase(Locale.ENGLISH)
             database.removeResponse(channel, removeCommand)
         }
     }
 
     private fun addCommand(): Command {
-        return Command(prefix, "addcmd", "", Permission(false, true, false)) {
+        return Command(prefix, "addcmd", "Usage: ${prefix}addcmd cmd Response Text- Adds the command 'cmd' with the text 'Response Text' (Mod Only - Custom commands only)", Permission(false, true, false)) {
             if (it.size > 2) {
                 val newCommand = it[1].toLowerCase(Locale.ENGLISH)
                 val newResponse = it[2]
@@ -159,7 +162,7 @@ class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkL
     }
 
     private fun editCommand(): Command {
-        return Command(prefix, "editcmd", "", Permission(false, true, false)) {
+        return Command(prefix, "editcmd", "Usage: ${prefix}editcmd cmd Response Text- Edits the command 'cmd' with the text 'Response Text' (Mod Only - Custom commands only)", Permission(false, true, false)) {
             if (it.size > 2) {
                 val newCommand = it[1].toLowerCase(Locale.ENGLISH)
                 val newResponse = it[2]
@@ -182,7 +185,7 @@ class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkL
     }
 
     private fun leaveChannelCommand(): Command {
-        return Command(prefix, "hamleave", "",
+        return Command(prefix, "hamleave", "Usage: ${prefix}hamleave - Asks the bot to leave the channel (Mod only)",
             Permission(false, true, false)) {
             database.leaveChannel(channel)
             twirk.channelMessage("Leaving $channel")
@@ -192,7 +195,7 @@ class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkL
 
     private fun songCommand(): Command {
         return Command(prefix, "song",
-            "The last song listened to by $channel",
+            "Usage: ${prefix}song - The last song listened to by $channel",
             Permission(false, false, false)) {
             Fuel.get(lastFMUrl).responseString { _, _, result ->
                     val resultJson: String = result.get().replace("#", "")
@@ -205,14 +208,14 @@ class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkL
     }
 
     private fun listChannelsCommand(): Command {
-        return Command(prefix, "listchannels", "", Permission(false, true, false)) {
+        return Command(prefix, "listchannels", "Usage: ${prefix}listchannels - Lists all the channels the bot is in", Permission(false, true, false)) {
             val channelList = database.getListOfChannels()
             twirk.channelMessage("GlazedHamBot is present in $channelList")
         }
     }
 
     private fun jackSetCommand(): Command {
-        return Command(prefix, "jackset", "", Permission(false, true, false)) {
+        return Command(prefix, "jackset", "Usage: ${prefix}jackset ROOM - Sets the jackbox code to ROOM", Permission(false, true, false)) {
             if (it.size > 1) {
                 jackboxCode = it[1].substring(0,4).toUpperCase()
                 twirk.channelMessage("Jackbox Code Set to $jackboxCode you can get the link by typing ${prefix}jack into chat")
@@ -221,14 +224,14 @@ class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkL
     }
 
     private fun jackCommand(): Command {
-        return Command(prefix, "jack", "", Permission(false, false, false)) {
+        return Command(prefix, "jack", "Usage: ${prefix}jack - Gets the jackbox code for the current game", Permission(false, false, false)) {
             twirk.channelMessage("Jackbox Code Set to $jackboxCode you can get the link by typing ${prefix}jack into chat")
         }
     }
 
     override fun onPrivMsg(sender: TwitchUser, message: TwitchMessage) {
         val content: String = message.getContent().trim()
-        if (!content.startsWith("${prefix}")) return
+        if (!content.startsWith(prefix)) return
 
         val splitContent = content.split(' ', ignoreCase = true, limit = 3)
         val command = splitContent[0].toLowerCase(Locale.ENGLISH)
@@ -236,26 +239,6 @@ class PatternCommand constructor(val twirk: Twirk, val channel: String) : TwirkL
         commandList
                 .filter { "${it.prefix}${it.command}".startsWith(command) }
                 .firstOrNull { it.canUseCommand(sender) }
-                ?.action?.invoke(splitContent)
-        when {
-
-            command.startsWith("${prefix}help") && splitContent.size > 1 -> when {
-                splitContent[1].contains("song") -> twirk.channelMessage("${prefix}song - shows most recently played song")
-                splitContent[1].contains("jack") -> {
-                    twirk.channelMessage("${prefix}jack - shows current audience code for Jackbox TV games")
-                    if (sender.isMod || sender.isOwner) {
-                        twirk.channelMessage("${prefix}jackset CODE - Mod Only - sets the jackbox code to CODE")
-                    }
-                }
-                splitContent[1].contains("${prefix}addcmd") && (sender.isMod || sender.isOwner) -> twirk.channelMessage("${prefix}addcmd newcmd The Message To Send - Mod Only - Creates a new GlazedHamBot response")
-                splitContent[1].contains("${prefix}editcmd") && (sender.isMod || sender.isOwner) -> twirk.channelMessage("${prefix}editcmd cmd The Message To Send - Mod Only - Updates a GlazedHamBot response")
-                splitContent[1].contains("${prefix}delcmd") && (sender.isMod || sender.isOwner) -> twirk.channelMessage("${prefix}delcmd cmd - Mod Only - Deletes a GlazedHamBot response")
-            }
-            command.startsWith("${prefix}help") -> twirk.channelMessage("Type ${prefix}help followed by the command to get more help about that command.  ${prefix}cmdlist shows the current commands")
-
-            command.startsWith("${prefix}jack") -> twirk.channelMessage("You can join in the audience by going to http://jackbox.tv and using the room code $jackboxCode")
-            command.startsWith("${prefix}") -> twirk.channelMessage(database.findResponse(channel, splitContent[0].substring(1)))
-        }
+                ?.action?.invoke(splitContent) ?: responseCommand().action.invoke(splitContent)
     }
-
 }
