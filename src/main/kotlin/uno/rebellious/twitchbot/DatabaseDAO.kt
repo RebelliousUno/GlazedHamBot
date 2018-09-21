@@ -6,6 +6,7 @@ import java.sql.Statement
 
 class DatabaseDAO : IDatabase {
 
+
     //private var connection: Connection? = null
     private var settingsDB: Connection? = null
     private var connectionList: HashMap<String, Connection> = HashMap()
@@ -41,10 +42,10 @@ class DatabaseDAO : IDatabase {
         statement.queryTimeout = 30
 
         val channelList = "create table if not exists channels (" +
-                "channel text)"
+                "channel text, prefix text DEFAULT '!')"
         statement.executeUpdate(channelList)
         if (getListOfChannels().isEmpty()) { // Set up default Channel
-            addChannel("GlazedHamBot")
+            addChannel("glazedhambot", "!")
         }
     }
 
@@ -53,7 +54,11 @@ class DatabaseDAO : IDatabase {
             val con = DriverManager.getConnection("jdbc:sqlite:${it.toLowerCase()}.db")
             connectionList[it] = con
         }
+    }
 
+    fun connect(channel: String) {
+        val con = DriverManager.getConnection("jdbc:sqlite:${channel.toLowerCase()}.db")
+        connectionList[channel] = con
     }
 
     fun disconnect() {
@@ -78,6 +83,26 @@ class DatabaseDAO : IDatabase {
         statement.executeUpdate(responsesTableSql)
     }
 
+    override fun getPrefixForChannel(channel: String): String {
+        val sql = "Select prefix from channels where channel = ?"
+        val preparedStatement = settingsDB?.prepareStatement(sql)
+        preparedStatement?.setString(1, channel)
+        val results = preparedStatement?.executeQuery()
+        return if (results?.next()!!) {
+            results.getString("prefix")
+        } else {
+            "!" //Default to "!"
+        }
+    }
+
+    override fun setPrefixForChannel(channel: String, prefix: String) {
+        val sql = "UPDATE channels set prefix = ? where channel = ?"
+        val preparedStatement = settingsDB?.prepareStatement(sql)
+        preparedStatement?.setString(1, prefix)
+        preparedStatement?.setString(2, channel)
+        preparedStatement?.executeUpdate()
+    }
+
     override fun findResponse(channel: String, command: String): String {
         val connection = connectionList[channel]
         val sql = "Select response from responses where command = ?"
@@ -100,14 +125,17 @@ class DatabaseDAO : IDatabase {
         return results?.next()
     }
 
-    override fun addChannel(newChannel: String) {
+    override fun addChannel(newChannel: String, prefix: String) {
         val exists = channelExists(newChannel)
         if (exists != null && !exists) {
-            val sql = "INSERT INTO channels(channel) VALUES (?)"
+            val sql = "INSERT INTO channels(channel, prefix) VALUES (?, ?)"
             val preparedStatement = settingsDB?.prepareStatement(sql)
             preparedStatement?.setString(1, newChannel)
+            preparedStatement?.setString(2, prefix)
             preparedStatement?.executeUpdate()
+            connect(newChannel)
         }
+
     }
 
     override fun leaveChannel(channel: String) {
@@ -145,7 +173,7 @@ class DatabaseDAO : IDatabase {
         val preparedStatement = connection?.prepareStatement(sql)
         val results = preparedStatement?.executeQuery()
         val returnList = ArrayList<String>()
-        while(results?.next()!!) returnList.add("!${results.getString("command")}")
+        while(results?.next()!!) returnList.add("${results.getString("command")}")
         return returnList
     }
 }
