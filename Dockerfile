@@ -1,0 +1,3 @@
+FROM java
+
+WORKDIR ./
