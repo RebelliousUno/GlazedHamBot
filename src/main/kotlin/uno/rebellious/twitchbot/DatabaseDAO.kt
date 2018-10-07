@@ -3,8 +3,53 @@ package uno.rebellious.twitchbot
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.Statement
+import java.util.*
 
 class DatabaseDAO : IDatabase {
+    override fun addQuoteForChannel(channel: String, date: Date, person: String, quote: String) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun delQuoteForChannel(channel: String, quoteId: Int) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun editQuoteForChannel(channel: String, quoteId: Int, date: Date, person: String, quote: String) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun getQuoteForChannelById(channel: String, quoteId: Int): String {
+        val sql = "SELECT * from quotes where ID = ?"
+        val statement = connectionList[channel]?.prepareStatement(sql)
+        statement?.setInt(1, quoteId)
+        val resultSet = statement?.executeQuery()
+        if (resultSet?.next()!!) {
+            /*"create table if not exists quotes (" +
+                "ID INTEGER PRIMARY KEY, " +
+                "quote text, " +
+                "subject text, " +
+                "timestamp INTEGER)"*/
+            var id = resultSet.getInt("ID")
+            var quote = resultSet.getString("quote")
+            var subject = resultSet.getString("subject")
+            var timestamp = resultSet.getInt("timestamp")
+            return "Quote $id: \"$quote\" - $subject - $timestamp"
+        } else {
+            return "No quote with ID $quoteId found"
+        }
+    }
+
+    override fun getRandomQuoteForChannel(channel: String): String {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun findQuoteByAuthor(channel: String, author: String): String {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun findQuoteByKeyword(channel: String, keyword: String): String {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     private var settingsDB: Connection? = null
     private var connectionList: HashMap<String, Connection> = HashMap()
@@ -13,7 +58,6 @@ class DatabaseDAO : IDatabase {
         connectSettings() //Connect to settings DB
         setupSettings() //Set up Settings DB
         var channelList = getListOfChannels()
-        println(channelList)
         connect(channelList)
         setupAllChannels()
     }
@@ -72,7 +116,14 @@ class DatabaseDAO : IDatabase {
         val responsesTableSql = "create table if not exists responses (" +
                 "command text," +
                 "response text)"
+
+        val quotesTableSql = "create table if not exists quotes (" +
+                "ID INTEGER PRIMARY KEY, " +
+                "quote text, " +
+                "subject text, " +
+                "timestamp INTEGER)"
         statement.executeUpdate(responsesTableSql)
+        statement.executeUpdate(quotesTableSql)
     }
 
     override fun getPrefixForChannel(channel: String): String {

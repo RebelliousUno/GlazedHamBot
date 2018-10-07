@@ -14,6 +14,7 @@ import com.google.gson.Gson
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.toObservable
 import java.io.IOException
+import java.lang.NumberFormatException
 import java.util.*
 
 val scanner: Observable<String> = Scanner(System.`in`).toObservable().share()
@@ -96,11 +97,35 @@ class PatternCommand constructor(private val twirk: Twirk, private val channel: 
         commandList.add(delCommand())
         commandList.add(commandListCommand())
         commandList.add(setPrefixCommand())
+        commandList.add(quoteCommand())
         if (channel == "rebelliousuno") commandList.add(jackSetCommand())
         if (channel == "rebelliousuno") commandList.add(jackCommand())
         commandList.add(helpCommand())
 
         twirk.channelMessage("Starting up for $channel - prefix is $prefix")
+    }
+
+    private fun quoteCommand(): Command {
+        return Command(prefix, "quote", "", Permission(false, false, false)) {
+            var message: String
+            if (it.size > 1) {
+                message = try {
+                    val id = Integer.parseInt(it[1])
+                    database.getQuoteForChannelById(channel, id)
+                } catch (nfe: NumberFormatException) {
+                    val quote1 = database.findQuoteByAuthor(channel, it[1])
+                    val quote2 = database.findQuoteByKeyword(channel, it[1])
+                    if (!quote1.isEmpty()) {
+                        quote1
+                    } else {
+                        quote2
+                    }
+                }
+            } else {
+                message = database.getRandomQuoteForChannel(channel)
+            }
+            twirk.channelMessage(message)
+        }
     }
 
     private fun helpCommand(): Command {
