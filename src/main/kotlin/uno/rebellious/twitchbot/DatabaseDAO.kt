@@ -35,7 +35,10 @@ class DatabaseDAO : IDatabase {
     }
 
     override fun removeCounterForChannel(channel: String, counter: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val sql = "DELETE FROM counters WHERE command like ?"
+        val statement = connectionList[channel]?.prepareStatement(sql)
+        statement?.setString(1, counter)
+        statement?.executeUpdate()
     }
 
     override fun incrementCounterForChannel(channel: String, counter: String, by: Int) {

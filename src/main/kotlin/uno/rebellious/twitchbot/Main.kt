@@ -102,12 +102,24 @@ class PatternCommand constructor(private val twirk: Twirk, private val channel: 
         commandList.add(removeCountCommand())
         commandList.add(resetCountCommand())
         commandList.add(listCountersCommand())
+        commandList.add(deleteCounterCommand())
 
         if (channel == "rebelliousuno") commandList.add(jackSetCommand())
         if (channel == "rebelliousuno") commandList.add(jackCommand())
         commandList.add(helpCommand())
 
         twirk.channelMessage("Starting up for $channel - prefix is $prefix")
+    }
+
+    private fun deleteCounterCommand(): Command {
+        val helpString = ""
+        return Command(prefix, "deletecounter", helpString, Permission(false, true, false)) {
+            if (it.size == 2) {
+                database.removeCounterForChannel(channel, it[1])
+            } else {
+                twirk.channelMessage(helpString)
+            }
+        }
     }
 
     private fun resetCountCommand(): Command {
