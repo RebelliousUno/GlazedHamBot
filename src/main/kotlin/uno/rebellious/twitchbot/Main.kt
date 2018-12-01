@@ -14,6 +14,7 @@ import com.google.gson.Gson
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.toObservable
 import java.io.IOException
+import java.lang.NumberFormatException
 import java.util.*
 
 val scanner: Observable<String> = Scanner(System.`in`).toObservable().share()
@@ -96,12 +97,102 @@ class PatternCommand constructor(private val twirk: Twirk, private val channel: 
         commandList.add(delCommand())
         commandList.add(commandListCommand())
         commandList.add(setPrefixCommand())
+        commandList.add(createCounterCommand())
+        commandList.add(addCountCommand())
+        commandList.add(removeCountCommand())
+        commandList.add(resetCountCommand())
+        commandList.add(listCountersCommand())
+        commandList.add(deleteCounterCommand())
+
         if (channel == "rebelliousuno") commandList.add(jackSetCommand())
         if (channel == "rebelliousuno") commandList.add(jackCommand())
         commandList.add(helpCommand())
 
         twirk.channelMessage("Starting up for $channel - prefix is $prefix")
     }
+
+    private fun deleteCounterCommand(): Command {
+        val helpString = ""
+        return Command(prefix, "deletecounter", helpString, Permission(false, true, false)) {
+            if (it.size == 2) {
+                database.removeCounterForChannel(channel, it[1])
+            } else {
+                twirk.channelMessage(helpString)
+            }
+        }
+    }
+
+    private fun resetCountCommand(): Command {
+        val helpString = "Usage ${prefix}resetCount count - resets today's count for a counter"
+        return Command(prefix, "resetcount", helpString, Permission(false, true, false)) {
+            if (it.size == 2) {
+                database.resetTodaysCounterForChannel(channel, it[1])
+            } else {
+                twirk.channelMessage(helpString)
+            }
+        }
+    }
+
+    private fun listCountersCommand(): Command {
+        val helpString = ""
+        return Command(prefix, "counterlist", helpString, Permission(false, true, false)) {
+            twirk.channelMessage(database.showCountersForChannel(channel).toString())
+        }
+    }
+
+    private fun removeCountCommand(): Command {
+        val helpString = "Usage: ${prefix}removecount counterName [amount]- eg. ${prefix}removecount fall or ${prefix}removecount fall 2"
+        return Command(prefix, "removecount", helpString, Permission(false, true, false)) {
+            val counter = it[1]
+            try {
+                val by = if (it.size == 3) {
+                    Integer.parseInt(it[2])
+                } else {
+                    1
+                }
+                if (by > 0)
+                    database.incrementCounterForChannel(channel, counter, by)
+                else
+                    twirk.channelMessage("${it[2]} is not a valid number to decrement by")
+            } catch (e: NumberFormatException) {
+                twirk.channelMessage("${it[2]} is not a valid number to decrement by")
+            }
+        }
+    }
+
+    private fun addCountCommand(): Command {
+        val helpString = "Usage: ${prefix}addcount counterName [amount]- eg. ${prefix}addcount fall or ${prefix}addcount fall 2"
+        return Command(prefix, "addcount", helpString, Permission(false, true, false)) {
+            val counter = it[1]
+            try {
+                val by = if (it.size == 3) {
+                    Integer.parseInt(it[2])
+                } else {
+                    1
+                }
+                if (by > 0)
+                    database.incrementCounterForChannel(channel, counter, by)
+                else twirk.channelMessage("${it[2]} is not a valid number to increment by")
+            } catch (e: NumberFormatException) {
+                twirk.channelMessage("${it[2]} is not a valid number to increment by")
+            }
+        }
+    }
+
+    private fun createCounterCommand(): Command {
+        val helpString = "Usage: ${prefix}createCounter counterName singular plural - eg. ${prefix}createCounter fall fall falls"
+        return Command(prefix, "createcounter", helpString, Permission(false, true, false)) {
+            if (it.size == 3) {
+                val counter = it[1]
+                val singular = it[2].split(" ")[0]
+                val plural = it[2].split(" ")[1]
+                database.createCounterForChannel(channel, counter, singular, plural)
+            } else {
+                twirk.channelMessage(helpString)
+            }
+        }
+    }
+
 
     private fun helpCommand(): Command {
         return Command(prefix, "help" , "Usage: ${prefix}help cmd - to get help for a particular command", Permission(false, false, false)) {
@@ -110,6 +201,12 @@ class PatternCommand constructor(private val twirk: Twirk, private val channel: 
             } else {
                 twirk.channelMessage("Usage: ${prefix}help cmd - to get help for a particular command")
             }
+        }
+    }
+
+    private fun countCommand(): Command {
+        return Command(prefix, "", "", Permission(false, false, false)) {
+            twirk.channelMessage(database.getCounterForChannel(channel, it[0].substring(1)))
         }
     }
 
@@ -239,6 +336,9 @@ class PatternCommand constructor(private val twirk: Twirk, private val channel: 
         commandList
                 .filter { "${it.prefix}${it.command}".startsWith(command) }
                 .firstOrNull { it.canUseCommand(sender) }
-                ?.action?.invoke(splitContent) ?: responseCommand().action.invoke(splitContent)
+                ?.action?.invoke(splitContent) ?: run {
+                  countCommand().action.invoke(splitContent)
+            responseCommand().action.invoke(splitContent)
+        }
     }
 }

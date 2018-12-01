@@ -5,6 +5,75 @@ import java.sql.DriverManager
 import java.sql.Statement
 
 class DatabaseDAO : IDatabase {
+    override fun createCounterForChannel(
+        channel: String,
+        counter: String,
+        responseSingular: String,
+        responsePlural: String
+    ) {
+        val sql = "INSERT INTO counters(command, today, total, singular, plural) VALUES (?, ?, ?, ?, ?)"
+        val statement = connectionList[channel]?.prepareStatement(sql)
+        statement?.setString(1, counter)
+        statement?.setInt(2, 0)
+        statement?.setInt(3, 0)
+        statement?.setString(4, responseSingular)
+        statement?.setString(5, responsePlural)
+        statement?.executeUpdate()
+    }
+
+    override fun showCountersForChannel(channel: String): List<String> {
+        val sql = "SELECT * from counters"
+        val statement = connectionList[channel]?.createStatement()
+        val results = statement?.executeQuery(sql)
+        val counters = ArrayList<String>()
+        results?.let {
+            while (it.next()) {
+                counters.add("${it.getString("command")}: ${it.getString("today")}/${it.getString("total")}")
+            }
+        }
+        return counters
+    }
+
+    override fun removeCounterForChannel(channel: String, counter: String) {
+        val sql = "DELETE FROM counters WHERE command like ?"
+        val statement = connectionList[channel]?.prepareStatement(sql)
+        statement?.setString(1, counter)
+        statement?.executeUpdate()
+    }
+
+    override fun incrementCounterForChannel(channel: String, counter: String, by: Int) {
+        val todaySql = "UPDATE counters SET today = today + ?, total = total + ? WHERE command like ?"
+        connectionList[channel]
+        val statement1 = connectionList[channel]?.prepareStatement(todaySql)
+        statement1?.setInt(1, by)
+        statement1?.setInt(2, by)
+        statement1?.setString(3, counter)
+        statement1?.executeUpdate()
+    }
+
+    override fun getCounterForChannel(channel: String, counter: String): String {
+        val sql = "SELECT * FROM counters where command like ?"
+        val statement = connectionList[channel]?.prepareStatement(sql)
+        statement?.setString(1, counter)
+        val resultSet = statement?.executeQuery()
+        resultSet?.let {
+            if (it.next()) {
+                val today = it.getInt("today")
+                val total = it.getInt("total")
+                val singular = it.getString("singular")
+                val plural = it.getString("plural")
+                return "There ${if (today == 1) "has" else "have"} been $today ${if (today == 1) singular else plural} today. Total $plural: $total"
+            }
+        }
+        return ""
+    }
+
+    override fun resetTodaysCounterForChannel(channel: String, counter: String) {
+        val sql = "UPDATE counters SET today = 0 where command like ?"
+        val statement = connectionList[channel]?.prepareStatement(sql)
+        statement?.setString(1, counter)
+        statement?.executeUpdate()
+    }
 
     private var settingsDB: Connection? = null
     private var connectionList: HashMap<String, Connection> = HashMap()
@@ -12,49 +81,51 @@ class DatabaseDAO : IDatabase {
     init {
         connectSettings() //Connect to settings DB
         setupSettings() //Set up Settings DB
-        var channelList = getListOfChannels()
+        val channelList = getListOfChannels()
         println(channelList)
         connect(channelList)
         setupAllChannels()
     }
 
-    fun connectSettings() {
+    private fun connectSettings() {
         settingsDB = DriverManager.getConnection("jdbc:sqlite:settings.db")
     }
 
     fun getListOfChannels(): Array<String> {
-        var statement = settingsDB?.createStatement()!!
-        statement.queryTimeout = 30
-        var channelSelect = "select * from channels"
-        var results = statement.executeQuery(channelSelect)
+        val statement = settingsDB?.createStatement()
+        statement?.queryTimeout = 30
+        val channelSelect = "select * from channels"
+        val results = statement?.executeQuery(channelSelect)
         val list = ArrayList<String>()
-        while (results.next()) {
-            var channel = results.getString("channel")
-            list.add(channel)
+        results?.let {
+            while (it.next()) {
+                val channel = it.getString("channel")
+                list.add(channel)
+            }
         }
         return list.toTypedArray()
     }
 
     private fun setupSettings() {
-        var statement: Statement = settingsDB?.createStatement()!!
-        statement.queryTimeout = 30
+        val statement = settingsDB?.createStatement()
+        statement?.queryTimeout = 30
 
         val channelList = "create table if not exists channels (" +
                 "channel text, prefix text DEFAULT '!')"
-        statement.executeUpdate(channelList)
+        statement?.executeUpdate(channelList)
         if (getListOfChannels().isEmpty()) { // Set up default Channel
             addChannel("glazedhambot", "!")
         }
     }
 
-    fun connect(channels: Array<String>) {
+    private fun connect(channels: Array<String>) {
         channels.forEach {
             val con = DriverManager.getConnection("jdbc:sqlite:${it.toLowerCase()}.db")
             connectionList[it] = con
         }
     }
 
-    fun connect(channel: String) {
+    private fun connect(channel: String) {
         val con = DriverManager.getConnection("jdbc:sqlite:${channel.toLowerCase()}.db")
         connectionList[channel] = con
     }
@@ -62,11 +133,21 @@ class DatabaseDAO : IDatabase {
     private fun setupAllChannels() {
         connectionList.forEach {
             setup(it.value)
+            setupCounters(it.value)
         }
     }
 
+    private fun setupCounters(connection: Connection) {
+
+        val statement = connection.createStatement()!!
+        statement.queryTimeout = 30
+
+        val counterTableSQL = "create table if not exists counters (command text, today int, total int, singular text, plural text)"
+        statement.executeUpdate(counterTableSQL)
+    }
+
     private fun setup(connection: Connection) {
-        val statement: Statement = connection.createStatement()!!
+        val statement = connection.createStatement()!!
         statement.queryTimeout = 30
 
         val responsesTableSql = "create table if not exists responses (" +
@@ -80,11 +161,14 @@ class DatabaseDAO : IDatabase {
         val preparedStatement = settingsDB?.prepareStatement(sql)
         preparedStatement?.setString(1, channel)
         val results = preparedStatement?.executeQuery()
-        return if (results?.next()!!) {
-            results.getString("prefix")
-        } else {
-            "!" //Default to "!"
-        }
+
+        return results?.let {
+            if (it.next()) {
+                it.getString("prefix")
+            } else {
+                "!" //Default to "!"
+            }
+        } ?: "!"
     }
 
     override fun setPrefixForChannel(channel: String, prefix: String) {
@@ -109,7 +193,7 @@ class DatabaseDAO : IDatabase {
         }
     }
 
-    fun channelExists(channel: String): Boolean? {
+    private fun channelExists(channel: String): Boolean? {
         val sql = "Select * from channels WHERE channel = ?"
         val preparedStatement = settingsDB?.prepareStatement(sql)
         preparedStatement?.setString(1, channel)
