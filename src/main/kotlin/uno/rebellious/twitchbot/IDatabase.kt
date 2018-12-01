@@ -18,4 +18,10 @@ interface IDatabase {
     fun getRandomQuoteForChannel(channel: String): String
     fun findQuoteByAuthor(channel: String, author: String): String
     fun findQuoteByKeyword(channel: String, keyword: String): String
+    fun createCounterForChannel(channel: String, counter: String, responseSingular: String, responsePlural: String)
+    fun removeCounterForChannel(channel: String, counter: String)
+    fun incrementCounterForChannel(channel: String, counter: String, by: Int = 1)
+    fun getCounterForChannel(channel: String, counter: String): String
+    fun resetTodaysCounterForChannel(channel: String, counter: String)
+    fun showCountersForChannel(channel: String): List<String>
 }
