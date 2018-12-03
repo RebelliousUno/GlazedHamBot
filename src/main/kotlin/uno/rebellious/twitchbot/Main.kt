@@ -85,28 +85,38 @@ class PatternCommand constructor(private val twirk: Twirk, private val channel: 
     private val gson = Gson()
     private var jackboxCode = "NO ROOM CODE SET"
     private var commandList = ArrayList<Command>()
+    private var responseCommands = ArrayList<Command>()
+    private var counterCommands = ArrayList<Command>()
+    private var miscCommands = ArrayList<Command>()
+    private var adminCommands = ArrayList<Command>()
     private var prefix = "!"
     init {
         prefix = database.getPrefixForChannel(channel)
-        if (channel == "rebelliousuno") commandList.add(songCommand())
-        if (channel == "glazedhambot") commandList.add(addChannelCommand())
-        commandList.add(leaveChannelCommand())
-        commandList.add(listChannelsCommand())
-        commandList.add(addCommand())
-        commandList.add(editCommand())
-        commandList.add(delCommand())
-        commandList.add(commandListCommand())
-        commandList.add(setPrefixCommand())
-        commandList.add(createCounterCommand())
-        commandList.add(addCountCommand())
-        commandList.add(removeCountCommand())
-        commandList.add(resetCountCommand())
-        commandList.add(listCountersCommand())
-        commandList.add(deleteCounterCommand())
+        if (channel == "rebelliousuno") miscCommands.add(songCommand())
+        if (channel == "glazedhambot") adminCommands.add(addChannelCommand())
+        adminCommands.add(leaveChannelCommand())
+        adminCommands.add(listChannelsCommand())
+        responseCommands.add(addCommand())
+        responseCommands.add(editCommand())
+        responseCommands.add(delCommand())
+        miscCommands.add(commandListCommand())
+        adminCommands.add(setPrefixCommand())
+        counterCommands.add(createCounterCommand())
+        counterCommands.add(addCountCommand())
+        counterCommands.add(removeCountCommand())
+        counterCommands.add(resetCountCommand())
+        counterCommands.add(listCountersCommand())
+        counterCommands.add(deleteCounterCommand())
 
-        if (channel == "rebelliousuno") commandList.add(jackSetCommand())
-        if (channel == "rebelliousuno") commandList.add(jackCommand())
-        commandList.add(helpCommand())
+        if (channel == "rebelliousuno") miscCommands.add(jackSetCommand())
+        if (channel == "rebelliousuno") miscCommands.add(jackCommand())
+        miscCommands.add(helpCommand())
+
+        commandList.addAll(adminCommands)
+        commandList.addAll(responseCommands)
+        commandList.addAll(counterCommands)
+        commandList.addAll(miscCommands)
+
 
         twirk.channelMessage("Starting up for $channel - prefix is $prefix")
     }
@@ -230,14 +240,22 @@ class PatternCommand constructor(private val twirk: Twirk, private val channel: 
 
     private fun commandListCommand(): Command {
         return Command(prefix, "cmdlist", "Usage: ${prefix}cmdlist - lists the commands for this channel", Permission(false, false, false)) {
-            val dbCommands = database.getAllCommandList(channel).map {
-                prefix + it
-            } as ArrayList<String>
-            val configuredCommands = commandList.map {
-                it.prefix + it.command
-            }
-            dbCommands.addAll(configuredCommands)
-            twirk.channelMessage("Command List: $dbCommands")
+            val dbCommands = database.getAllCommandList(channel).map {command ->
+                prefix + command
+            }.sorted()
+            val adminCmds = adminCommands.map { command ->
+                command.prefix + command.command
+            }.sorted()
+            val miscCmds = miscCommands.map { command ->
+                command.prefix + command.command
+            }.sorted()
+            val responseCmds = responseCommands.map { command ->
+                command.prefix + command.command
+            }.sorted()
+            val counterCmds = counterCommands.map { command ->
+                command.prefix + command.command
+            }.sorted()
+            twirk.channelMessage("Responses: $dbCommands $responseCmds, Counters: $counterCmds, Misc: $miscCmds,  Admin: $adminCmds")
         }
     }
 
