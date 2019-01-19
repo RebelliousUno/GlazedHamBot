@@ -13,6 +13,7 @@ import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.toObservable
+import io.reactivex.subjects.BehaviorSubject
 import java.io.IOException
 import java.lang.NumberFormatException
 import java.util.*
@@ -23,6 +24,8 @@ val lastFMUrl = "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&u
 var threadList = HashMap<String, Thread>()
 val database = DatabaseDAO()
 
+
+
 fun main(args: Array<String>) {
     val channelList = database.getListOfChannels()
     channelList.forEach {channel ->
@@ -32,6 +35,8 @@ fun main(args: Array<String>) {
 
 fun startTwirkForChannel(channel: String) {
     val twirkThread = Thread(Runnable {
+        val shouldStop = BehaviorSubject.create<Boolean>()
+        shouldStop.onNext(false)
         val twirk = TwirkBuilder("#$channel", SETTINGS.nick, SETTINGS.password)
             .setVerboseMode(true)
             .build()
@@ -41,19 +46,18 @@ fun startTwirkForChannel(channel: String) {
         twirk.addIrcListener(PatternCommand(twirk, channel))
         twirk.addIrcListener(getOnDisconnectListener(twirk))
 
-        val disposableScanner = scanner
+        scanner
+                .takeUntil {
+                    it == ".quit"
+                }
             .subscribe {
-                twirk.channelMessage(it)
+                if (it == ".quit") {
+                    println("Quitting $channel")
+                    twirk.close()
+                } else {
+                    twirk.channelMessage(it)
+                }
             }
-        var interupted: Boolean
-        do {
-            interupted = Thread.currentThread().isInterrupted
-            if (interupted) {
-                println("$channel interupted")
-                twirk.close()
-                disposableScanner.dispose()
-            }
-        } while (!interupted)
     })
     twirkThread.name = channel
     twirkThread.start()
