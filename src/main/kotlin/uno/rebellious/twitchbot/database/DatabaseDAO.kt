@@ -1,8 +1,6 @@
 package uno.rebellious.twitchbot.database
 
-import java.sql.Connection
-import java.sql.DriverManager
-import java.sql.Timestamp
+import java.sql.*
 import java.text.DateFormat
 import java.time.LocalDate
 import java.time.ZoneId
@@ -10,6 +8,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
+import java.util.Date
 
 class DatabaseDAO : IDatabase {
     override fun createCounterForChannel(
@@ -120,22 +119,16 @@ class DatabaseDAO : IDatabase {
         val sql = "SELECT * from quotes where ID = ?"
         val statement = connectionList[channel]?.prepareStatement(sql)
         statement?.setInt(1, quoteId)
-        val resultSet = statement?.executeQuery()
-        return if (resultSet?.next()!!) {
-
-            val id = resultSet.getInt("ID")
-            val quote = resultSet.getString("quote")
-            val subject = resultSet.getString("subject")
-            val timestamp = resultSet.getTimestamp("timestamp").toLocalDateTime().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
-            "Quote $id: \"$quote\" - $subject - $timestamp"
-        } else {
-            "No quote with ID $quoteId found"
-        }
+        return getQuotesFromStatement(statement)
     }
 
     override fun getRandomQuoteForChannel(channel: String): String {
         val sql = "SELECT * from quotes ORDER BY Random() LIMIT 1"
         val statement = connectionList[channel]?.prepareStatement(sql)
+        return getQuotesFromStatement(statement)
+    }
+
+    private fun getQuotesFromStatement(statement: PreparedStatement?): String {
         val resultSet = statement?.executeQuery()
         return if (resultSet?.next()!!) {
             val id = resultSet.getInt("ID")
@@ -144,9 +137,8 @@ class DatabaseDAO : IDatabase {
             val timestamp = resultSet.getTimestamp("timestamp").toLocalDateTime().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
             "Quote $id: \"$quote\" - $subject - $timestamp"
         } else {
-            "No quote found"
+            "Quote not found"
         }
-
     }
 
     override fun findQuoteByAuthor(channel: String, author: String): String {
