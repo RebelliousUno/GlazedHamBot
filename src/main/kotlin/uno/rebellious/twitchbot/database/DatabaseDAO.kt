@@ -134,7 +134,19 @@ class DatabaseDAO : IDatabase {
     }
 
     override fun getRandomQuoteForChannel(channel: String): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val sql = "SELECT * from quotes ORDER BY Random() LIMIT 1"
+        val statement = connectionList[channel]?.prepareStatement(sql)
+        val resultSet = statement?.executeQuery()
+        return if (resultSet?.next()!!) {
+            val id = resultSet.getInt("ID")
+            val quote = resultSet.getString("quote")
+            val subject = resultSet.getString("subject")
+            val timestamp = resultSet.getTimestamp("timestamp").toLocalDateTime().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+            "Quote $id: \"$quote\" - $subject - $timestamp"
+        } else {
+            "No quote found"
+        }
+
     }
 
     override fun findQuoteByAuthor(channel: String, author: String): String {
