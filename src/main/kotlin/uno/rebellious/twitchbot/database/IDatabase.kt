@@ -12,7 +12,7 @@ interface IDatabase {
     fun addChannel(newChannel: String, prefix: String = "!")
     fun getPrefixForChannel(channel: String): String
     fun setPrefixForChannel(channel: String, prefix: String)
-    fun addQuoteForChannel(channel: String, date: LocalDate, person: String, quote: String)
+    fun addQuoteForChannel(channel: String, date: LocalDate, person: String, quote: String): Int
     fun delQuoteForChannel(channel: String, quoteId: Int)
     fun editQuoteForChannel(channel: String, quoteId: Int, date: Date, person: String, quote: String)
     fun getQuoteForChannelById(channel: String, quoteId: Int): String

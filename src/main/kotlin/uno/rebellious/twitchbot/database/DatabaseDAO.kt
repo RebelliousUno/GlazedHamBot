@@ -81,12 +81,7 @@ class DatabaseDAO : IDatabase {
         statement?.setString(1, counter)
         statement?.executeUpdate()
     }
-    override fun addQuoteForChannel(channel: String, date: LocalDate, person: String, quote: String) {
-        /*"create table if not exists quotes (" +
-     "ID INTEGER PRIMARY KEY, " +
-     "quote text, " +
-     "subject text, " +
-     "timestamp INTEGER)"*/
+    override fun addQuoteForChannel(channel: String, date: LocalDate, person: String, quote: String): Int {
         val timestamp = Timestamp.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())
         val sql = "INSERT into quotes (quote, subject, timestamp) VALUES (?, ?, ?)"
         connectionList[channel]?.prepareStatement(sql)?.apply {
@@ -94,11 +89,27 @@ class DatabaseDAO : IDatabase {
             setString(2, person)
             setTimestamp(3, timestamp)
             executeUpdate()
+            val id = this.generatedKeys
+            return if (id.next())
+                id.getInt(1)
+            else 0
         }
+        return 0
     }
 
     override fun delQuoteForChannel(channel: String, quoteId: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        /*"create table if not exists quotes (" +
+  "ID INTEGER PRIMARY KEY, " +
+  "quote text, " +
+  "subject text, " +
+  "timestamp INTEGER)"*/
+
+        //TODO: Should probably either audit this or just set to deleted or not
+        val sql = "delete from quotes where ID = ?"
+        connectionList[channel]?.prepareStatement(sql)?.apply {
+            setInt(1, quoteId)
+            executeUpdate()
+        }
     }
 
     override fun editQuoteForChannel(channel: String, quoteId: Int, date: Date, person: String, quote: String) {

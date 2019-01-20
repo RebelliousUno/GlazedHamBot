@@ -53,6 +53,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
 
         quoteCommands.add(quoteCommand())
         quoteCommands.add(addQuoteCommand())
+        quoteCommands.add(deleteQuoteCommand())
 
         commandList.addAll(adminCommands)
         commandList.addAll(responseCommands)
@@ -63,6 +64,8 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
 
         twirk.channelMessage("Starting up for $channel - prefix is $prefix")
     }
+
+
 
     private fun deleteCounterCommand(): Command {
         val helpString = ""
@@ -146,6 +149,25 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
         }
     }
 
+    private fun deleteQuoteCommand(): Command {
+        return Command(prefix, "delquote", "", Permission(false, true, false)) {
+            if (it.size > 1) {
+
+                try {
+                    val id = it[1].toInt()
+                    if (id > 0) {
+                        database.delQuoteForChannel(channel, id)
+                        twirk.channelMessage("Deleted quote $id")
+                    } else {
+                        twirk.channelMessage("Quote ids are positive integers")
+                    }
+                } catch (e: NumberFormatException) {
+                    twirk.channelMessage("${it[1]} is not an integer")
+                }
+            }
+        }
+    }
+
     private fun addQuoteCommand(): Command {
         return Command(prefix, "addquote", "", Permission(false, true, false)) {
             // "!addquote This is the quote | this is the person | this is the date"
@@ -154,8 +176,8 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
                 val quote = quoteDetails[0].trim()
                 val person = if (quoteDetails.size > 1) quoteDetails[1].trim() else "Anon"
                 val date = if (quoteDetails.size > 2) LocalDate.parse(quoteDetails[2].trim()) else LocalDate.now()
-                database.addQuoteForChannel(channel, date, person, quote)
-                twirk.channelMessage("$quote - $person on $date")
+                val id = database.addQuoteForChannel(channel, date, person, quote)
+                twirk.channelMessage("Added with ID $id : $quote - $person on $date")
             }
             twirk.channelMessage(it.toString())
         }
