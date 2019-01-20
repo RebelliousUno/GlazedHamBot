@@ -1,8 +1,14 @@
-package uno.rebellious.twitchbot
+package uno.rebellious.twitchbot.database
 
 import java.sql.Connection
 import java.sql.DriverManager
-import java.sql.Statement
+import java.sql.Timestamp
+import java.text.DateFormat
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.*
 
 class DatabaseDAO : IDatabase {
@@ -75,8 +81,20 @@ class DatabaseDAO : IDatabase {
         statement?.setString(1, counter)
         statement?.executeUpdate()
     }
-    override fun addQuoteForChannel(channel: String, date: Date, person: String, quote: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun addQuoteForChannel(channel: String, date: LocalDate, person: String, quote: String) {
+        /*"create table if not exists quotes (" +
+     "ID INTEGER PRIMARY KEY, " +
+     "quote text, " +
+     "subject text, " +
+     "timestamp INTEGER)"*/
+        val timestamp = Timestamp.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())
+        val sql = "INSERT into quotes (quote, subject, timestamp) VALUES (?, ?, ?)"
+        connectionList[channel]?.prepareStatement(sql)?.apply {
+            setString(1, quote)
+            setString(2, person)
+            setTimestamp(3, timestamp)
+            executeUpdate()
+        }
     }
 
     override fun delQuoteForChannel(channel: String, quoteId: Int) {
@@ -92,19 +110,15 @@ class DatabaseDAO : IDatabase {
         val statement = connectionList[channel]?.prepareStatement(sql)
         statement?.setInt(1, quoteId)
         val resultSet = statement?.executeQuery()
-        if (resultSet?.next()!!) {
-            /*"create table if not exists quotes (" +
-                "ID INTEGER PRIMARY KEY, " +
-                "quote text, " +
-                "subject text, " +
-                "timestamp INTEGER)"*/
-            var id = resultSet.getInt("ID")
-            var quote = resultSet.getString("quote")
-            var subject = resultSet.getString("subject")
-            var timestamp = resultSet.getInt("timestamp")
-            return "Quote $id: \"$quote\" - $subject - $timestamp"
+        return if (resultSet?.next()!!) {
+
+            val id = resultSet.getInt("ID")
+            val quote = resultSet.getString("quote")
+            val subject = resultSet.getString("subject")
+            val timestamp = resultSet.getTimestamp("timestamp").toLocalDateTime().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+            "Quote $id: \"$quote\" - $subject - $timestamp"
         } else {
-            return "No quote with ID $quoteId found"
+            "No quote with ID $quoteId found"
         }
     }
 

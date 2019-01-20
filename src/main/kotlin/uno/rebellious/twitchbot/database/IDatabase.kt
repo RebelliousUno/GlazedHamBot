@@ -1,5 +1,6 @@
-package uno.rebellious.twitchbot
+package uno.rebellious.twitchbot.database
 
+import java.time.LocalDate
 import java.util.*
 
 interface IDatabase {
@@ -11,7 +12,7 @@ interface IDatabase {
     fun addChannel(newChannel: String, prefix: String = "!")
     fun getPrefixForChannel(channel: String): String
     fun setPrefixForChannel(channel: String, prefix: String)
-    fun addQuoteForChannel(channel: String, date: Date, person: String, quote: String)
+    fun addQuoteForChannel(channel: String, date: LocalDate, person: String, quote: String)
     fun delQuoteForChannel(channel: String, quoteId: Int)
     fun editQuoteForChannel(channel: String, quoteId: Int, date: Date, person: String, quote: String)
     fun getQuoteForChannelById(channel: String, quoteId: Int): String
