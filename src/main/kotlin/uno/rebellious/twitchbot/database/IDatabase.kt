@@ -32,7 +32,7 @@ interface ICounters {
 interface IQuotes {
     fun addQuoteForChannel(channel: String, date: LocalDate, person: String, quote: String): Int
     fun delQuoteForChannel(channel: String, quoteId: Int)
-    fun editQuoteForChannel(channel: String, quoteId: Int, date: Date, person: String, quote: String)
+    fun editQuoteForChannel(channel: String, quoteId: Int, date: LocalDate?, person: String, quote: String)
     fun getQuoteForChannelById(channel: String, quoteId: Int): String
     fun getRandomQuoteForChannel(channel: String): String
     fun findQuoteByAuthor(channel: String, author: String): String

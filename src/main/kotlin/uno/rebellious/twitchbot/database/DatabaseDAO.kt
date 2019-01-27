@@ -48,7 +48,7 @@ class DatabaseDAO : IDatabase {
 
     override fun undeleteQuoteForChannel(channel: String, quoteId: Int) = quotesDAO.undeleteQuoteForChannel(channel, quoteId)
 
-    override fun editQuoteForChannel(channel: String, quoteId: Int, date: Date, person: String, quote: String) =
+    override fun editQuoteForChannel(channel: String, quoteId: Int, date: LocalDate?, person: String, quote: String) =
             quotesDAO.editQuoteForChannel(channel, quoteId, date, person, quote)
 
     override fun getQuoteForChannelById(channel: String, quoteId: Int): String =

@@ -47,8 +47,39 @@ internal class QuotesDAO(private val connectionList: HashMap<String, Connection>
         }
     }
 
-    override fun editQuoteForChannel(channel: String, quoteId: Int, date: Date, person: String, quote: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun editQuoteForChannel(channel: String, quoteId: Int, date: LocalDate?, person: String, quote: String) {
+        val sqls = arrayListOf<String>()
+        var idCount = 1
+        var timestampId = 0
+        var subjectId = 0
+        var newQuoteId = 0
+        var timestamp: Timestamp? = null
+        if (date != null) {
+            timestamp = Timestamp.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())
+            sqls.add("timestamp = ?")
+            timestampId = idCount
+            idCount ++
+        }
+        if (!person.isBlank()) {
+            sqls.add("subject = ?")
+            subjectId = idCount
+            idCount ++
+        }
+        if (!quote.isBlank()) {
+            sqls.add("quote = ?")
+            newQuoteId = idCount
+            idCount ++
+        }
+
+        val sql = "UPDATE quotes SET ${sqls.joinToString(", ")} WHERE ID = ?"
+
+        if (idCount > 1 ) connectionList[channel]?.prepareStatement(sql)?.apply {
+            if (timestampId > 0 && timestamp != null) setTimestamp(timestampId, timestamp)
+            if (subjectId > 0) setString(subjectId, person)
+            if (newQuoteId > 0) setString(newQuoteId, quote)
+            setInt(idCount, quoteId)
+            executeUpdate()
+        }
     }
 
     override fun getQuoteForChannelById(channel: String, quoteId: Int): String {

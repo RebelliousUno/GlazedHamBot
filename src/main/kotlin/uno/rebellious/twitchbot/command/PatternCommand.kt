@@ -11,6 +11,7 @@ import uno.rebellious.twitchbot.BotManager
 import uno.rebellious.twitchbot.database.QuotesDAO
 import uno.rebellious.twitchbot.model.LastFMResponse
 import java.time.LocalDate
+import java.time.format.DateTimeParseException
 import java.util.*
 
 class PatternCommand (private val twirk: Twirk, private val channel: String) : TwirkListener {
@@ -48,6 +49,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
 
         quoteCommands.add(quoteCommand())
         quoteCommands.add(addQuoteCommand())
+        quoteCommands.add(editQuoteCommand())
         quoteCommands.add(deleteQuoteCommand())
         quoteCommands.add(undeleteQuoteCommand())
 
@@ -146,7 +148,8 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
     }
 
     private fun deleteQuoteCommand(): Command {
-        return Command(prefix, "delquote", "", Permission(false, true, false)) {
+        val helpString = "Usage: ${prefix}delquote quoteid - Deletes quote quoteid"
+        return Command(prefix, "delquote", helpString, Permission(false, true, false)) {
             if (it.size > 1) {
 
                 try {
@@ -165,7 +168,8 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
     }
 
     private fun undeleteQuoteCommand(): Command {
-        return Command(prefix, "undelquote", "", Permission(false, true, false)) {
+        val helpString = "Usage: ${prefix}undelquote quoteid - Undeletes quote quoteid"
+        return Command(prefix, "undelquote", helpString, Permission(false, true, false)) {
             if (it.size > 1) {
 
                 try {
@@ -184,30 +188,63 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
     }
 
     private fun addQuoteCommand(): Command {
-        return Command(prefix, "addquote", "", Permission(false, true, false)) {
+        val helpString = "Usage: ${prefix}addquote QUOTE | PERSON | [YYYY-MM-DD] - eg. Adds a quote for Person on Date (optional defaults to today)"
+        return Command(prefix, "addquote", helpString, Permission(false, true, false)) {
             // "!addquote This is the quote | this is the person | this is the date"
             if (it.size > 1) {
                 val quoteDetails = "${it[1]} ${it[2]}".split("|")
                 val quote = quoteDetails[0].trim()
                 val person = if (quoteDetails.size > 1) quoteDetails[1].trim() else "Anon"
-                val date = if (quoteDetails.size > 2) LocalDate.parse(quoteDetails[2].trim()) else LocalDate.now()
-                val id = database.addQuoteForChannel(channel, date, person, quote)
-                twirk.channelMessage("Added with ID $id : $quote - $person on $date")
+                val date = if (quoteDetails.size > 2) try {
+                    LocalDate.parse(quoteDetails[2].trim())
+                } catch (e: DateTimeParseException) {
+                    twirk.channelMessage("Could not parse date ${quoteDetails[2]} - Use format YYYY-MM-DD")
+                    null
+                } else
+                 LocalDate.now()
+                if (date != null) {
+                    val id = database.addQuoteForChannel(channel, date, person, quote)
+                    twirk.channelMessage("Added with ID $id : $quote - $person on $date")
+                }
             }
-            twirk.channelMessage(it.toString())
+        }
+    }
+
+    private fun editQuoteCommand(): Command {
+        val helpString = "Usage: ${prefix}editquote QUOTEID [QUOTE] | [PERSON] | [YYYY-MM-DD] - eg. Edits quote QUOTEID - Sections of the quote are optional but needs both ||"
+        return Command(prefix, "editquote", helpString, Permission(false, true, false)) {
+            if (it.size > 2) {
+                try {
+                    val quoteID = Integer.parseInt(it[1])
+                    val quoteDetails = it[2].split("|")
+                    val quote = quoteDetails[0].trim()
+                    val person = if (quoteDetails.size > 1) quoteDetails[1].trim() else ""
+                    val date = if (quoteDetails.size > 2 && quoteDetails[2].isNotBlank()) try {
+                        LocalDate.parse(quoteDetails[2].trim())
+                    } catch (e: DateTimeParseException) {
+                        null
+                    } else null
+                    database.editQuoteForChannel(channel, quoteID, date, person, quote)
+                    twirk.channelMessage("Edited quote $quoteID")
+                } catch (e: java.lang.NumberFormatException){
+                    twirk.channelMessage("${it[1]} is not a number")
+                }
+            }
         }
     }
 
     private fun quoteCommand(): Command {
-        return Command(prefix, "quote", "", Permission(false, false, false)) {
+        val helpString = "Usage: ${prefix}quote [SEARCH TERM] - Searches for a quote where Search Term is either quote ID, Author or a keyword"
+        return Command(prefix, "quote", helpString, Permission(false, false, false)) {
             val message: String
             if (it.size > 1) {
                 message = try {
                     val id = Integer.parseInt(it[1])
                     database.getQuoteForChannelById(channel, id)
                 } catch (nfe: NumberFormatException) {
-                    val byAuthor = database.findQuoteByAuthor(channel, it[1])
-                    val byKeyword= database.findQuoteByKeyword(channel, it[1])
+                    val searchPhrase = it.subList(1, it.size).joinToString(" ")
+                    val byAuthor = database.findQuoteByAuthor(channel, searchPhrase)
+                    val byKeyword= database.findQuoteByKeyword(channel, searchPhrase)
                     if (!byAuthor.run { isEmpty() || this == QuotesDAO.QUOTE_NOT_FOUND } ) {
                         "Search By Author - $byAuthor"
                     } else {
