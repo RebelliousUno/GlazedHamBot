@@ -84,7 +84,7 @@ internal class QuotesDAO(private val connectionList: HashMap<String, Connection>
     }
 
     override fun findQuoteByAuthor(channel: String, author: String): String {
-        val sql = "SELECT * from quotes where deleted = ? AND instr(subject,?)"
+        val sql = "SELECT * from quotes where deleted = ? AND instr(subject,?) ORDER BY Random() LIMIT 1"
         val statement = connectionList[channel]?.prepareStatement(sql)?.apply {
             setBoolean(1, false)
             setString(2, author)
@@ -93,7 +93,7 @@ internal class QuotesDAO(private val connectionList: HashMap<String, Connection>
     }
 
     override fun findQuoteByKeyword(channel: String, keyword: String): String {
-        val sql = "SELECT * from quotes where deleted = ? AND instr(quote, ?)"
+        val sql = "SELECT * from quotes where deleted = ? AND instr(quote, ?) ORDER BY Random() LIMIT 1"
         val statement = connectionList[channel]?.prepareStatement(sql)?.apply {
             setBoolean(1, false)
             setString(2, keyword)
