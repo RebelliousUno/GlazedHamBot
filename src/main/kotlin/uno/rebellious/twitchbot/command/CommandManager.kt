@@ -7,7 +7,7 @@ import com.gikk.twirk.types.users.TwitchUser
 import uno.rebellious.twitchbot.BotManager
 import java.util.*
 
-class PatternCommand (private val twirk: Twirk, private val channel: String): CommandList(), TwirkListener {
+class CommandManager (private val twirk: Twirk, private val channel: String): CommandList(), TwirkListener {
 
     private val commands = ArrayList<CommandList>()
 

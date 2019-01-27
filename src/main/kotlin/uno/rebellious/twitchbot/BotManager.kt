@@ -6,7 +6,7 @@ import com.gikk.twirk.events.TwirkListener
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.subjects.BehaviorSubject
-import uno.rebellious.twitchbot.command.PatternCommand
+import uno.rebellious.twitchbot.command.CommandManager
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import uno.rebellious.twitchbot.model.Settings
 import java.util.*
@@ -29,7 +29,7 @@ object BotManager {
                     .setVerboseMode(true)
                     .build()
             twirk.connect()
-            twirk.addIrcListener(PatternCommand(twirk, channel))
+            twirk.addIrcListener(CommandManager(twirk, channel))
             twirk.addIrcListener(getOnDisconnectListener(twirk))
 
             scanner
