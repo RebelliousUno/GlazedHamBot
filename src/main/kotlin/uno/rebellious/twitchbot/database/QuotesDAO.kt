@@ -34,9 +34,10 @@ internal class QuotesDAO(private val connectionList: HashMap<String, Connection>
   "timestamp INTEGER)"*/
 
         //TODO: Should probably either audit this or just set to deleted or not
-        val sql = "delete from quotes where ID = ?"
+        val sql = "update quotes SET deleted = ? where ID = ?"
         connectionList[channel]?.prepareStatement(sql)?.apply {
-            setInt(1, quoteId)
+            setBoolean(1, true)
+            setInt(2, quoteId)
             executeUpdate()
         }
     }
@@ -46,16 +47,17 @@ internal class QuotesDAO(private val connectionList: HashMap<String, Connection>
     }
 
     override fun getQuoteForChannelById(channel: String, quoteId: Int): String {
-        val sql = "SELECT * from quotes where ID = ?"
+        val sql = "SELECT * from quotes where ID = ? AND deleted = ?"
         val statement = connectionList[channel]?.prepareStatement(sql)?.apply {
             setInt(1, quoteId)
+            setBoolean(2, false)
         }
         return getQuotesFromStatement(statement)
     }
 
     override fun getRandomQuoteForChannel(channel: String): String {
-        val sql = "SELECT * from quotes ORDER BY Random() LIMIT 1"
-        val statement = connectionList[channel]?.prepareStatement(sql)
+        val sql = "SELECT * from quotes where deleted = ? ORDER BY Random() LIMIT 1"
+        val statement = connectionList[channel]?.prepareStatement(sql)?.apply { setBoolean(1, false) }
         return getQuotesFromStatement(statement)
     }
 
@@ -87,7 +89,8 @@ internal class QuotesDAO(private val connectionList: HashMap<String, Connection>
                 "ID INTEGER PRIMARY KEY, " +
                 "quote text, " +
                 "subject text, " +
-                "timestamp INTEGER)"
+                "timestamp INTEGER, " +
+                "deleted INTEGER DEFAULT 0)"
         connection.createStatement().apply {
             executeUpdate(quotesTableSql)
         }
