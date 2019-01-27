@@ -356,7 +356,7 @@ class PatternCommand constructor(private val twirk: Twirk, private val channel: 
         val command = splitContent[0].toLowerCase(Locale.ENGLISH)
 
         commandList
-                .filter { "${it.prefix}${it.command}".startsWith(command) }
+                .filter { command.startsWith("${it.prefix}${it.command}") }
                 .firstOrNull { it.canUseCommand(sender) }
                 ?.action?.invoke(splitContent) ?: run {
                   countCommand().action.invoke(splitContent)
