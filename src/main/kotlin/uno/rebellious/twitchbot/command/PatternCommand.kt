@@ -67,7 +67,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
 
     private fun deleteCounterCommand(): Command {
         val helpString = ""
-        return Command(prefix, "deletecounter", helpString, Permission(false, true, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "deletecounter", helpString, Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
             if (content.size == 2) {
                 database.removeCounterForChannel(channel, content[1])
             } else {
@@ -78,7 +78,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
 
     private fun resetCountCommand(): Command {
         val helpString = "Usage ${prefix}resetCount count - resets today's count for a counter"
-        return Command(prefix, "resetcount", helpString, Permission(false, true, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "resetcount", helpString, Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
             if (content.size == 2) {
                 database.resetTodaysCounterForChannel(channel, content[1])
             } else {
@@ -89,14 +89,14 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
 
     private fun listCountersCommand(): Command {
         val helpString = ""
-        return Command(prefix, "counterlist", helpString, Permission(false, true, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "counterlist", helpString, Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
             twirk.channelMessage(database.showCountersForChannel(channel).toString())
         }
     }
 
     private fun removeCountCommand(): Command {
         val helpString = "Usage: ${prefix}removecount counterName [amount]- eg. ${prefix}removecount fall or ${prefix}removecount fall 2"
-        return Command(prefix, "removecount", helpString, Permission(false, true, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "removecount", helpString, Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
             val counter = content[1]
             try {
                 val by = if (content.size == 3) {
@@ -116,7 +116,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
 
     private fun addCountCommand(): Command {
         val helpString = "Usage: ${prefix}addcount counterName [amount]- eg. ${prefix}addcount fall or ${prefix}addcount fall 2"
-        return Command(prefix, "addcount", helpString, Permission(false, true, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "addcount", helpString, Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
             val counter = content[1]
             try {
                 val by = if (content.size == 3) {
@@ -135,7 +135,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
 
     private fun createCounterCommand(): Command {
         val helpString = "Usage: ${prefix}createCounter counterName singular plural - eg. ${prefix}createCounter fall fall falls"
-        return Command(prefix, "createcounter", helpString, Permission(false, true, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "createcounter", helpString, Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
             if (content.size == 3) {
                 val counter = content[1]
                 val singular = content[2].split(" ")[0]
@@ -149,7 +149,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
 
     private fun deleteQuoteCommand(): Command {
         val helpString = "Usage: ${prefix}delquote quoteid - Deletes quote quoteid"
-        return Command(prefix, "delquote", helpString, Permission(false, true, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "delquote", helpString, Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
 
                 try {
@@ -169,7 +169,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
 
     private fun undeleteQuoteCommand(): Command {
         val helpString = "Usage: ${prefix}undelquote quoteid - Undeletes quote quoteid"
-        return Command(prefix, "undelquote", helpString, Permission(false, true, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "undelquote", helpString, Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
 
                 try {
@@ -189,7 +189,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
 
     private fun addQuoteCommand(): Command {
         val helpString = "Usage: ${prefix}addquote QUOTE | PERSON | [YYYY-MM-DD] - eg. Adds a quote for Person on Date (optional defaults to today)"
-        return Command(prefix, "addquote", helpString, Permission(false, true, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "addquote", helpString, Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
             // "!addquote This is the quote | this is the person | this is the date"
             if (content.size > 1) {
                 val quoteDetails = "${content[1]} ${content[2]}".split("|")
@@ -212,7 +212,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
 
     private fun editQuoteCommand(): Command {
         val helpString = "Usage: ${prefix}editquote QUOTEID [QUOTE] | [PERSON] | [YYYY-MM-DD] - eg. Edits quote QUOTEID - Sections of the quote are optional but needs both ||"
-        return Command(prefix, "editquote", helpString, Permission(false, true, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "editquote", helpString, Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
             if (content.size > 2) {
                 try {
                     val quoteID = Integer.parseInt(content[1])
@@ -235,7 +235,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
 
     private fun quoteCommand(): Command {
         val helpString = "Usage: ${prefix}quote [SEARCH TERM] - Searches for a quote where Search Term is either quote ID, Author or a keyword"
-        return Command(prefix, "quote", helpString, Permission(false, false, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "quote", helpString, Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
             val message: String
             if (content.size > 1) {
                 message = try {
@@ -261,7 +261,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
     private fun helpCommand(): Command {
         return Command(prefix, "help" , "Usage: ${prefix}help cmd - to get help for a particular command", Permission(false, false, false)) { twitchUser: TwitchUser, content: List<String> ->
             if (content.size > 1) {
-                twirk.channelMessage(commandList.firstOrNull { command -> command.command == content[1] }?.helpString)
+                twirk.channelMessage(commandList.firstOrNull { command -> command.command == content[1] && command.canUseCommand(twitchUser) }?.helpString)
             } else {
                 twirk.channelMessage("Usage: ${prefix}help cmd - to get help for a particular command")
             }
@@ -269,19 +269,19 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
     }
 
     private fun countCommand(): Command {
-        return Command(prefix, "", "", Permission(false, false, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "", "", Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
             twirk.channelMessage(database.getCounterForChannel(channel, content[0].substring(1)))
         }
     }
 
     private fun responseCommand(): Command {
-        return Command(prefix, "", "", Permission(false, false, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "", "", Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
             twirk.channelMessage(database.findResponse(channel, content[0].substring(1)))
         }
     }
 
     private fun setPrefixCommand(): Command {
-        return Command(prefix, "setprefix", "Usage: '${prefix}setprefix !' - Sets the prefix for commands to '!'", Permission(true, false, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "setprefix", "Usage: '${prefix}setprefix !' - Sets the prefix for commands to '!'", Permission(true, false, false)) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
                 prefix = content[1]
                 database.setPrefixForChannel(channel, prefix)
@@ -297,19 +297,19 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
             val dbCommands = database.getAllCommandList(channel).map { command ->
                 prefix + command
             }.sorted()
-            val quoteCmds = quoteCommands.map { command ->
-                command.prefix + command.command
-            }
-            val adminCmds = adminCommands.map { command ->
+            val quoteCmds = quoteCommands.filter{it.canUseCommand(twitchUser)}.map { command ->
                 command.prefix + command.command
             }.sorted()
-            val miscCmds = miscCommands.map { command ->
+            val adminCmds = adminCommands.filter{it.canUseCommand(twitchUser)}.map { command ->
                 command.prefix + command.command
             }.sorted()
-            val responseCmds = responseCommands.map { command ->
+            val miscCmds = miscCommands.filter{it.canUseCommand(twitchUser)}.map { command ->
                 command.prefix + command.command
             }.sorted()
-            val counterCmds = counterCommands.map { command ->
+            val responseCmds = responseCommands.filter{it.canUseCommand(twitchUser)}.map { command ->
+                command.prefix + command.command
+            }.sorted()
+            val counterCmds = counterCommands.filter{it.canUseCommand(twitchUser)}.map { command ->
                 command.prefix + command.command
             }.sorted()
             twirk.channelMessage("Quotes: $quoteCmds, Responses: $dbCommands $responseCmds, Counters: $counterCmds, Misc: $miscCmds,  Admin: $adminCmds")
@@ -317,14 +317,14 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
     }
 
     private fun delCommand(): Command {
-        return Command(prefix, "delcmd", "Usage: ${prefix}delcmd cmd - deletes the command 'cmd' (Mod Only - Custom commands only)", Permission(false, true, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "delcmd", "Usage: ${prefix}delcmd cmd - deletes the command 'cmd' (Mod Only - Custom commands only)", Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
             val removeCommand = content[1].toLowerCase(Locale.ENGLISH)
             database.removeResponse(channel, removeCommand)
         }
     }
 
     private fun addCommand(): Command {
-        return Command(prefix, "addcmd", "Usage: ${prefix}addcmd cmd Response Text- Adds the command 'cmd' with the text 'Response Text' (Mod Only - Custom commands only)", Permission(false, true, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "addcmd", "Usage: ${prefix}addcmd cmd Response Text- Adds the command 'cmd' with the text 'Response Text' (Mod Only - Custom commands only)", Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
             if (content.size > 2) {
                 val newCommand = content[1].toLowerCase(Locale.ENGLISH)
                 val newResponse = content[2]
@@ -334,7 +334,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
     }
 
     private fun editCommand(): Command {
-        return Command(prefix, "editcmd", "Usage: ${prefix}editcmd cmd Response Text- Edits the command 'cmd' with the text 'Response Text' (Mod Only - Custom commands only)", Permission(false, true, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "editcmd", "Usage: ${prefix}editcmd cmd Response Text- Edits the command 'cmd' with the text 'Response Text' (Mod Only - Custom commands only)", Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
             if (content.size > 2) {
                 val newCommand = content[1].toLowerCase(Locale.ENGLISH)
                 val newResponse = content[2]
@@ -347,7 +347,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
         return Command(prefix, "addchannel",
                 "Usage: ${prefix}addchannel channeltoAdd - Add a GlazedHamBot to a channel",
                 Permission(false, false, false)
-        ) { twitchUser: TwitchUser, content: List<String> ->
+        ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
                 val newChannel = content[1].toLowerCase(Locale.ENGLISH)
                 database.addChannel(newChannel)
@@ -358,7 +358,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
 
     private fun leaveChannelCommand(): Command {
         return Command(prefix, "hamleave", "Usage: ${prefix}hamleave - Asks the bot to leave the channel (Mod only)",
-                Permission(false, true, false)) { twitchUser: TwitchUser, content: List<String> ->
+                Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
             database.leaveChannel(channel)
             twirk.channelMessage("Leaving $channel")
             BotManager.stopTwirkForChannel(channel)
@@ -368,7 +368,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
     private fun songCommand(): Command {
         return Command(prefix, "song",
                 "Usage: ${prefix}song - The last song listened to by $channel",
-                Permission(false, false, false)) { twitchUser: TwitchUser, content: List<String> ->
+                Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
             Fuel.get(BotManager.lastFMUrl).responseString { _, _, result ->
                 val resultJson: String = result.get().replace("#", "")
                 val json = gson.fromJson<LastFMResponse>(resultJson)
@@ -380,14 +380,14 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
     }
 
     private fun listChannelsCommand(): Command {
-        return Command(prefix, "listchannels", "Usage: ${prefix}listchannels - Lists all the channels the bot is in", Permission(false, true, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "listchannels", "Usage: ${prefix}listchannels - Lists all the channels the bot is in", Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
             val channelList = database.getListOfChannels()
             twirk.channelMessage("GlazedHamBot is present in $channelList")
         }
     }
 
     private fun jackSetCommand(): Command {
-        return Command(prefix, "jackset", "Usage: ${prefix}jackset ROOM - Sets the jackbox code to ROOM", Permission(false, true, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "jackset", "Usage: ${prefix}jackset ROOM - Sets the jackbox code to ROOM", Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
                 jackboxCode = content[1].substring(0,4).toUpperCase()
                 twirk.channelMessage("Jackbox Code Set to $jackboxCode you can get the link by typing ${prefix}jack into chat")
@@ -396,7 +396,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
     }
 
     private fun jackCommand(): Command {
-        return Command(prefix, "jack", "Usage: ${prefix}jack - Gets the jackbox code for the current game", Permission(false, false, false)) { twitchUser: TwitchUser, content: List<String> ->
+        return Command(prefix, "jack", "Usage: ${prefix}jack - Gets the jackbox code for the current game", Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
             twirk.channelMessage("Jackbox Code Set to $jackboxCode you can get the link by typing ${prefix}jack into chat")
         }
     }
