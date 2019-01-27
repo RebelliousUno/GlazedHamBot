@@ -1,7 +1,7 @@
 package uno.rebellious.twitchbot.database
 
 import java.sql.Connection
-import java.util.HashMap
+import java.util.*
 
 internal class ResponsesDAO(private val connectionList: HashMap<String, Connection>): IResponse {
 

@@ -7,15 +7,9 @@ import com.gikk.twirk.types.users.TwitchUser
 import com.github.kittinunf.fuel.Fuel
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
-import jdk.nashorn.internal.parser.DateParser
 import uno.rebellious.twitchbot.BotManager
 import uno.rebellious.twitchbot.model.LastFMResponse
-import java.lang.NumberFormatException
-import java.text.DateFormat
-import java.time.Instant
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.*
 
 class PatternCommand (private val twirk: Twirk, private val channel: String) : TwirkListener {

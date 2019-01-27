@@ -1,9 +1,9 @@
 package uno.rebellious.twitchbot.database
 
-import java.sql.*
+import java.sql.Connection
+import java.sql.DriverManager
 import java.time.LocalDate
 import java.util.*
-import java.util.Date
 
 class DatabaseDAO : IDatabase {
 

@@ -2,7 +2,7 @@ package uno.rebellious.twitchbot.database
 
 import java.sql.Connection
 import java.sql.DriverManager
-import java.util.ArrayList
+import java.util.*
 
 internal class SettingsDAO(private val connectionList: HashMap<String, Connection>) : ISettings {
 
