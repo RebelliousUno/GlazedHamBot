@@ -11,6 +11,10 @@ import java.util.*
 
 internal class QuotesDAO(private val connectionList: HashMap<String, Connection>) : IQuotes {
 
+    companion object {
+        const val QUOTE_NOT_FOUND = "Quote not found"
+    }
+
     override fun addQuoteForChannel(channel: String, date: LocalDate, person: String, quote: String): Int {
         val timestamp = Timestamp.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())
         val sql = "INSERT into quotes (quote, subject, timestamp) VALUES (?, ?, ?)"
@@ -58,7 +62,9 @@ internal class QuotesDAO(private val connectionList: HashMap<String, Connection>
 
     override fun getRandomQuoteForChannel(channel: String): String {
         val sql = "SELECT * from quotes where deleted = ? ORDER BY Random() LIMIT 1"
-        val statement = connectionList[channel]?.prepareStatement(sql)?.apply { setBoolean(1, false) }
+        val statement = connectionList[channel]?.prepareStatement(sql)?.apply { setBoolean(1, false)
+            getQuotesFromStatement(this)
+        }
         return getQuotesFromStatement(statement)
     }
 
@@ -71,18 +77,28 @@ internal class QuotesDAO(private val connectionList: HashMap<String, Connection>
                 val timestamp = getTimestamp("timestamp").toLocalDateTime().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
                 "Quote $id: \"$quote\" - $subject - $timestamp"
             } else {
-                "Quote not found"
+                QUOTE_NOT_FOUND
             }
-        } ?: "Quote not found"
+        } ?: QUOTE_NOT_FOUND
 
     }
 
     override fun findQuoteByAuthor(channel: String, author: String): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val sql = "SELECT * from quotes where deleted = ? AND instr(subject,?)"
+        val statement = connectionList[channel]?.prepareStatement(sql)?.apply {
+            setBoolean(1, false)
+            setString(2, author)
+        }
+        return getQuotesFromStatement(statement)
     }
 
     override fun findQuoteByKeyword(channel: String, keyword: String): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val sql = "SELECT * from quotes where deleted = ? AND instr(quote, ?)"
+        val statement = connectionList[channel]?.prepareStatement(sql)?.apply {
+            setBoolean(1, false)
+            setString(2, keyword)
+        }
+        return getQuotesFromStatement(statement)
     }
 
     fun createQuotesTable(connection: Connection) {

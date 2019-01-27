@@ -8,6 +8,7 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
 import uno.rebellious.twitchbot.BotManager
+import uno.rebellious.twitchbot.database.QuotesDAO
 import uno.rebellious.twitchbot.model.LastFMResponse
 import java.time.LocalDate
 import java.util.*
@@ -205,12 +206,12 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
                     val id = Integer.parseInt(it[1])
                     database.getQuoteForChannelById(channel, id)
                 } catch (nfe: NumberFormatException) {
-                    val quote1 = database.findQuoteByAuthor(channel, it[1])
-                    val quote2 = database.findQuoteByKeyword(channel, it[1])
-                    if (!quote1.isEmpty()) {
-                        quote1
+                    val byAuthor = database.findQuoteByAuthor(channel, it[1])
+                    val byKeyword= database.findQuoteByKeyword(channel, it[1])
+                    if (!byAuthor.run { isEmpty() || this == QuotesDAO.QUOTE_NOT_FOUND } ) {
+                        "Search By Author - $byAuthor"
                     } else {
-                        quote2
+                        "Search by Keyword - $byKeyword"
                     }
                 }
             } else {
