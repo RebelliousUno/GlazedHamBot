@@ -2,12 +2,12 @@
  * Created by rebel on 16/07/2017.
  */
 
-package uno.rebellious.twitchbot
+package uno.rebellious.twitchbot.model
 
 import java.util.*
 
 class Settings {
-    val props = Properties()
+    private val props = Properties()
     private var settings: DataSettings?
     init {
         props.load(this.javaClass.classLoader.getResourceAsStream("settings.properties"))
@@ -27,10 +27,6 @@ class Settings {
     val lastFMAPI: String?
         get() {
             return settings?.LAST_FM_API
-        }
-    val channel: String?
-        get() {
-            return settings?.CHANNEL
         }
     val lastFMUser: String?
         get() {

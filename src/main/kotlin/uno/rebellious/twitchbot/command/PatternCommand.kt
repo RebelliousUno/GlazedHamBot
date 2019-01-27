@@ -299,7 +299,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
             }.sorted()
             val quoteCmds = quoteCommands.filter{it.canUseCommand(twitchUser)}.map { command ->
                 command.prefix + command.command
-            }.sorted()L
+            }.sorted()
             val adminCmds = adminCommands.filter{it.canUseCommand(twitchUser)}.map { command ->
                 command.prefix + command.command
             }.sorted()
