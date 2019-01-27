@@ -1,4 +1,4 @@
-package uno.rebellious.twitchbot
+package uno.rebellious.twitchbot.model
 
 /**
  * Created by rebel on 16/07/2017.
