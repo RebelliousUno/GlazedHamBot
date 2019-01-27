@@ -48,6 +48,7 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
         quoteCommands.add(quoteCommand())
         quoteCommands.add(addQuoteCommand())
         quoteCommands.add(deleteQuoteCommand())
+        quoteCommands.add(undeleteQuoteCommand())
 
         commandList.addAll(adminCommands)
         commandList.addAll(responseCommands)
@@ -152,6 +153,25 @@ class PatternCommand (private val twirk: Twirk, private val channel: String) : T
                     if (id > 0) {
                         database.delQuoteForChannel(channel, id)
                         twirk.channelMessage("Deleted quote $id")
+                    } else {
+                        twirk.channelMessage("Quote ids are positive integers")
+                    }
+                } catch (e: NumberFormatException) {
+                    twirk.channelMessage("${it[1]} is not an integer")
+                }
+            }
+        }
+    }
+
+    private fun undeleteQuoteCommand(): Command {
+        return Command(prefix, "undelquote", "", Permission(false, true, false)) {
+            if (it.size > 1) {
+
+                try {
+                    val id = it[1].toInt()
+                    if (id > 0) {
+                        database.undeleteQuoteForChannel(channel, id)
+                        twirk.channelMessage("Undeleted quote $id")
                     } else {
                         twirk.channelMessage("Quote ids are positive integers")
                     }

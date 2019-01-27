@@ -26,17 +26,18 @@ internal class QuotesDAO(private val connectionList: HashMap<String, Connection>
         } ?: 0
     }
 
-    override fun delQuoteForChannel(channel: String, quoteId: Int) {
-        /*"create table if not exists quotes (" +
-  "ID INTEGER PRIMARY KEY, " +
-  "quote text, " +
-  "subject text, " +
-  "timestamp INTEGER)"*/
+    override fun undeleteQuoteForChannel(channel: String, quoteId: Int) {
+        setDeleteStatusForQuote(channel, quoteId, false)
+    }
 
-        //TODO: Should probably either audit this or just set to deleted or not
+    override fun delQuoteForChannel(channel: String, quoteId: Int) {
+        setDeleteStatusForQuote(channel, quoteId, true)
+    }
+
+    private fun setDeleteStatusForQuote(channel: String, quoteId: Int, deleted: Boolean) {
         val sql = "update quotes SET deleted = ? where ID = ?"
         connectionList[channel]?.prepareStatement(sql)?.apply {
-            setBoolean(1, true)
+            setBoolean(1, deleted)
             setInt(2, quoteId)
             executeUpdate()
         }

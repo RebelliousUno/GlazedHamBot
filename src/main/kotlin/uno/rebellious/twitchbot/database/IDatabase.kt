@@ -37,4 +37,5 @@ interface IQuotes {
     fun getRandomQuoteForChannel(channel: String): String
     fun findQuoteByAuthor(channel: String, author: String): String
     fun findQuoteByKeyword(channel: String, keyword: String): String
+    fun undeleteQuoteForChannel(channel: String, quoteId: Int)
 }

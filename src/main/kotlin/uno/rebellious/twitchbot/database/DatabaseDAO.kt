@@ -7,7 +7,6 @@ import java.util.*
 
 class DatabaseDAO : IDatabase {
 
-
     private var connectionList: HashMap<String, Connection> = HashMap()
     private val countersDAO = CountersDAO(connectionList)
     private val responsesDAO = ResponsesDAO(connectionList)
@@ -46,6 +45,8 @@ class DatabaseDAO : IDatabase {
             quotesDAO.addQuoteForChannel(channel, date, person, quote)
 
     override fun delQuoteForChannel(channel: String, quoteId: Int) = quotesDAO.delQuoteForChannel(channel, quoteId)
+
+    override fun undeleteQuoteForChannel(channel: String, quoteId: Int) = quotesDAO.undeleteQuoteForChannel(channel, quoteId)
 
     override fun editQuoteForChannel(channel: String, quoteId: Int, date: Date, person: String, quote: String) =
             quotesDAO.editQuoteForChannel(channel, quoteId, date, person, quote)
