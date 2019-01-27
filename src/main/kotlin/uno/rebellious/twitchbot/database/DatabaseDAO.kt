@@ -2,21 +2,21 @@ package uno.rebellious.twitchbot.database
 
 import java.sql.*
 import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.*
 import java.util.Date
 
 class DatabaseDAO : IDatabase {
-    private var settingsDB: Connection? = null
+
+
     private var connectionList: HashMap<String, Connection> = HashMap()
+    private val countersDAO = CountersDAO(connectionList)
+    private val responsesDAO = ResponsesDAO(connectionList)
+    private val quotesDAO = QuotesDAO(connectionList)
+    private val settingsDAO = SettingsDAO(connectionList)
 
     init {
-        connectSettings() //Connect to settings DB
         setupSettings() //Set up Settings DB
-        val channelList = getListOfChannels()
-        println(channelList)
+        val channelList = settingsDAO.getListOfChannels()
         connect(channelList)
         setupAllChannels()
     }
@@ -26,173 +26,44 @@ class DatabaseDAO : IDatabase {
         counter: String,
         responseSingular: String,
         responsePlural: String
-    ) {
-        val sql = "INSERT INTO counters(command, today, total, singular, plural) VALUES (?, ?, ?, ?, ?)"
-        connectionList[channel]?.prepareStatement(sql)?.apply {
-            setString(1, counter)
-            setInt(2, 0)
-            setInt(3, 0)
-            setString(4, responseSingular)
-            setString(5, responsePlural)
-            executeUpdate()
-        }
-    }
+    ) = countersDAO.createCounterForChannel(channel, counter, responseSingular, responsePlural)
 
-    override fun showCountersForChannel(channel: String): List<String> {
-        val sql = "SELECT * from counters"
-        val counters = ArrayList<String>()
-        connectionList[channel]?.createStatement()?.run {
-            executeQuery(sql)
-        }?.run {
-            while (next()) {
-                counters += "${getString("command")}: ${getString("today")}/${getString("total")}"
-            }
-        }
-        return counters
-    }
+    override fun showCountersForChannel(channel: String): List<String> = countersDAO.showCountersForChannel(channel)
 
-    override fun removeCounterForChannel(channel: String, counter: String) {
-        val sql = "DELETE FROM counters WHERE command like ?"
-        connectionList[channel]?.prepareStatement(sql)?.apply {
-            setString(1, counter)
-            executeUpdate()
-        }
-    }
+    override fun removeCounterForChannel(channel: String, counter: String) =
+            countersDAO.removeCounterForChannel(channel, counter)
 
-    override fun incrementCounterForChannel(channel: String, counter: String, by: Int) {
-        val todaySql = "UPDATE counters SET today = today + ?, total = total + ? WHERE command like ?"
-        connectionList[channel]
-        connectionList[channel]?.prepareStatement(todaySql)?.apply {
-            setInt(1, by)
-            setInt(2, by)
-            setString(3, counter)
-            executeUpdate()
-        }
-    }
+    override fun incrementCounterForChannel(channel: String, counter: String, by: Int) =
+            countersDAO.incrementCounterForChannel(channel, counter, by)
 
-    override fun getCounterForChannel(channel: String, counter: String): String {
-        val sql = "SELECT * FROM counters where command like ?"
-        connectionList[channel]?.prepareStatement(sql)?.run {
-            setString(1, counter)
-            executeQuery()
-        }?.run {
-            if (next()) {
-                val today = getInt("today")
-                val total = getInt("total")
-                val singular = getString("singular")
-                val plural = getString("plural")
-                return "There ${if (today == 1) "has" else "have"} been $today ${if (today == 1) singular else plural} today. Total $plural: $total"
-            }
-        }
-        return ""
-    }
+    override fun getCounterForChannel(channel: String, counter: String): String =
+            countersDAO.getCounterForChannel(channel, counter)
 
-    override fun resetTodaysCounterForChannel(channel: String, counter: String) {
-        val sql = "UPDATE counters SET today = 0 where command like ?"
-        connectionList[channel]?.prepareStatement(sql)?.apply {
-            setString(1, counter)
-            executeUpdate()
-        }
-    }
-    override fun addQuoteForChannel(channel: String, date: LocalDate, person: String, quote: String): Int {
-        val timestamp = Timestamp.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())
-        val sql = "INSERT into quotes (quote, subject, timestamp) VALUES (?, ?, ?)"
-        return connectionList[channel]?.prepareStatement(sql)?.run {
-            setString(1, quote)
-            setString(2, person)
-            setTimestamp(3, timestamp)
-            executeUpdate()
-            val id = generatedKeys
-            if (id.next())
-                id.getInt(1)
-            else 0
-        } ?: 0
-    }
+    override fun resetTodaysCounterForChannel(channel: String, counter: String) =
+            countersDAO.resetTodaysCounterForChannel(channel, counter)
 
-    override fun delQuoteForChannel(channel: String, quoteId: Int) {
-        /*"create table if not exists quotes (" +
-  "ID INTEGER PRIMARY KEY, " +
-  "quote text, " +
-  "subject text, " +
-  "timestamp INTEGER)"*/
+    override fun addQuoteForChannel(channel: String, date: LocalDate, person: String, quote: String): Int =
+            quotesDAO.addQuoteForChannel(channel, date, person, quote)
 
-        //TODO: Should probably either audit this or just set to deleted or not
-        val sql = "delete from quotes where ID = ?"
-        connectionList[channel]?.prepareStatement(sql)?.apply {
-            setInt(1, quoteId)
-            executeUpdate()
-        }
-    }
+    override fun delQuoteForChannel(channel: String, quoteId: Int) = quotesDAO.delQuoteForChannel(channel, quoteId)
 
-    override fun editQuoteForChannel(channel: String, quoteId: Int, date: Date, person: String, quote: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun editQuoteForChannel(channel: String, quoteId: Int, date: Date, person: String, quote: String) =
+            quotesDAO.editQuoteForChannel(channel, quoteId, date, person, quote)
 
-    override fun getQuoteForChannelById(channel: String, quoteId: Int): String {
-        val sql = "SELECT * from quotes where ID = ?"
-        val statement = connectionList[channel]?.prepareStatement(sql)?.apply {
-            setInt(1, quoteId)
-        }
-        return getQuotesFromStatement(statement)
-    }
+    override fun getQuoteForChannelById(channel: String, quoteId: Int): String =
+            quotesDAO.getQuoteForChannelById(channel, quoteId)
 
-    override fun getRandomQuoteForChannel(channel: String): String {
-        val sql = "SELECT * from quotes ORDER BY Random() LIMIT 1"
-        val statement = connectionList[channel]?.prepareStatement(sql)
-        return getQuotesFromStatement(statement)
-    }
+    override fun getRandomQuoteForChannel(channel: String): String = quotesDAO.getRandomQuoteForChannel(channel)
 
-    private fun getQuotesFromStatement(statement: PreparedStatement?): String {
-        return statement?.executeQuery()?.run {
-            if (next()) {
-                val id = getInt("ID")
-                val quote = getString("quote")
-                val subject = getString("subject")
-                val timestamp = getTimestamp("timestamp").toLocalDateTime().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
-                "Quote $id: \"$quote\" - $subject - $timestamp"
-            } else {
-                "Quote not found"
-            }
-        } ?: "Quote not found"
+    override fun findQuoteByAuthor(channel: String, author: String): String =
+            quotesDAO.findQuoteByAuthor(channel, author)
 
-    }
-
-    override fun findQuoteByAuthor(channel: String, author: String): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun findQuoteByKeyword(channel: String, keyword: String): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    private fun connectSettings() {
-        settingsDB = DriverManager.getConnection("jdbc:sqlite:settings.db")
-    }
-
-    fun getListOfChannels(): Array<String> {
-        val channelSelect = "select * from channels"
-        val list = ArrayList<String>()
-        settingsDB?.createStatement()?.run {
-            queryTimeout = 30
-            executeQuery(channelSelect)
-        }?.apply {
-            while (next()) {
-                val channel = getString("channel")
-                list.add(channel)
-            }
-        }
-        return list.toTypedArray()
-    }
+    override fun findQuoteByKeyword(channel: String, keyword: String): String =
+            quotesDAO.findQuoteByKeyword(channel, keyword)
 
     private fun setupSettings() {
-        val channelList = "create table if not exists channels (" +
-                "channel text, prefix text DEFAULT '!')"
-
-        settingsDB?.createStatement()?.apply {
-            queryTimeout = 30
-            executeUpdate(channelList)
-        }
-        if (getListOfChannels().isEmpty()) { // Set up default Channel
+        settingsDAO.createChannelsTable()
+        if (settingsDAO.getListOfChannels().isEmpty()) { // Set up default Channel
             addChannel("glazedhambot", "!")
         }
     }
@@ -204,144 +75,30 @@ class DatabaseDAO : IDatabase {
         }
     }
 
-    private fun connect(channel: String) {
-        val con = DriverManager.getConnection("jdbc:sqlite:${channel.toLowerCase()}.db")
-        connectionList[channel] = con
-    }
-
     private fun setupAllChannels() {
         connectionList.forEach {
-            setup(it.value)
-            setupCounters(it.value)
+            responsesDAO.createResponseTable(it.value)
+            quotesDAO.createQuotesTable(it.value)
+            countersDAO.setupCounters(it.value)
         }
     }
 
-    private fun setupCounters(connection: Connection) {
-        val counterTableSQL = "create table if not exists counters (command text, today int, total int, singular text, plural text)"
-        connection.createStatement()?.apply {
-            queryTimeout = 30
-            executeUpdate(counterTableSQL)
-        }
-    }
+    override fun getPrefixForChannel(channel: String): String  = settingsDAO.getPrefixForChannel(channel)
 
-    private fun setup(connection: Connection) {
-        val responsesTableSql = "create table if not exists responses (" +
-                "command text," +
-                "response text)"
+    override fun setPrefixForChannel(channel: String, prefix: String) = settingsDAO.setPrefixForChannel(channel, prefix)
 
-        val quotesTableSql = "create table if not exists quotes (" +
-                "ID INTEGER PRIMARY KEY, " +
-                "quote text, " +
-                "subject text, " +
-                "timestamp INTEGER)"
+    override fun findResponse(channel: String, command: String): String = responsesDAO.findResponse(channel, command)
 
-        connection.createStatement()?.apply {
-            queryTimeout = 30
-            executeUpdate(responsesTableSql)
-            executeUpdate(quotesTableSql)
-        }
-    }
+    override fun addChannel(newChannel: String, prefix: String) = settingsDAO.addChannel(newChannel, prefix)
 
-    override fun getPrefixForChannel(channel: String): String {
-        val sql = "Select prefix from channels where channel = ?"
-        return settingsDB?.prepareStatement(sql)?.run {
-            setString(1, channel)
-            executeQuery()
-        }?.run {
-            if (next()) {
-                getString("prefix")
-            } else {
-                "!" //Default to "!"
-            }
-        } ?: "!"
-    }
+    override fun leaveChannel(channel: String) = settingsDAO.leaveChannel(channel)
 
-    override fun setPrefixForChannel(channel: String, prefix: String) {
-        val sql = "UPDATE channels set prefix = ? where channel = ?"
-        settingsDB?.prepareStatement(sql)?.apply {
-            setString(1, prefix)
-            setString(2, channel)
-            executeUpdate()
-        }
-    }
+    override fun setResponse(channel: String, command: String, response: String) =
+            responsesDAO.setResponse(channel, command, response)
 
-    override fun findResponse(channel: String, command: String): String {
-        val connection = connectionList[channel]
-        val sql = "Select response from responses where command = ?"
-        return connection?.prepareStatement(sql)?.run {
-            setString(1, command)
-            executeQuery()
-        }?.run {
-            if (next()) {
-                getString("response")
-            } else {
-                ""
-            }
-        } ?: ""
-    }
+    override fun removeResponse(channel: String, command: String) = responsesDAO.removeResponse(channel, command)
 
-    private fun channelExists(channel: String): Boolean? {
-        val sql = "Select * from channels WHERE channel = ?"
-        return settingsDB?.prepareStatement(sql)?.run {
-            setString(1, channel)
-            executeQuery()
-        }?.run {next()} ?: false
-    }
+    override fun getAllCommandList(channel: String): ArrayList<String> = settingsDAO.getAllCommandList(channel)
 
-    override fun addChannel(newChannel: String, prefix: String) {
-        val exists = channelExists(newChannel)
-        if (exists != null && !exists) {
-            val sql = "INSERT INTO channels(channel, prefix) VALUES (?, ?)"
-            settingsDB?.prepareStatement(sql)?.apply {
-                setString(1, newChannel)
-                setString(2, prefix)
-                executeUpdate()
-                connect(newChannel)
-            }
-        }
-    }
-
-    override fun leaveChannel(channel: String) {
-        val sql = "DELETE FROM channels WHERE channel = ?"
-        settingsDB?.prepareStatement(sql)?.apply {
-            setString(1, channel)
-            executeUpdate()
-        }
-    }
-
-    override fun setResponse(channel: String, command: String, response: String) {
-        val connection = connectionList[channel]
-        val exists = findResponse(channel, command)
-        val sql = if (exists == "") {
-            "INSERT INTO responses(response, command) VALUES (?, ?)"
-        } else {
-            "UPDATE responses SET response = ? WHERE command = ?"
-        }
-        connection?.prepareStatement(sql)?.apply {
-            setString(1, response)
-            setString(2, command)
-            executeUpdate()
-        }
-    }
-
-    override fun removeResponse(channel: String, command: String) {
-        val connection = connectionList[channel]
-        val sql = "DELETE FROM responses WHERE command = ?"
-        connection?.prepareStatement(sql)?.apply {
-            setString(1, command)
-            executeUpdate()
-        }
-    }
-
-    override fun getAllCommandList(channel: String): ArrayList<String> {
-        val connection = connectionList[channel]
-        val sql = "SELECT command FROM responses"
-        val returnList = ArrayList<String>()
-        connection?.prepareStatement(sql)?.run {
-            executeQuery()
-        }?.apply {
-            while(next()) returnList.add(getString("command"))
-        }
-        return returnList
-    }
+    override fun getListOfChannels(): Array<String> = settingsDAO.getListOfChannels()
 }
