@@ -5,22 +5,23 @@ import com.gikk.twirk.events.TwirkListener
 import com.gikk.twirk.types.twitchMessage.TwitchMessage
 import com.gikk.twirk.types.users.TwitchUser
 import uno.rebellious.twitchbot.BotManager
+import uno.rebellious.twitchbot.database.Channel
 import java.util.*
 
-class CommandManager (private val twirk: Twirk, private val channel: String): CommandList(), TwirkListener {
+class CommandManager (private val twirk: Twirk, private val channel: Channel): CommandList(), TwirkListener {
 
     private val commands = ArrayList<CommandList>()
 
     private var prefix = "!"
     private val database = BotManager.database
     init {
-        prefix = database.getPrefixForChannel(channel)
+        prefix = channel.prefix
 
-        commands.add(QuoteCommands(prefix, twirk, channel, database))
-        commands.add(CounterCommands(prefix, twirk, channel, database))
-        commands.add(ResponseCommands(prefix, twirk, channel, database))
-        commands.add(AdminCommands(prefix, twirk, channel, database))
-        commands.add(MiscCommands(prefix, twirk, channel, database))
+        commands.add(QuoteCommands(prefix, twirk, channel.channel, database))
+        commands.add(CounterCommands(prefix, twirk, channel.channel, database))
+        commands.add(ResponseCommands(prefix, twirk, channel.channel, database))
+        commands.add(AdminCommands(prefix, twirk, channel.channel, database))
+        commands.add(MiscCommands(prefix, twirk, channel.channel, database))
 
         commands.forEach {
             commandList.addAll(it.commandList)
@@ -28,25 +29,25 @@ class CommandManager (private val twirk: Twirk, private val channel: String): Co
         commandList.add(commandListCommand())
 
 
-        twirk.channelMessage("Starting up for $channel - prefix is $prefix")
+        twirk.channelMessage("Starting up for ${channel.channel} - prefix is ${channel.prefix}")
     }
 
     private fun countCommand(): Command {
         return Command(prefix, "", "", Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
-            twirk.channelMessage(database.getCounterForChannel(channel, content[0].substring(1)))
+            twirk.channelMessage(database.getCounterForChannel(channel.channel, content[0].substring(1)))
         }
     }
 
     private fun responseCommand(): Command {
         return Command(prefix, "", "", Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
-            twirk.channelMessage(database.findResponse(channel, content[0].substring(1)))
+            twirk.channelMessage(database.findResponse(channel.channel, content[0].substring(1)))
         }
     }
 
     private fun commandListCommand(): Command {
         return Command(prefix, "cmdlist", "Usage: ${prefix}cmdlist - lists the commands for this channel", Permission(false, false, false)) { twitchUser: TwitchUser, _: List<String> ->
             val dbCommands = database
-                    .getAllCommandList(channel)
+                    .getAllCommandList(channel.channel)
                     .map { command -> prefix + command }
                     .sorted()
             val quoteCmds = commands

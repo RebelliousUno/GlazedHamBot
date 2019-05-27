@@ -7,6 +7,7 @@ import io.reactivex.Observable
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.subjects.BehaviorSubject
 import uno.rebellious.twitchbot.command.CommandManager
+import uno.rebellious.twitchbot.database.Channel
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import uno.rebellious.twitchbot.model.Settings
 import java.util.*
@@ -21,11 +22,14 @@ object BotManager {
 
     val database = DatabaseDAO()
 
-    fun startTwirkForChannel(channel: String) {
+    fun startTwirkForChannel(channel: Channel) {
         val twirkThread = Thread(Runnable {
             val shouldStop = BehaviorSubject.create<Boolean>()
             shouldStop.onNext(false)
-            val twirk = TwirkBuilder("#$channel", SETTINGS.nick, SETTINGS.password)
+            val nick = if (channel.nick.isBlank()) SETTINGS.nick else channel.nick
+            val password = if (channel.token.isBlank()) SETTINGS.password else channel.token
+
+            val twirk = TwirkBuilder("#${channel.channel}", nick, password)
                     .setVerboseMode(true)
                     .build()
             twirk.connect()
@@ -43,9 +47,9 @@ object BotManager {
                         }
                     }
         })
-        twirkThread.name = channel
+        twirkThread.name = channel.channel
         twirkThread.start()
-        threadList[channel] = twirkThread
+        threadList[channel.channel] = twirkThread
     }
 
     fun stopTwirkForChannel(channel: String) {

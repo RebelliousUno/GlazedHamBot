@@ -87,7 +87,7 @@ internal class SettingsDAO(private val connectionList: HashMap<String, Connectio
 
     fun createChannelsTable() {
         val channelList = "create table if not exists channels (" +
-                "channel text, prefix text DEFAULT '!')"
+                "channel text, prefix text DEFAULT '!', nick text default '', token text default '')"
 
         settingsDB?.createStatement()?.apply {
             queryTimeout = 30
@@ -95,16 +95,19 @@ internal class SettingsDAO(private val connectionList: HashMap<String, Connectio
         }
     }
 
-    override fun getListOfChannels(): Array<String> {
+    override fun getListOfChannels(): Array<Channel> {
         val channelSelect = "select * from channels"
-        val list = ArrayList<String>()
+        val list = ArrayList<Channel>()
         settingsDB?.createStatement()?.run {
             queryTimeout = 30
             executeQuery(channelSelect)
         }?.apply {
             while (next()) {
                 val channel = getString("channel")
-                list.add(channel)
+                val prefix = getString("prefix")
+                val nick = getString("nick")
+                val token = getString("token")
+                list.add(Channel(channel, prefix, nick, token))
             }
         }
         return list.toTypedArray()
