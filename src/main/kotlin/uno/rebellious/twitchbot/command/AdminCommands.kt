@@ -18,7 +18,9 @@ class AdminCommands(private var prefix: String, private val twirk: Twirk, privat
 
     private fun listChannelsCommand(): Command {
         return Command(prefix, "listchannels", "Usage: ${prefix}listchannels - Lists all the channels the bot is in", Permission(false, true, false)) { _: TwitchUser, _: List<String> ->
-            val channelList = database.getListOfChannels()
+            val channelList = database.getListOfChannels().map {
+                it.channel
+            }
             twirk.channelMessage("GlazedHamBot is present in $channelList")
         }
     }
