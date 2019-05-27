@@ -3,6 +3,7 @@ package uno.rebellious.twitchbot.command
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.types.users.TwitchUser
 import uno.rebellious.twitchbot.BotManager
+import uno.rebellious.twitchbot.database.Channel
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import java.util.*
 
@@ -41,8 +42,9 @@ class AdminCommands(private var prefix: String, private val twirk: Twirk, privat
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
                 val newChannel = content[1].toLowerCase(Locale.ENGLISH)
-                database.addChannel(newChannel)
-                BotManager.startTwirkForChannel(newChannel)
+                val chan = Channel(newChannel, "!", "", "")
+                database.addChannel(chan.channel)
+                BotManager.startTwirkForChannel(chan)
             }
         }
     }

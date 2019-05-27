@@ -69,10 +69,10 @@ class DatabaseDAO : IDatabase {
         }
     }
 
-    private fun connect(channels: Array<String>) {
+    private fun connect(channels: Array<Channel>) {
         channels.forEach {
-            val con = DriverManager.getConnection("jdbc:sqlite:${it.toLowerCase()}.db")
-            connectionList[it] = con
+            val con = DriverManager.getConnection("jdbc:sqlite:${it.channel.toLowerCase()}.db")
+            connectionList[it.channel] = con
         }
     }
 
@@ -101,5 +101,5 @@ class DatabaseDAO : IDatabase {
 
     override fun getAllCommandList(channel: String): ArrayList<String> = settingsDAO.getAllCommandList(channel)
 
-    override fun getListOfChannels(): Array<String> = settingsDAO.getListOfChannels()
+    override fun getListOfChannels(): Array<Channel> = settingsDAO.getListOfChannels()
 }

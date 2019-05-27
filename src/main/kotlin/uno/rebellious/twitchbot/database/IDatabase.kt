@@ -17,7 +17,7 @@ interface ISettings {
     fun addChannel(newChannel: String, prefix: String = "!")
     fun getPrefixForChannel(channel: String): String
     fun setPrefixForChannel(channel: String, prefix: String)
-    fun getListOfChannels(): Array<String>
+    fun getListOfChannels(): Array<Channel>
 }
 
 interface ICounters {
