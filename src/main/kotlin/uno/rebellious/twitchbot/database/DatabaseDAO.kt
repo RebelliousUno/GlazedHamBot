@@ -1,5 +1,6 @@
 package uno.rebellious.twitchbot.database
 
+import com.gikk.twirk.types.users.TwitchUser
 import java.sql.Connection
 import java.sql.DriverManager
 import java.time.LocalDate
@@ -12,6 +13,7 @@ class DatabaseDAO : IDatabase {
     private val responsesDAO = ResponsesDAO(connectionList)
     private val quotesDAO = QuotesDAO(connectionList)
     private val settingsDAO = SettingsDAO(connectionList)
+    private val currencyDAO = CurrencyDAO(connectionList)
 
     init {
         setupSettings() //Set up Settings DB
@@ -19,6 +21,35 @@ class DatabaseDAO : IDatabase {
         connect(channelList)
         setupAllChannels()
     }
+
+    override fun getCurrencyForUser(channel: String, user: TwitchUser): Double {
+        return currencyDAO.getCurrencyForUser(channel, user)
+    }
+
+    override fun startCurrencyGame(channel: String, user: TwitchUser) {
+        currencyDAO.startCurrencyGame(channel, user)
+    }
+
+    override fun joinCurrencyGame(channel: String, user: TwitchUser) {
+        currencyDAO.joinCurrencyGame(channel, user)
+    }
+
+    override fun getUsersInCurrencyGame(channel: String, user: TwitchUser): List<String> {
+        return getUsersInCurrencyGame(channel, user)
+    }
+
+    override fun updateCurrencyForUsers(channel: String, users: List<String>, multiplier: Double) {
+        currencyDAO.updateCurrencyForUsers(channel, users, multiplier)
+    }
+
+    override fun getCurrencyName(channel: String): String {
+        return currencyDAO.getCurrencyName(channel)
+    }
+
+    override fun setCurrencyName(channel: String, currency: String) {
+        currencyDAO.setCurrencyName(channel, currency)
+    }
+
 
     override fun createCounterForChannel(
         channel: String,
@@ -30,37 +61,38 @@ class DatabaseDAO : IDatabase {
     override fun showCountersForChannel(channel: String): List<String> = countersDAO.showCountersForChannel(channel)
 
     override fun removeCounterForChannel(channel: String, counter: String) =
-            countersDAO.removeCounterForChannel(channel, counter)
+        countersDAO.removeCounterForChannel(channel, counter)
 
     override fun incrementCounterForChannel(channel: String, counter: String, by: Int) =
-            countersDAO.incrementCounterForChannel(channel, counter, by)
+        countersDAO.incrementCounterForChannel(channel, counter, by)
 
     override fun getCounterForChannel(channel: String, counter: String): String =
-            countersDAO.getCounterForChannel(channel, counter)
+        countersDAO.getCounterForChannel(channel, counter)
 
     override fun resetTodaysCounterForChannel(channel: String, counter: String) =
-            countersDAO.resetTodaysCounterForChannel(channel, counter)
+        countersDAO.resetTodaysCounterForChannel(channel, counter)
 
     override fun addQuoteForChannel(channel: String, date: LocalDate, person: String, quote: String): Int =
-            quotesDAO.addQuoteForChannel(channel, date, person, quote)
+        quotesDAO.addQuoteForChannel(channel, date, person, quote)
 
     override fun delQuoteForChannel(channel: String, quoteId: Int) = quotesDAO.delQuoteForChannel(channel, quoteId)
 
-    override fun undeleteQuoteForChannel(channel: String, quoteId: Int) = quotesDAO.undeleteQuoteForChannel(channel, quoteId)
+    override fun undeleteQuoteForChannel(channel: String, quoteId: Int) =
+        quotesDAO.undeleteQuoteForChannel(channel, quoteId)
 
     override fun editQuoteForChannel(channel: String, quoteId: Int, date: LocalDate?, person: String, quote: String) =
-            quotesDAO.editQuoteForChannel(channel, quoteId, date, person, quote)
+        quotesDAO.editQuoteForChannel(channel, quoteId, date, person, quote)
 
     override fun getQuoteForChannelById(channel: String, quoteId: Int): String =
-            quotesDAO.getQuoteForChannelById(channel, quoteId)
+        quotesDAO.getQuoteForChannelById(channel, quoteId)
 
     override fun getRandomQuoteForChannel(channel: String): String = quotesDAO.getRandomQuoteForChannel(channel)
 
     override fun findQuoteByAuthor(channel: String, author: String): String =
-            quotesDAO.findQuoteByAuthor(channel, author)
+        quotesDAO.findQuoteByAuthor(channel, author)
 
     override fun findQuoteByKeyword(channel: String, keyword: String): String =
-            quotesDAO.findQuoteByKeyword(channel, keyword)
+        quotesDAO.findQuoteByKeyword(channel, keyword)
 
     private fun setupSettings() {
         settingsDAO.createChannelsTable()
@@ -81,10 +113,11 @@ class DatabaseDAO : IDatabase {
             responsesDAO.createResponseTable(it.value)
             quotesDAO.createQuotesTable(it.value)
             countersDAO.setupCounters(it.value)
+            currencyDAO.setupCurrency(it.value)
         }
     }
 
-    override fun getPrefixForChannel(channel: String): String  = settingsDAO.getPrefixForChannel(channel)
+    override fun getPrefixForChannel(channel: String): String = settingsDAO.getPrefixForChannel(channel)
 
     override fun setPrefixForChannel(channel: String, prefix: String) = settingsDAO.setPrefixForChannel(channel, prefix)
 
@@ -95,7 +128,7 @@ class DatabaseDAO : IDatabase {
     override fun leaveChannel(channel: String) = settingsDAO.leaveChannel(channel)
 
     override fun setResponse(channel: String, command: String, response: String) =
-            responsesDAO.setResponse(channel, command, response)
+        responsesDAO.setResponse(channel, command, response)
 
     override fun removeResponse(channel: String, command: String) = responsesDAO.removeResponse(channel, command)
 

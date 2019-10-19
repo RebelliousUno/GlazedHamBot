@@ -3,24 +3,48 @@ package uno.rebellious.twitchbot
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.TwirkBuilder
 import com.gikk.twirk.events.TwirkListener
+import com.github.kittinunf.fuel.Fuel
+import com.google.gson.Gson
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.subjects.BehaviorSubject
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import uno.rebellious.twitchbot.command.CommandManager
 import uno.rebellious.twitchbot.database.Channel
 import uno.rebellious.twitchbot.database.DatabaseDAO
+import uno.rebellious.twitchbot.model.ChattersResponse
 import uno.rebellious.twitchbot.model.Settings
+import java.time.Instant.now
 import java.util.*
 
 object BotManager {
 
     private val scanner: Observable<String> = Scanner(System.`in`).toObservable().share()
     private val SETTINGS = Settings()
-    val lastFMUrl = "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${SETTINGS.lastFMUser}&api_key=${SETTINGS.lastFMAPI}&format=json&limit=1"
+    val lastFMUrl =
+        "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${SETTINGS.lastFMUser}&api_key=${SETTINGS.lastFMAPI}&format=json&limit=1"
     private var threadList = HashMap<String, Thread>()
 
 
     val database = DatabaseDAO()
+
+    fun startCurrencyCheckerForChannel(channel: Channel, polltime: Int) {
+        val url = "http://tmi.twitch.tv/group/user/${channel.channel}/chatters"
+
+        GlobalScope.launch {
+            while (true) {
+                Fuel.get(url).responseString { _, _, result ->
+                    val resultJson = result.get()
+                    val chattersResponse = Gson().fromJson(resultJson, ChattersResponse::class.java)
+                    println(now())
+                    println(chattersResponse)
+                }
+                delay(polltime * 1000.toLong())
+            }
+        }
+    }
 
     fun startTwirkForChannel(channel: Channel) {
         val twirkThread = Thread(Runnable {
@@ -30,22 +54,22 @@ object BotManager {
             val password = if (channel.token.isBlank()) SETTINGS.password else channel.token
 
             val twirk = TwirkBuilder("#${channel.channel}", nick, password)
-                    .setVerboseMode(true)
-                    .build()
+                .setVerboseMode(true)
+                .build()
             twirk.connect()
             twirk.addIrcListener(CommandManager(twirk, channel))
             twirk.addIrcListener(getOnDisconnectListener(twirk))
 
             scanner
-                    .takeUntil { it == ".quit" }
-                    .subscribe {
-                        if (it == ".quit") {
-                            println("Quitting $channel")
-                            twirk.close()
-                        } else {
-                            twirk.channelMessage(it)
-                        }
+                .takeUntil { it == ".quit" }
+                .subscribe {
+                    if (it == ".quit") {
+                        println("Quitting $channel")
+                        twirk.close()
+                    } else {
+                        twirk.channelMessage(it)
                     }
+                }
         })
         twirkThread.name = channel.channel
         twirkThread.start()

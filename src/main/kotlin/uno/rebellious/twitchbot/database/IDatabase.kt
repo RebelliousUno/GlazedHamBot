@@ -1,9 +1,10 @@
 package uno.rebellious.twitchbot.database
 
+import com.gikk.twirk.types.users.TwitchUser
 import java.time.LocalDate
 import java.util.*
 
-interface IDatabase : ICounters, IQuotes, ISettings, IResponse
+interface IDatabase : ICounters, IQuotes, ISettings, IResponse, ICurrency
 
 interface IResponse {
     fun findResponse(channel: String, command: String): String
@@ -38,4 +39,14 @@ interface IQuotes {
     fun findQuoteByAuthor(channel: String, author: String): String
     fun findQuoteByKeyword(channel: String, keyword: String): String
     fun undeleteQuoteForChannel(channel: String, quoteId: Int)
+}
+
+interface ICurrency {
+    fun getCurrencyForUser(channel: String, user: TwitchUser): Double
+    fun startCurrencyGame(channel: String, user: TwitchUser)
+    fun joinCurrencyGame(channel: String, user: TwitchUser)
+    fun getUsersInCurrencyGame(channel: String, user: TwitchUser): List<String>
+    fun updateCurrencyForUsers(channel: String, users: List<String>, multiplier: Double)
+    fun getCurrencyName(channel: String): String
+    fun setCurrencyName(channel: String, currency: String)
 }

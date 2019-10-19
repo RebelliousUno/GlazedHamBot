@@ -22,6 +22,7 @@ class CommandManager (private val twirk: Twirk, private val channel: Channel): C
         commands.add(ResponseCommands(prefix, twirk, channel.channel, database))
         commands.add(AdminCommands(prefix, twirk, channel.channel, database))
         commands.add(MiscCommands(prefix, twirk, channel.channel, database))
+        commands.add(CurrencyCommands(prefix, twirk, channel.channel, database))
 
         commands.forEach {
             commandList.addAll(it.commandList)
@@ -80,7 +81,13 @@ class CommandManager (private val twirk: Twirk, private val channel: Channel): C
                     .filter { it.canUseCommand(twitchUser) }
                     .map { command -> command.prefix + command.command }
                     .sorted()
-            twirk.channelMessage("Quotes: $quoteCmds, Responses: $dbCommands $responseCmds, Counters: $counterCmds, Misc: $miscCmds,  Admin: $adminCmds")
+            val currencyCommands = commands
+                .first { it is CurrencyCommands}
+                .commandList
+                .filter { it.canUseCommand(twitchUser) }
+                .map { command -> command.prefix + command.command}
+                .sorted()
+            twirk.channelMessage("Currency: $currencyCommands, Quotes: $quoteCmds, Responses: $dbCommands $responseCmds, Counters: $counterCmds, Misc: $miscCmds,  Admin: $adminCmds")
         }
     }
 
