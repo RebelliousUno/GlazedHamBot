@@ -15,9 +15,10 @@ class CurrencyDAO(private val connectionList: HashMap<String, Connection>) : ICu
 
     private fun setupCurrencyAccountTable(connection: Connection) {
         val accountTableSql = """CREATE TABLE if not exists "currencyAccount" (
-	        "user"	    TEXT,
-	        "currency"	NUMERIC DEFAULT 0
-        )
+	"user"	TEXT,
+	"currency"	NUMERIC DEFAULT 0,
+	PRIMARY KEY("user")
+)
         """.trimIndent()
         connection.createStatement().apply {
             queryTimeout = 30
@@ -137,7 +138,16 @@ class CurrencyDAO(private val connectionList: HashMap<String, Connection>) : ICu
     }
 
     override fun getCurrencyForUser(channel: String, user: TwitchUser): Double {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val sql = "select currency from currencyAccount where user = ?"
+        val con = connectionList[channel]
+        val results = con?.prepareStatement(sql)?.run {
+            setString(1, user.userName)
+            executeQuery()
+        }
+        return if (results?.next() == true) {
+            results.getDouble(1)
+        } else {
+            0.0
+        }
     }
-
 }

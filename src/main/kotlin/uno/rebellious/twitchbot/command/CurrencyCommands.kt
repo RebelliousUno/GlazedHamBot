@@ -13,9 +13,19 @@ class CurrencyCommands(
     init {
         commandList.add(getCurrencyNameCommand())
         commandList.add(setCurrencyNameCommand())
+        commandList.add(getCurrencyCommand())
 //        commandList.add(spendCurrencyCommand())
 //        commandList.add(startCurrencyGameCommand())
 //        commandList.add(joinCurrencyGameCommand())
+    }
+
+    private fun getCurrencyCommand(): Command {
+        val currencyName = database.getCurrencyName(channel)
+        return Command(prefix, currencyName.toLowerCase(), "", Permission.ANYONE) { user: TwitchUser, _ ->
+            val currency = database.getCurrencyForUser(channel, user)
+            twirk.channelMessage("${user.userName} you currently have $currency $currencyName")
+
+        }
     }
 
     private fun getCurrencyNameCommand(): Command {
