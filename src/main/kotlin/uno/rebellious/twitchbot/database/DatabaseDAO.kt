@@ -1,12 +1,14 @@
 package uno.rebellious.twitchbot.database
 
 import com.gikk.twirk.types.users.TwitchUser
+import uno.rebellious.twitchbot.model.CurrencyDetails
 import java.sql.Connection
 import java.sql.DriverManager
 import java.time.LocalDate
 import java.util.*
 
 class DatabaseDAO : IDatabase {
+
 
     private var connectionList: HashMap<String, Connection> = HashMap()
     private val countersDAO = CountersDAO(connectionList)
@@ -20,6 +22,10 @@ class DatabaseDAO : IDatabase {
         val channelList = settingsDAO.getListOfChannels()
         connect(channelList)
         setupAllChannels()
+    }
+
+    override fun getCurrencyDetailsForChannel(channel: String): CurrencyDetails? {
+        return currencyDAO.getCurrencyDetailsForChannel(channel)
     }
 
     override fun getCurrencyForUser(channel: String, user: TwitchUser): Double {
@@ -38,7 +44,7 @@ class DatabaseDAO : IDatabase {
         return getUsersInCurrencyGame(channel, user)
     }
 
-    override fun updateCurrencyForUsers(channel: String, users: List<String>, multiplier: Double) {
+    override fun updateCurrencyForUsers(channel: String, users: ArrayList<String>, multiplier: Double) {
         currencyDAO.updateCurrencyForUsers(channel, users, multiplier)
     }
 

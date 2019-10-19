@@ -1,6 +1,7 @@
 package uno.rebellious.twitchbot.database
 
 import com.gikk.twirk.types.users.TwitchUser
+import uno.rebellious.twitchbot.model.CurrencyDetails
 import java.time.LocalDate
 import java.util.*
 
@@ -46,7 +47,8 @@ interface ICurrency {
     fun startCurrencyGame(channel: String, user: TwitchUser)
     fun joinCurrencyGame(channel: String, user: TwitchUser)
     fun getUsersInCurrencyGame(channel: String, user: TwitchUser): List<String>
-    fun updateCurrencyForUsers(channel: String, users: List<String>, multiplier: Double)
     fun getCurrencyName(channel: String): String
     fun setCurrencyName(channel: String, currency: String)
+    fun getCurrencyDetailsForChannel(channel: String): CurrencyDetails?
+    fun updateCurrencyForUsers(channel: String, users: ArrayList<String>, multiplier: Double)
 }

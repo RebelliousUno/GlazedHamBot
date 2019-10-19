@@ -3,6 +3,8 @@ package uno.rebellious.twitchbot
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.TwirkBuilder
 import com.gikk.twirk.events.TwirkListener
+import com.gikk.twirk.types.users.TwitchUser
+import com.gikk.twirk.types.users.TwitchUserBuilder
 import com.github.kittinunf.fuel.Fuel
 import com.google.gson.Gson
 import io.reactivex.Observable
@@ -30,7 +32,7 @@ object BotManager {
 
     val database = DatabaseDAO()
 
-    fun startCurrencyCheckerForChannel(channel: Channel, polltime: Int) {
+    fun startCurrencyCheckerForChannel(channel: Channel, pollTime: Int) {
         val url = "http://tmi.twitch.tv/group/user/${channel.channel}/chatters"
 
         GlobalScope.launch {
@@ -38,10 +40,18 @@ object BotManager {
                 Fuel.get(url).responseString { _, _, result ->
                     val resultJson = result.get()
                     val chattersResponse = Gson().fromJson(resultJson, ChattersResponse::class.java)
-                    println(now())
-                    println(chattersResponse)
+                    val details = database.getCurrencyDetailsForChannel(channel.channel)
+                    if (details != null) {
+                        database.updateCurrencyForUsers(channel.channel, chattersResponse.chatters.viewers, 1.0)
+                        database.updateCurrencyForUsers(channel.channel, chattersResponse.chatters.moderators, details.modMult)
+                        database.updateCurrencyForUsers(channel.channel, chattersResponse.chatters.vips, details.vipMult)
+                        database.updateCurrencyForUsers(channel.channel, chattersResponse.chatters.broadcaster, 1.0)
+                        database.updateCurrencyForUsers(channel.channel, chattersResponse.chatters.staff, 1.0)
+                        database.updateCurrencyForUsers(channel.channel, chattersResponse.chatters.admins, 1.0)
+                        database.updateCurrencyForUsers(channel.channel, chattersResponse.chatters.global_mods, 1.0)
+                    }
                 }
-                delay(polltime * 1000.toLong())
+                delay(pollTime * 1000.toLong())
             }
         }
     }
