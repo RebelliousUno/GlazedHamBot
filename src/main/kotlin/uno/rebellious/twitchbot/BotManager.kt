@@ -4,6 +4,7 @@ import com.gikk.twirk.Twirk
 import com.gikk.twirk.TwirkBuilder
 import com.gikk.twirk.events.TwirkListener
 import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.subjects.BehaviorSubject
 import uno.rebellious.twitchbot.command.CommandManager
@@ -14,15 +15,17 @@ import java.util.*
 
 object BotManager {
 
-    private val scanner: Observable<String> = Scanner(System.`in`).toObservable().share()
+    private val scanner: Observable<String> = Scanner(System.`in`).useDelimiter("\n").toObservable().share()
     private val SETTINGS = Settings()
-    val lastFMUrl = "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${SETTINGS.lastFMUser}&api_key=${SETTINGS.lastFMAPI}&format=json&limit=1"
-    private var threadList = HashMap<String, Thread>()
+    val lastFMUrl =
+        "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${SETTINGS.lastFMUser}&api_key=${SETTINGS.lastFMAPI}&format=json&limit=1"
+    private var threadList = HashMap<String, Pair<Thread, Disposable?>>()
 
 
     val database = DatabaseDAO()
 
     fun startTwirkForChannel(channel: Channel) {
+        var disposable: Disposable? = null
         val twirkThread = Thread(Runnable {
             val shouldStop = BehaviorSubject.create<Boolean>()
             shouldStop.onNext(false)
@@ -34,10 +37,10 @@ object BotManager {
                     .build()
             twirk.connect()
             twirk.addIrcListener(CommandManager(twirk, channel))
-            twirk.addIrcListener(getOnDisconnectListener(twirk))
+            twirk.addIrcListener(getOnDisconnectListener(twirk, channel))
 
-            scanner
-                    .takeUntil { it == ".quit" }
+            disposable = scanner
+                    .takeUntil { it == ".quit\n" }
                     .subscribe {
                         if (it == ".quit") {
                             println("Quitting $channel")
@@ -49,15 +52,16 @@ object BotManager {
         })
         twirkThread.name = channel.channel
         twirkThread.start()
-        threadList[channel.channel] = twirkThread
+        threadList[channel.channel] = Pair(twirkThread, disposable)
     }
 
     fun stopTwirkForChannel(channel: String) {
         val thread = threadList[channel]
-        thread?.interrupt()
+        thread?.first?.interrupt()
+        thread?.second?.dispose()
     }
 
-    private fun getOnDisconnectListener(twirk: Twirk): TwirkListener? {
-        return UnoBotBase(twirk)
+    private fun getOnDisconnectListener(twirk: Twirk, channel: Channel): TwirkListener? {
+        return UnoBotBase(twirk, channel)
     }
 }
