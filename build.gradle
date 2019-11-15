@@ -1,8 +1,8 @@
 group 'uno.rebellious'
-version '1.4.1-SNAPSHOT'
+version '1.4.2-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.3.11'
+    ext.kotlin_version = '1.3.50'
 
     repositories {
         mavenCentral()
@@ -34,14 +34,14 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.salomonbrys.kotson:kotson:2.5.0'
-    compile 'com.github.Gikkman:Java-Twirk:0.4.1'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'com.github.kittinunf.fuel:fuel:1.15.0' //for JVM
-    compile 'com.beust:klaxon:0.30'
-    compile 'org.xerial:sqlite-jdbc:3.25.2'
-    compile 'io.reactivex.rxjava2:rxkotlin:2.3.0'
+    implementation 'com.github.salomonbrys.kotson:kotson:2.5.0'
+    implementation 'com.github.Gikkman:Java-Twirk:0.4.1'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    implementation 'com.github.kittinunf.fuel:fuel:1.15.0' //for JVM
+    implementation 'com.beust:klaxon:0.30'
+    implementation 'org.xerial:sqlite-jdbc:3.25.2'
+    implementation 'io.reactivex.rxjava2:rxkotlin:2.3.0'
 }
 
 compileKotlin {
