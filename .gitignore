@@ -1,8 +1,8 @@
 .gradle/
 .idea/
 build/
-gradle/
 out/
 src/main/java/
 src/main/resources/settings.properties
 *.db
+/gradle/wrapper/gradle-wrapper.jar
