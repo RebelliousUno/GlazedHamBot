@@ -17,7 +17,6 @@ class MiscCommands(private val prefix: String, private val twirk: Twirk, private
         if (channel == "rebelliousuno") commandList.add(songCommand())
         if (channel == "rebelliousuno") commandList.add(jackSetCommand())
         if (channel == "rebelliousuno") commandList.add(jackCommand())
-        commandList.add(helpCommand())
     }
 
     private fun songCommand(): Command {
@@ -46,16 +45,6 @@ class MiscCommands(private val prefix: String, private val twirk: Twirk, private
     private fun jackCommand(): Command {
         return Command(prefix, "jack", "Usage: ${prefix}jack - Gets the jackbox code for the current game", Permission(false, false, false)) { _: TwitchUser, _: List<String> ->
             twirk.channelMessage("Jackbox Code Set to $jackboxCode you can get the link by typing ${prefix}jack into chat")
-        }
-    }
-
-    private fun helpCommand(): Command {
-        return Command(prefix, "help" , "Usage: ${prefix}help cmd - to get help for a particular command", Permission(false, false, false)) { twitchUser: TwitchUser, content: List<String> ->
-            if (content.size > 1) {
-                twirk.channelMessage(commandList.firstOrNull { command -> command.command == content[1] && command.canUseCommand(twitchUser) }?.helpString)
-            } else {
-                twirk.channelMessage("Usage: ${prefix}help cmd - to get help for a particular command")
-            }
         }
     }
 }

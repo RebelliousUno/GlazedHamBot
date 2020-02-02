@@ -27,9 +27,19 @@ class CommandManager (private val twirk: Twirk, private val channel: Channel): C
             commandList.addAll(it.commandList)
         }
         commandList.add(commandListCommand())
-
+        commandList.add(helpCommand())
 
         twirk.channelMessage("Starting up for ${channel.channel} - prefix is ${channel.prefix}")
+    }
+
+    private fun helpCommand(): Command {
+        return Command(prefix, "help" , "Usage: ${prefix}help cmd - to get help for a particular command", Permission(false, false, false)) { twitchUser: TwitchUser, content: List<String> ->
+            if (content.size > 1) {
+                twirk.channelMessage(commandList.firstOrNull { command -> command.command == content[1] && command.canUseCommand(twitchUser) }?.helpString)
+            } else {
+                twirk.channelMessage("Usage: ${prefix}help cmd - to get help for a particular command")
+            }
+        }
     }
 
     private fun countCommand(): Command {
@@ -74,13 +84,18 @@ class CommandManager (private val twirk: Twirk, private val channel: Channel): C
                     .filter{it.canUseCommand(twitchUser)}
                     .map { command -> command.prefix + command.command }
                     .sorted()
+            val countersCommands = database
+                .showCountersForChannel(channel.channel)
+                .map { it.split(":")[0] }
+                .map { command -> prefix + command }
+                .sorted()
             val counterCmds = commands
                     .first { it is CounterCommands }
                     .commandList
                     .filter { it.canUseCommand(twitchUser) }
                     .map { command -> command.prefix + command.command }
                     .sorted()
-            twirk.channelMessage("Quotes: $quoteCmds, Responses: $dbCommands $responseCmds, Counters: $counterCmds, Misc: $miscCmds,  Admin: $adminCmds")
+            twirk.channelMessage("Quotes: $quoteCmds, Responses: $dbCommands $responseCmds, Counters: $countersCommands $counterCmds, Misc: $miscCmds,  Admin: $adminCmds")
         }
     }
 
