@@ -73,8 +73,10 @@ class CounterCommands(private val prefix: String, private val twirk: Twirk, priv
                 } else {
                     1
                 }
-                if (by > 0)
+                if (by > 0) {
                     database.incrementCounterForChannel(channel, counter, by)
+                    twirk.channelMessage(database.getCounterForChannel(channel, counter))
+                }
                 else twirk.channelMessage("${content[2]} is not a valid number to increment by")
             } catch (e: NumberFormatException) {
                 twirk.channelMessage("${content[2]} is not a valid number to increment by")
