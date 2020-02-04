@@ -17,6 +17,17 @@ class MiscCommands(private val prefix: String, private val twirk: Twirk, private
         if (channel == "rebelliousuno") commandList.add(songCommand())
         if (channel == "rebelliousuno") commandList.add(jackSetCommand())
         if (channel == "rebelliousuno") commandList.add(jackCommand())
+        commandList.add(shoutOutCommand())
+    }
+
+    private fun shoutOutCommand(): Command {
+        return Command(prefix, "shoutout", "Usage: ${prefix}shoutout channelname - the name of the channel to shout out",
+            Permission(false, true, false)) { _: TwitchUser, content: List<String> ->
+            if (content.size > 1) {
+                val shoutout = content[1]
+                twirk.channelMessage("Hey why don't you check out $shoutout's channel at https://www.twitch.tv/$shoutout they're good people")
+            }
+        }
     }
 
     private fun songCommand(): Command {
