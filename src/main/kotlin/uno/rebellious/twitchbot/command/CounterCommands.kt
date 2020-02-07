@@ -38,7 +38,7 @@ class CounterCommands(private val prefix: String, private val twirk: Twirk, priv
 
     private fun listCountersCommand(): Command {
         val helpString = ""
-        return Command(prefix, "counterlist", helpString, Permission(false, true, false)) { _: TwitchUser, _: List<String> ->
+        return Command(prefix, "counterlist", helpString, Permission(false, false, false)) { _: TwitchUser, _: List<String> ->
             twirk.channelMessage(database.showCountersForChannel(channel).toString())
         }
     }
