@@ -20,8 +20,8 @@ object BotManager {
     val lastFMUrl =
         "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${SETTINGS.lastFMUser}&api_key=${SETTINGS.lastFMAPI}&format=json&limit=1"
     val spotifyUrl = "https://api.spotify.com/v1/me/player"
-    val spotifyHeader = "Authorization" to "Bearer ${SETTINGS.spotifyOAuthToken}"
-
+    private val basicAuth = Base64.getUrlEncoder().encodeToString("${SETTINGS.clientId}:${SETTINGS.clientSecret}".toByteArray())
+    val spotifyBasicAuth = "Authorization" to "Basic $basicAuth"
     private var threadList = HashMap<String, Pair<Thread, Disposable?>>()
 
 

@@ -1,9 +1,16 @@
 package uno.rebellious.twitchbot.database
 
+import uno.rebellious.twitchbot.model.SpotifyToken
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
-interface IDatabase : ICounters, IQuotes, ISettings, IResponse
+interface IDatabase : ICounters, IQuotes, ISettings, IResponse, ISpotify
+
+interface ISpotify {
+    fun setTokensForChannel(channel: String, accessToken: String, refreshToken: String, expiryTime: LocalDateTime)
+    fun getTokensForChannel(channel: String): SpotifyToken?
+}
 
 interface IResponse {
     fun findResponse(channel: String, command: String): String

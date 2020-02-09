@@ -1,8 +1,10 @@
 package uno.rebellious.twitchbot.database
 
+import uno.rebellious.twitchbot.model.SpotifyToken
 import java.sql.Connection
 import java.sql.DriverManager
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class DatabaseDAO : IDatabase {
@@ -12,6 +14,7 @@ class DatabaseDAO : IDatabase {
     private val responsesDAO = ResponsesDAO(connectionList)
     private val quotesDAO = QuotesDAO(connectionList)
     private val settingsDAO = SettingsDAO(connectionList)
+    private val spotifyDAO = SpotifyDAO(connectionList)
 
     init {
         setupSettings() //Set up Settings DB
@@ -98,6 +101,15 @@ class DatabaseDAO : IDatabase {
             responsesDAO.setResponse(channel, command, response)
 
     override fun removeResponse(channel: String, command: String) = responsesDAO.removeResponse(channel, command)
+
+    override fun setTokensForChannel(
+        channel: String,
+        accessToken: String,
+        refreshToken: String,
+        expiryTime: LocalDateTime
+    ) = spotifyDAO.setTokensForChannel(channel, accessToken, refreshToken, expiryTime)
+
+    override fun getTokensForChannel(channel: String): SpotifyToken? = spotifyDAO.getTokensForChannel(channel)
 
     override fun getAllCommandList(channel: String): ArrayList<String> = settingsDAO.getAllCommandList(channel)
 
