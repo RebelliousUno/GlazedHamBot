@@ -58,7 +58,7 @@ class MiscCommands(
                 //refresh spotifyToken
                 twirk.channelMessage("No Access Token requesting one")
                 val (request, response, result) = Fuel.request(Method.POST, "https://accounts.spotify.com/api/token")
-                    .body("grant_type=authorization_code&code=${spotifyToken.authCode}&redirect_uri=http://localhost/callback")
+                    .body("grant_type=authorization_code&code=${spotifyToken.authCode}&redirect_uri=http://bot.rebellious.uno/callback")
                     .appendHeader(BotManager.spotifyBasicAuth)
                     .appendHeader("Content-Type" to "application/x-www-form-urlencoded ")
                     .responseString()
@@ -84,7 +84,6 @@ class MiscCommands(
 
             if (spotifyToken?.refreshToken != null && (spotifyToken.expiryTime == null || ((spotifyToken.expiryTime as LocalDateTime) < now()))) {
                 //Access token is expired or has no expiry - refresh it
-                twirk.channelMessage("Token Expired Refreshing")
                 val (request, response, result) = Fuel.request(Method.POST, "https://accounts.spotify.com/api/token")
                     .appendHeader(BotManager.spotifyBasicAuth)
                     .appendHeader("Content-Type" to "application/x-www-form-urlencoded ")
@@ -92,13 +91,10 @@ class MiscCommands(
                     .responseString()
                 when (result) {
                     is Result.Success -> {
-                        twirk.channelMessage("Token Refreshed")
-                        println(result)
                         val spotifyRefreshTokenResponse = SpotifyRefreshTokenResponse(result.get())
                         database.setTokensForChannel(channel, accessToken = spotifyRefreshTokenResponse.accessToken, refreshToken = spotifyToken.refreshToken!!, expiryTime = now().plusSeconds(spotifyRefreshTokenResponse.expiry.toLong()) )
                     }
                     is Result.Failure -> {
-                        println(response)
                         twirk.channelMessage("Unable to refresh token")
                         return@Command ""
                     }
@@ -110,9 +106,6 @@ class MiscCommands(
                 .appendHeader("Authorization" to "Bearer ${spotifyToken?.accessToken}")
                 .responseString { s, e, result ->
                     val resultJson = result.get()
-                    System.out.println(s)
-                    System.out.println(e)
-                    System.out.println(resultJson)
                     val spotifyResponse = SpotifyResponse(resultJson)
                     twirk.channelMessage("$channel is listening to ${spotifyResponse.track} by ${spotifyResponse.artist} from the album ${spotifyResponse.album}")
                 }
