@@ -27,7 +27,8 @@ class MiscCommands(
         if (channel == "rebelliousuno") commandList.add(lastfmCommand())
         if (channel == "rebelliousuno") commandList.add(jackSetCommand())
         if (channel == "rebelliousuno") commandList.add(jackCommand())
-        if (channel == "rebelliousuno") commandList.add(spotifyCommand())
+        if (channel == "rebelliousuno" || channel == "james_lrr") commandList.add(spotifyCommand())
+
         commandList.add(shoutOutCommand())
     }
 
