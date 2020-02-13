@@ -12,6 +12,18 @@ class CounterCommands(private val prefix: String, private val twirk: Twirk, priv
         commandList.add(resetCountCommand())
         commandList.add(listCountersCommand())
         commandList.add(deleteCounterCommand())
+        commandList.add(resetAllCountersCommand())
+    }
+
+    private fun resetAllCountersCommand(): Command {
+        val helpString = "Usage: ${prefix}resetAllCounters - resets today's count for all counters"
+        return Command(prefix, "resetallcounters", helpString, Permission(false, true, false)) { _: TwitchUser, _: List<String> ->
+            database.showCountersForChannel(channel)
+                .map { it.split(":")[0] }
+                .forEach {
+                    database.resetTodaysCounterForChannel(channel, it)
+                }
+        }
     }
 
     private fun deleteCounterCommand(): Command {
