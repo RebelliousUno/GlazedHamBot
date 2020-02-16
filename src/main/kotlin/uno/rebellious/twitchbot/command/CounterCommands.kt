@@ -22,8 +22,8 @@ class CounterCommands(private val prefix: String, private val twirk: Twirk, priv
                 .map { it.split(":")[0] }
                 .forEach {
                     database.resetTodaysCounterForChannel(channel, it)
-                    twirk.channelMessage(database.showCountersForChannel(channel).toString())
                 }
+            twirk.channelMessage(database.showCountersForChannel(channel).toString())
         }
     }
 
