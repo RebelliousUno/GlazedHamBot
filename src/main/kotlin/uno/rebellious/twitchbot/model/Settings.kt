@@ -20,9 +20,20 @@ class Settings {
             props.getProperty("lastFmUser"),
             props.getProperty("spotifyOAuth"),
             props.getProperty("client.id"),
-            props.getProperty("client.secret")
+            props.getProperty("client.secret"),
+            props.getProperty("pastebin_dev"),
+            props.getProperty("pastebin_user")
         )
     }
+
+    val pastebinDev: String?
+        get() {
+            return settings?.PASTEBIN_DEV
+        }
+    val pastebinUser: String?
+        get() {
+            return settings?.PASTEBIN_USER
+        }
 
     val spotifyOAuthToken: String?
         get() {
@@ -66,5 +77,7 @@ data class DataSettings(
     val LAST_FM_USER: String,
     val SPOTIFY_OAUTH: String?,
     val CLIENT_ID: String,
-    val CLIENT_SECRET: String
+    val CLIENT_SECRET: String,
+    val PASTEBIN_DEV: String,
+    val PASTEBIN_USER: String
 )

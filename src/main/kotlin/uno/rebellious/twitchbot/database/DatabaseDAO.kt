@@ -1,5 +1,6 @@
 package uno.rebellious.twitchbot.database
 
+import uno.rebellious.twitchbot.model.Quote
 import uno.rebellious.twitchbot.model.SpotifyToken
 import java.sql.Connection
 import java.sql.DriverManager
@@ -50,6 +51,8 @@ class DatabaseDAO : IDatabase {
     override fun delQuoteForChannel(channel: String, quoteId: Int) = quotesDAO.delQuoteForChannel(channel, quoteId)
 
     override fun undeleteQuoteForChannel(channel: String, quoteId: Int) = quotesDAO.undeleteQuoteForChannel(channel, quoteId)
+    override fun getAllQuotesForChannel(channel: String) = quotesDAO.getAllQuotesForChannel(channel)
+
 
     override fun editQuoteForChannel(channel: String, quoteId: Int, date: LocalDate?, person: String, quote: String) =
             quotesDAO.editQuoteForChannel(channel, quoteId, date, person, quote)

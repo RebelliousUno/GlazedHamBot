@@ -11,6 +11,7 @@ import uno.rebellious.twitchbot.command.CommandManager
 import uno.rebellious.twitchbot.database.Channel
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import uno.rebellious.twitchbot.model.Settings
+import uno.rebellious.twitchbot.pastebin.Pastebin
 import java.util.*
 
 object BotManager {
@@ -24,7 +25,7 @@ object BotManager {
     val spotifyBasicAuth = "Authorization" to "Basic $basicAuth"
     private var threadList = HashMap<String, Pair<Thread, Disposable?>>()
 
-
+    val pastebin = Pastebin(SETTINGS.pastebinDev, SETTINGS.pastebinUser)
     val database = DatabaseDAO()
 
     fun startTwirkForChannel(channel: Channel) {

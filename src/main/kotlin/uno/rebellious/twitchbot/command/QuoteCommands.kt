@@ -2,19 +2,32 @@ package uno.rebellious.twitchbot.command
 
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.types.users.TwitchUser
+import uno.rebellious.twitchbot.BotManager.pastebin
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import uno.rebellious.twitchbot.database.QuotesDAO
+import uno.rebellious.twitchbot.pastebin.Pastebin
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 
 
 class QuoteCommands(private val prefix: String, private val twirk: Twirk, val channel: String, val database: DatabaseDAO): CommandList() {
     init {
+        commandList.add(quoteListCommand())
         commandList.add(quoteCommand())
         commandList.add(addQuoteCommand())
         commandList.add(editQuoteCommand())
         commandList.add(deleteQuoteCommand())
         commandList.add(undeleteQuoteCommand())
+    }
+
+    private fun quoteListCommand(): Command {
+        val helpString = ""
+        return Command(prefix, "quotelist", helpString, Permission(false, true, false)) { _: TwitchUser, _: List<String> ->
+            val quoteList = database.getAllQuotesForChannel(channel)
+            val quotesString = pastebin.parseQuotes(quoteList)
+            val quotesURL = pastebin.createPaste("Punch A Quotes", quotesString)
+            twirk.channelMessage("Quote List: $quotesURL")
+        }
     }
 
     private fun deleteQuoteCommand(): Command {

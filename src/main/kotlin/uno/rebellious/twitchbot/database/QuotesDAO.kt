@@ -1,5 +1,6 @@
 package uno.rebellious.twitchbot.database
 
+import uno.rebellious.twitchbot.model.Quote
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.Timestamp
@@ -80,6 +81,20 @@ internal class QuotesDAO(private val connectionList: HashMap<String, Connection>
             setInt(idCount, quoteId)
             executeUpdate()
         }
+    }
+
+    override fun getAllQuotesForChannel(channel: String): List<Quote> {
+        val quoteList = ArrayList<Quote>()
+        val sql = "SELECT * from quotes where deleted = false"
+        val statement = connectionList[channel]?.prepareStatement(sql)
+        val result = statement?.run {
+            executeQuery()
+        }?.run {
+            while (this.next()) {
+                quoteList.add(Quote(getInt("ID"), getString("quote"), getString("subject"), getTimestamp("timestamp").toLocalDateTime()))
+            }
+        }
+        return quoteList
     }
 
     override fun getQuoteForChannelById(channel: String, quoteId: Int): String {

@@ -1,5 +1,6 @@
 package uno.rebellious.twitchbot.database
 
+import uno.rebellious.twitchbot.model.Quote
 import uno.rebellious.twitchbot.model.SpotifyToken
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -45,4 +46,5 @@ interface IQuotes {
     fun findQuoteByAuthor(channel: String, author: String): String
     fun findQuoteByKeyword(channel: String, keyword: String): String
     fun undeleteQuoteForChannel(channel: String, quoteId: Int)
+    fun getAllQuotesForChannel(channel: String): List<Quote>
 }
