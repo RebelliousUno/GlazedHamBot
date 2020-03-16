@@ -3,6 +3,8 @@ package uno.rebellious.twitchbot.command
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.types.users.TwitchUser
 import uno.rebellious.twitchbot.database.DatabaseDAO
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 class CounterCommands(private val prefix: String, private val twirk: Twirk, private val channel: String, private val database: DatabaseDAO): CommandList() {
     init {
@@ -28,8 +30,8 @@ class CounterCommands(private val prefix: String, private val twirk: Twirk, priv
                 val meanValues = list
                     .filter { it.key != "stream" }
                     .mapValues{ it.value / streamCounter.toDouble() }
-                    .map { "${it.key}: ${it.value}" }
-                twirk.channelMessage("Per Stream ($streamCounter) - ${meanValues.toString()}")
+                    .map { "${it.key}: ${BigDecimal(it.value).setScale(2, RoundingMode.HALF_EVEN)}" }
+                twirk.channelMessage("Per Stream ($streamCounter) - ${meanValues}")
             }
         }
     }
