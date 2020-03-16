@@ -34,7 +34,7 @@ interface ICounters {
     fun incrementCounterForChannel(channel: String, counter: String, by: Int = 1)
     fun getCounterForChannel(channel: String, counter: String): String
     fun resetTodaysCounterForChannel(channel: String, counter: String)
-    fun showCountersForChannel(channel: String): List<String>
+    fun showCountersForChannel(channel: String, includeStream: Boolean): List<String>
 }
 
 interface IQuotes {

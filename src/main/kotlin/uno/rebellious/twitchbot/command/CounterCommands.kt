@@ -13,17 +13,36 @@ class CounterCommands(private val prefix: String, private val twirk: Twirk, priv
         commandList.add(listCountersCommand())
         commandList.add(deleteCounterCommand())
         commandList.add(resetAllCountersCommand())
+        commandList.add(meanCounterListCommand())
+    }
+
+    private fun meanCounterListCommand(): Command {
+        val helpString = "Usage: ${prefix}meanCounterList - Gets the average counts per stream"
+        return Command(prefix, "meancounterlist", helpString, Permission(false, false, false)) { _: TwitchUser, _: List<String> ->
+            val list = database.showCountersForChannel(channel, true)
+                .map { it.split(":") }
+                .map { Pair(it[0], Integer.parseInt(it[1].split("/")[0].trim())) }
+                .toMap()
+            val streamCounter = list["stream"]
+            if (streamCounter != null && streamCounter > 0) {
+                val meanValues = list
+                    .filter { it.key != "stream" }
+                    .mapValues{ it.value / streamCounter.toDouble() }
+                    .map { "${it.key}: ${it.value}" }
+                twirk.channelMessage(meanValues.toString())
+            }
+        }
     }
 
     private fun resetAllCountersCommand(): Command {
         val helpString = "Usage: ${prefix}resetAllCounters - resets today's count for all counters"
         return Command(prefix, "resetallcounters", helpString, Permission(false, true, false)) { _: TwitchUser, _: List<String> ->
-            database.showCountersForChannel(channel)
+            database.showCountersForChannel(channel, true)
                 .map { it.split(":")[0] }
                 .forEach {
                     database.resetTodaysCounterForChannel(channel, it)
                 }
-            twirk.channelMessage(database.showCountersForChannel(channel).toString())
+            twirk.channelMessage(database.showCountersForChannel(channel, true).toString())
         }
     }
 
@@ -52,7 +71,7 @@ class CounterCommands(private val prefix: String, private val twirk: Twirk, priv
     private fun listCountersCommand(): Command {
         val helpString = ""
         return Command(prefix, "counterlist", helpString, Permission(false, false, false)) { _: TwitchUser, _: List<String> ->
-            twirk.channelMessage(database.showCountersForChannel(channel).toString())
+            twirk.channelMessage(database.showCountersForChannel(channel, false).toString())
         }
     }
 
