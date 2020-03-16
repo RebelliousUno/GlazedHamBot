@@ -21,7 +21,7 @@ class CounterCommands(private val prefix: String, private val twirk: Twirk, priv
         return Command(prefix, "meancounterlist", helpString, Permission(false, false, false)) { _: TwitchUser, _: List<String> ->
             val list = database.showCountersForChannel(channel, true)
                 .map { it.split(":") }
-                .map { Pair(it[0], Integer.parseInt(it[1].split("/")[0].trim())) }
+                .map { Pair(it[0], Integer.parseInt(it[1].split("/")[1].trim())) }
                 .toMap()
             val streamCounter = list["stream"]
             if (streamCounter != null && streamCounter > 0) {
