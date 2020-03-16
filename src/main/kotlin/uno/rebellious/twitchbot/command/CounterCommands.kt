@@ -16,15 +16,36 @@ class CounterCommands(private val prefix: String, private val twirk: Twirk, priv
         commandList.add(deleteCounterCommand())
         commandList.add(resetAllCountersCommand())
         commandList.add(meanCounterListCommand())
+        commandList.add(meanCounterCommand())
+    }
+
+    private fun meanCounterCommand(): Command {
+        val helpString = "Usage: ${prefix}mean breaks - Gets the mean count for a particular counter"
+        return Command(prefix, "mean", helpString, Permission(false, false, false)) {_: TwitchUser, content: List<String> ->
+            if (content.size > 1 ) {
+                val counter = content[1]
+                val counterList = counterListMap()
+                if (counterList.containsKey(counter) && counterList.containsKey("stream") && counterList["stream"] ?: 0 > 0) {
+                    val counterValue = counterList[counter] ?: 0
+                    val streamCounter = counterList["stream"] ?: 1
+                    val meanValue = counterValue / (streamCounter).toDouble()
+                    twirk.channelMessage("Mean ${counter} per stream ($counterValue/$streamCounter) - ${BigDecimal(meanValue).setScale(2, RoundingMode.HALF_EVEN)}")
+                }
+            }
+        }
+    }
+
+    private fun counterListMap(): Map<String, Int> {
+        return database.showCountersForChannel(channel, true)
+            .map { it.split(":") }
+            .map { Pair(it[0], Integer.parseInt(it[1].split("/")[1].trim())) }
+            .toMap()
     }
 
     private fun meanCounterListCommand(): Command {
         val helpString = "Usage: ${prefix}meanCounterList - Gets the average counts per stream"
         return Command(prefix, "meancounterlist", helpString, Permission(false, false, false)) { _: TwitchUser, _: List<String> ->
-            val list = database.showCountersForChannel(channel, true)
-                .map { it.split(":") }
-                .map { Pair(it[0], Integer.parseInt(it[1].split("/")[1].trim())) }
-                .toMap()
+            val list = counterListMap()
             val streamCounter = list["stream"]
             if (streamCounter != null && streamCounter > 0) {
                 val meanValues = list
