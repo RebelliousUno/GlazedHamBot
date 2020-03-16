@@ -29,7 +29,7 @@ class CounterCommands(private val prefix: String, private val twirk: Twirk, priv
                     .filter { it.key != "stream" }
                     .mapValues{ it.value / streamCounter.toDouble() }
                     .map { "${it.key}: ${it.value}" }
-                twirk.channelMessage(meanValues.toString())
+                twirk.channelMessage("Per Stream ($streamCounter) - ${meanValues.toString()}")
             }
         }
     }
