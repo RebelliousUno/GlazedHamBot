@@ -2,6 +2,7 @@ package uno.rebellious.twitchbot.database
 
 import java.sql.Connection
 import java.util.*
+import java.util.stream.BaseStream
 
 internal class CountersDAO(private val connectionList: HashMap<String, Connection>) : ICounters {
 
@@ -30,8 +31,8 @@ internal class CountersDAO(private val connectionList: HashMap<String, Connectio
         }
     }
 
-    override fun showCountersForChannel(channel: String): List<String> {
-        val sql = "SELECT * from counters"
+    override fun showCountersForChannel(channel: String, includeStream: Boolean): List<String> {
+        val sql = if (includeStream) "SELECT * from counters" else "SELECT * from counters where command NOT LIKE 'stream'"
         val counters = ArrayList<String>()
         connectionList[channel]?.createStatement()?.run {
             executeQuery(sql)

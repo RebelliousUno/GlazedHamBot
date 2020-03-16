@@ -100,7 +100,7 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
                 .map { command -> command.prefix + command.command }
                 .sorted()
             val countersCommands = database
-                .showCountersForChannel(channel.channel)
+                .showCountersForChannel(channel.channel, false)
                 .map { it.split(":")[0] }
                 .map { command -> prefix + command }
                 .sorted()

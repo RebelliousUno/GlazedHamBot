@@ -31,7 +31,7 @@ class DatabaseDAO : IDatabase {
         responsePlural: String
     ) = countersDAO.createCounterForChannel(channel, counter, responseSingular, responsePlural)
 
-    override fun showCountersForChannel(channel: String): List<String> = countersDAO.showCountersForChannel(channel)
+    override fun showCountersForChannel(channel: String, includeStream: Boolean): List<String> = countersDAO.showCountersForChannel(channel, includeStream)
 
     override fun removeCounterForChannel(channel: String, counter: String) =
             countersDAO.removeCounterForChannel(channel, counter)
