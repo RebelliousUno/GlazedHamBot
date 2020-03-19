@@ -6,12 +6,13 @@ import com.gikk.twirk.types.twitchMessage.TwitchMessage
 import com.gikk.twirk.types.users.TwitchUser
 import uno.rebellious.twitchbot.BotManager
 import uno.rebellious.twitchbot.database.Channel
+import java.time.Instant
 import java.util.*
 
 class CommandManager(private val twirk: Twirk, private val channel: Channel) : CommandList(), TwirkListener {
 
     private val commands = ArrayList<CommandList>()
-
+    private val commandTimeout = HashMap<String, Instant>()
     private var prefix = "!"
     private val database = BotManager.database
 
@@ -133,13 +134,17 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
 
         val splitContent = content.split(' ', ignoreCase = true, limit = 3)
         val command = splitContent[0].toLowerCase(Locale.ENGLISH)
-
-        commandList
-            .filter { command.startsWith("${it.prefix}${it.command}") }
-            .firstOrNull { it.canUseCommand(sender) }
-            ?.action?.invoke(sender, splitContent) ?: run {
-            countCommand().action.invoke(sender, splitContent)
-            responseCommand().action.invoke(sender, splitContent)
+        val expiry = commandTimeout[content.toLowerCase()]
+        val now = Instant.now()
+        if (expiry == null || expiry.isBefore(now)) {
+            commandTimeout[content.toLowerCase()] = now.plusSeconds(30)
+            commandList
+                .filter { command.startsWith("${it.prefix}${it.command}") }
+                .firstOrNull { it.canUseCommand(sender) }
+                ?.action?.invoke(sender, splitContent) ?: run {
+                countCommand().action.invoke(sender, splitContent)
+                responseCommand().action.invoke(sender, splitContent)
+            }
         }
     }
 }
