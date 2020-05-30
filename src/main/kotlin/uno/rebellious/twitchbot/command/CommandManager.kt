@@ -24,7 +24,7 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
         commands.add(ResponseCommands(prefix, twirk, channel.channel, database))
         commands.add(AdminCommands(prefix, twirk, channel.channel, database))
         commands.add(MiscCommands(prefix, twirk, channel.channel, database))
-
+        commands.add(WaypointCommands(prefix, twirk, channel.channel, database))
         commands.forEach {
             commandList.addAll(it.commandList)
         }
