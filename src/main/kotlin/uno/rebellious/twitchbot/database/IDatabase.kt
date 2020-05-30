@@ -16,8 +16,6 @@ interface IWaypoint {
         coordinate: WaypointCoordinate,
         deleted: Boolean = false
     ): Pair<Double, Waypoint>
-
-    fun distanceToWaypoint(channel: String, coordinate: WaypointCoordinate): Int
     fun findWaypointByName(channel: String, waypoint: String, deleted: Boolean = false): Waypoint?
 }
 

@@ -47,10 +47,6 @@ class WaypointDAO(private val connectionList: HashMap<String, Connection>) : IWa
         TODO("Not yet implemented")
     }
 
-    override fun distanceToWaypoint(channel: String, coordinate: WaypointCoordinate): Int {
-        TODO("Not yet implemented")
-    }
-
     override fun listWaypoints(channel: String, orderBy: WaypointOrder): List<Waypoint> {
         return getAllWaypointsForChannel(channel, false, orderBy)
     }
