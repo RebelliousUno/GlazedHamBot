@@ -9,8 +9,10 @@ import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
 import uno.rebellious.twitchbot.BotManager
 import uno.rebellious.twitchbot.database.DatabaseDAO
-import uno.rebellious.twitchbot.model.*
-import java.net.URLEncoder
+import uno.rebellious.twitchbot.model.LastFMResponse
+import uno.rebellious.twitchbot.model.SpotifyAccessTokenResponse
+import uno.rebellious.twitchbot.model.SpotifyRefreshTokenResponse
+import uno.rebellious.twitchbot.model.SpotifyResponse
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
 
@@ -63,17 +65,17 @@ class MiscCommands(
                     .appendHeader(BotManager.spotifyBasicAuth)
                     .appendHeader("Content-Type" to "application/x-www-form-urlencoded ")
                     .responseString()
-                when(result) {
+                when (result) {
                     is Result.Success -> {
                         println(response)
-                            val tokenResponse = SpotifyAccessTokenResponse(result.get())
-                            database.setTokensForChannel(
-                                channel,
-                                accessToken = tokenResponse.accessToken,
-                                refreshToken = tokenResponse.refreshToken,
-                                expiryTime = now().plusSeconds(tokenResponse.expiry.toLong())
-                            )
-                        }
+                        val tokenResponse = SpotifyAccessTokenResponse(result.get())
+                        database.setTokensForChannel(
+                            channel,
+                            accessToken = tokenResponse.accessToken,
+                            refreshToken = tokenResponse.refreshToken,
+                            expiryTime = now().plusSeconds(tokenResponse.expiry.toLong())
+                        )
+                    }
                     is Result.Failure -> {
                         twirk.channelMessage("Unable to refresh spotify token")
                         return@Command ""
@@ -93,7 +95,12 @@ class MiscCommands(
                 when (result) {
                     is Result.Success -> {
                         val spotifyRefreshTokenResponse = SpotifyRefreshTokenResponse(result.get())
-                        database.setTokensForChannel(channel, accessToken = spotifyRefreshTokenResponse.accessToken, refreshToken = spotifyToken.refreshToken!!, expiryTime = now().plusSeconds(spotifyRefreshTokenResponse.expiry.toLong()) )
+                        database.setTokensForChannel(
+                            channel,
+                            accessToken = spotifyRefreshTokenResponse.accessToken,
+                            refreshToken = spotifyToken.refreshToken!!,
+                            expiryTime = now().plusSeconds(spotifyRefreshTokenResponse.expiry.toLong())
+                        )
                     }
                     is Result.Failure -> {
                         twirk.channelMessage("Unable to refresh token")

@@ -3,7 +3,7 @@ package uno.rebellious.twitchbot.database
 import java.sql.Connection
 import java.util.*
 
-class ResponsesDAO(private val connectionList: HashMap<String, Connection>): IResponse {
+class ResponsesDAO(private val connectionList: HashMap<String, Connection>) : IResponse {
 
     override fun findResponse(channel: String, command: String): String {
         val connection = connectionList[channel]

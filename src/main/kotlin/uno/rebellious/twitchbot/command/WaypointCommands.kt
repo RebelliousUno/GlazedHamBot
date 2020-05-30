@@ -5,7 +5,6 @@ import com.gikk.twirk.types.users.TwitchUser
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import uno.rebellious.twitchbot.model.Waypoint
 import uno.rebellious.twitchbot.model.WaypointCoordinate
-import java.lang.NumberFormatException
 
 class WaypointCommands(
     private val prefix: String,
@@ -59,10 +58,10 @@ class WaypointCommands(
                         val z = split[2].toInt()
                         WaypointCoordinate(x, y, z)
                     } catch (nfe: NumberFormatException) {
-                        errorMessage = "Invalid Coordinate ${split.subList(0,3)}"
+                        errorMessage = "Invalid Coordinate ${split.subList(0, 3)}"
                         null
                     }
-                    if (waypointCoordinate!=null) {
+                    if (waypointCoordinate != null) {
                         val waypoint = Waypoint(split[3], waypointCoordinate)
                         val waypointId = database.addWaypoint(channel, waypoint)
                         if (waypointId > 0)

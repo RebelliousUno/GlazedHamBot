@@ -15,6 +15,7 @@ interface IWaypoint {
     fun findWaypointByCoords(channel: String, coordinate: WaypointCoordinate): Waypoint
     fun distanceToWaypoint(channel: String, coordinate: WaypointCoordinate): Int
 }
+
 interface ISpotify {
     fun setTokensForChannel(channel: String, accessToken: String, refreshToken: String, expiryTime: LocalDateTime)
     fun getTokensForChannel(channel: String): SpotifyToken?

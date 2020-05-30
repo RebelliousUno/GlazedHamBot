@@ -2,12 +2,12 @@ package uno.rebellious.twitchbot.database
 
 import java.sql.Connection
 import java.util.*
-import java.util.stream.BaseStream
 
 class CountersDAO(private val connectionList: HashMap<String, Connection>) : ICounters {
 
     fun setupCounters(connection: Connection) {
-        val counterTableSQL = "create table if not exists counters (command text, today int, total int, singular text, plural text)"
+        val counterTableSQL =
+            "create table if not exists counters (command text, today int, total int, singular text, plural text)"
         connection.createStatement()?.apply {
             queryTimeout = 30
             executeUpdate(counterTableSQL)
@@ -15,10 +15,10 @@ class CountersDAO(private val connectionList: HashMap<String, Connection>) : ICo
     }
 
     override fun createCounterForChannel(
-            channel: String,
-            counter: String,
-            responseSingular: String,
-            responsePlural: String
+        channel: String,
+        counter: String,
+        responseSingular: String,
+        responsePlural: String
     ) {
         val sql = "INSERT INTO counters(command, today, total, singular, plural) VALUES (?, ?, ?, ?, ?)"
         connectionList[channel]?.prepareStatement(sql)?.apply {
@@ -32,7 +32,8 @@ class CountersDAO(private val connectionList: HashMap<String, Connection>) : ICo
     }
 
     override fun showCountersForChannel(channel: String, includeStream: Boolean): List<String> {
-        val sql = if (includeStream) "SELECT * from counters" else "SELECT * from counters where command NOT LIKE 'stream'"
+        val sql =
+            if (includeStream) "SELECT * from counters" else "SELECT * from counters where command NOT LIKE 'stream'"
         val counters = ArrayList<String>()
         connectionList[channel]?.createStatement()?.run {
             executeQuery(sql)

@@ -5,7 +5,7 @@ import uno.rebellious.twitchbot.model.WaypointCoordinate
 import uno.rebellious.twitchbot.model.WaypointOrder
 import java.sql.Connection
 
-class WaypointDAO(private val connectionList: HashMap<String, Connection>): IWaypoint {
+class WaypointDAO(private val connectionList: HashMap<String, Connection>) : IWaypoint {
     fun setupWaypoints(connection: Connection) {
         val waypointTableSQL = """
             CREATE TABLE IF NOT EXISTS "waypoints" (
