@@ -9,11 +9,16 @@ interface IWaypoint {
     fun addWaypoint(channel: String, waypoint: Waypoint): Int
     fun deleteWaypointByName(channel: String, waypoint: String)
     fun deleteWaypointById(channel: String, id: Int)
-    fun listWaypoints(channel: String, waypointOrder: WaypointOrder): String
-    fun findWaypointByName(channel: String, waypoint: String): Waypoint
-    fun findWaypointById(channel: String, id: Int): Waypoint
-    fun findWaypointByCoords(channel: String, coordinate: WaypointCoordinate): Waypoint
+    fun listWaypoints(channel: String, orderBy: WaypointOrder): List<Waypoint>
+    fun findWaypointById(channel: String, id: Int, deleted: Boolean = false): Waypoint?
+    fun findWaypointByCoords(
+        channel: String,
+        coordinate: WaypointCoordinate,
+        deleted: Boolean = false
+    ): Pair<Double, Waypoint>
+
     fun distanceToWaypoint(channel: String, coordinate: WaypointCoordinate): Int
+    fun findWaypointByName(channel: String, waypoint: String, deleted: Boolean = false): Waypoint?
 }
 
 interface ISpotify {

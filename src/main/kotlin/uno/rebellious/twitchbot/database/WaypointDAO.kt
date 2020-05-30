@@ -4,6 +4,7 @@ import uno.rebellious.twitchbot.model.Waypoint
 import uno.rebellious.twitchbot.model.WaypointCoordinate
 import uno.rebellious.twitchbot.model.WaypointOrder
 import java.sql.Connection
+import java.sql.ResultSet
 
 class WaypointDAO(private val connectionList: HashMap<String, Connection>) : IWaypoint {
     fun setupWaypoints(connection: Connection) {
@@ -46,23 +47,81 @@ class WaypointDAO(private val connectionList: HashMap<String, Connection>) : IWa
         TODO("Not yet implemented")
     }
 
-    override fun listWaypoints(channel: String, waypointOrder: WaypointOrder): String {
-        TODO("Not yet implemented")
-    }
-
-    override fun findWaypointByName(channel: String, waypoint: String): Waypoint {
-        TODO("Not yet implemented")
-    }
-
-    override fun findWaypointById(channel: String, id: Int): Waypoint {
-        TODO("Not yet implemented")
-    }
-
-    override fun findWaypointByCoords(channel: String, coordinate: WaypointCoordinate): Waypoint {
-        TODO("Not yet implemented")
-    }
-
     override fun distanceToWaypoint(channel: String, coordinate: WaypointCoordinate): Int {
         TODO("Not yet implemented")
     }
+
+    override fun listWaypoints(channel: String, orderBy: WaypointOrder): List<Waypoint> {
+        return getAllWaypointsForChannel(channel, false, orderBy)
+    }
+
+    private fun findWaypointResult(result: ResultSet?): Waypoint? {
+        return result?.run {
+            if (next()) {
+                val waypoint = getString("name")
+                val x = getInt("x")
+                val y = getInt("y")
+                val z = getInt("z")
+                Waypoint(waypoint, WaypointCoordinate(x, y, z))
+            } else {
+                null
+            }
+        }
+    }
+
+    override fun findWaypointByName(channel: String, waypoint: String, deleted: Boolean): Waypoint? {
+        val sql = "SELECT * from waypoints where name like ? AND deleted = ? limit 1"
+        return findWaypointResult(connectionList[channel]?.prepareStatement(sql)?.run {
+            setString(1, waypoint)
+            setBoolean(2, deleted)
+            executeQuery()
+        })
+    }
+
+    override fun findWaypointById(channel: String, id: Int, deleted: Boolean): Waypoint? {
+        val sql = "SELECT * from waypoints where id = ? AND deleted = ? limit 1"
+        return findWaypointResult(connectionList[channel]?.prepareStatement(sql)?.run {
+            setInt(1, id)
+            setBoolean(2, deleted)
+            executeQuery()
+        })
+    }
+
+    override fun findWaypointByCoords(
+        channel: String,
+        coordinate: WaypointCoordinate,
+        deleted: Boolean
+    ): Pair<Double, Waypoint> {
+        val waypoints = getAllWaypointsForChannel(channel, deleted, WaypointOrder.ID)
+        return findClosestWaypoint(coordinate, waypoints)
+    }
+
+    private fun findClosestWaypoint(coordinate: WaypointCoordinate, waypoints: List<Waypoint>): Pair<Double, Waypoint> {
+        val sortedList = waypoints.map { Pair(it.distanceToWaypoint(coordinate), it) }.sortedBy { it.first }
+        return sortedList.first()
+    }
+
+
+    private fun getAllWaypointsForChannel(
+        channel: String,
+        deleted: Boolean,
+        orderBy: WaypointOrder
+    ): List<Waypoint> {
+        val waypointList = ArrayList<Waypoint>()
+        val sql = if (!deleted) {
+            "Select * from waypoints where deleted = 0 order by ${orderBy.column}"
+        } else {
+            "Select * from waypoints order by ${orderBy.column}"
+        }
+        connectionList[channel]?.createStatement()?.run {
+            executeQuery(sql)
+        }?.run {
+            while (next()) {
+                waypointList.add(Waypoint(getString("name"), WaypointCoordinate(getInt("x"), getInt("y"), getInt("z"))))
+            }
+        }
+        return waypointList
+    }
+
+
 }

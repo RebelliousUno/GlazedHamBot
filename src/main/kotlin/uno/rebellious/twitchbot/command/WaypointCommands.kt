@@ -2,9 +2,15 @@ package uno.rebellious.twitchbot.command
 
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.types.users.TwitchUser
+import uno.rebellious.twitchbot.BotManager.pastebin
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import uno.rebellious.twitchbot.model.Waypoint
 import uno.rebellious.twitchbot.model.WaypointCoordinate
+import uno.rebellious.twitchbot.model.WaypointOrder
+import uno.rebellious.twitchbot.model.waypointToString
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.util.regex.Pattern
 
 class WaypointCommands(
     private val prefix: String,
@@ -14,7 +20,6 @@ class WaypointCommands(
 ) : CommandList() {
     init {
         commandList.add(waypointCommand())
-
     }
 
     private fun waypointCommand(): Command {
@@ -22,7 +27,7 @@ class WaypointCommands(
             prefix,
             "waypoint",
             "Usage: ${prefix}waypoint",
-            Permission(false, false, false)
+            Permission( false, false, false)
         ) { user: TwitchUser, content: List<String> ->
             val command = when (if (content.size > 1) content[1] else "") {
                 "add" -> addWaypointCommand()
@@ -45,9 +50,6 @@ class WaypointCommands(
             "Usage: ${prefix}waypoint",
             Permission(false, true, false)
         ) { _: TwitchUser, content: List<String> ->
-
-            //parse the command
-            //add x, y, z, name
             var errorMessage: String? = null
             if (content.size > 1) {
                 val split = content[1].split(",").map { it.trim() }
@@ -65,9 +67,9 @@ class WaypointCommands(
                         val waypoint = Waypoint(split[3], waypointCoordinate)
                         val waypointId = database.addWaypoint(channel, waypoint)
                         if (waypointId > 0)
-                            twirk.channelMessage("Waypoint: ${waypoint.waypoint}(${waypoint.coordinate.x}, ${waypoint.coordinate.y}, ${waypoint.coordinate.z}) added as $waypointId")
+                            twirk.channelMessage("Waypoint: ${waypoint.waypointToString()} added as $waypointId")
                         else
-                            twirk.channelMessage("Waypoint: ${waypoint.waypoint}(${waypoint.coordinate.x}, ${waypoint.coordinate.y}, ${waypoint.coordinate.z}) not added")
+                            twirk.channelMessage("Waypoint: ${waypoint.waypointToString()} not added")
                     }
                 } else {
                     errorMessage = "(missing name)Usage: ${prefix}waypoint add x, y, z, name"
@@ -99,10 +101,25 @@ class WaypointCommands(
             "Usage: ${prefix}waypoint",
             Permission(false, false, false)
         ) { _: TwitchUser, content: List<String> ->
-            twirk.channelMessage("listWaypointCommand")
+            val orderString = if (content.size == 2) {
+                content[1]
+            } else {
+                "id"
+            }
+            val orderBy = when (orderString.trim()) {
+                "name" -> WaypointOrder.NAME
+                "x" -> WaypointOrder.X
+                "y" -> WaypointOrder.Y
+                "z" -> WaypointOrder.Z
+                "id" -> WaypointOrder.ID
+                else -> WaypointOrder.ID
+            }
+            val waypoints = database.listWaypoints(channel, orderBy)
+            val waypointString = pastebin.parseWaypoints(waypoints)
+            val paste = pastebin.createPaste("$channel: Waypoints", waypointString)
+            twirk.channelMessage("Waypoint List: $paste")
         }
     }
-
 
     private fun findWaypointCommand(): Command {
         return Command(
@@ -111,7 +128,47 @@ class WaypointCommands(
             "Usage: ${prefix}waypoint",
             Permission(false, false, false)
         ) { _: TwitchUser, content: List<String> ->
-            twirk.channelMessage("findWaypointCommand")
+            //content find ....
+            //content.size == 2?
+            var errorMessage: String? = null
+            if (content.size != 2) {
+                errorMessage = "${prefix}waypoint find name/id"
+            } else {
+                val pattern = Pattern.compile("(\\s*-?\\d+\\s*),(\\s*-?\\d+\\s*),(\\s*-?\\d+\\s*)")
+                val id = content[1].toIntOrNull()
+                var distance: Double? = null
+                val waypoint = when {
+                    content[1].matches(pattern.toRegex()) -> {
+                        val coords = content[1].split(',').map { it.trim().toInt() }
+                        twirk.channelMessage("coords $coords")
+                        val waypointAndDistance =
+                            database.findWaypointByCoords(channel, WaypointCoordinate(coords[0], coords[1], coords[2]))
+                        distance = waypointAndDistance.first
+                        waypointAndDistance.second
+                    }
+                    id == null -> {
+                        database.findWaypointByName(channel, content[1])
+                    }
+                    else -> {
+                        database.findWaypointById(channel, id)
+                    }
+                }
+                if (waypoint != null) {
+                    if (distance != null) {
+                        twirk.channelMessage(
+                            "Closest Waypoint: ${waypoint.waypointToString()} Distance: ${BigDecimal(
+                                distance
+                            ).setScale(2, RoundingMode.HALF_EVEN)}"
+                        )
+                    } else {
+                        twirk.channelMessage("Waypoint: ${waypoint.waypointToString()}")
+                    }
+                } else {
+                    errorMessage = "Waypoint not found"
+                }
+            }
+            if (errorMessage != null)
+                twirk.channelMessage(errorMessage)
         }
     }
 
@@ -122,7 +179,24 @@ class WaypointCommands(
             "Usage: ${prefix}waypoint",
             Permission(false, false, false)
         ) { _: TwitchUser, content: List<String> ->
-            twirk.channelMessage("distanceWaypointCommand")
+            if (content.size > 1) {
+                val pattern = Pattern.compile("[\\w\\s]+,(\\s*-?\\d+\\s*),(\\s*-?\\d+\\s*),(\\s*-?\\d+\\s*)")
+                if (content[1].matches(pattern.toRegex())) {
+                    val waypointList = database.listWaypoints(channel, WaypointOrder.NAME)
+                    val split = content[1].split(',').map { it.trim() }
+                    val waypoint = waypointList.find { it.waypoint == split[0] }
+                    val distance = waypoint?.distanceToWaypoint(WaypointCoordinate(split[1].toInt(), split[2].toInt(), split[3].toInt()))
+                    if (distance != null) {
+                        twirk.channelMessage("Distance to ${waypoint.waypointToString()}: ${BigDecimal(distance).setScale(2, RoundingMode.HALF_EVEN)}")
+                    } else {
+                        twirk.channelMessage("Waypoint not found")
+                    }
+                } else {
+                    twirk.channelMessage("!waypoint distance name, x, y, z ")
+                }
+            } else {
+                twirk.channelMessage("!waypoint distance name, x, y, z ")
+            }
         }
     }
 }
