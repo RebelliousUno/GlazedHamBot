@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
 
-internal class QuotesDAO(private val connectionList: HashMap<String, Connection>) : IQuotes {
+class QuotesDAO(private val connectionList: HashMap<String, Connection>) : IQuotes {
 
     companion object {
         const val QUOTE_NOT_FOUND = "Quote not found"

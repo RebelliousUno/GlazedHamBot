@@ -10,9 +10,12 @@ import io.reactivex.subjects.BehaviorSubject
 import uno.rebellious.twitchbot.command.CommandManager
 import uno.rebellious.twitchbot.database.Channel
 import uno.rebellious.twitchbot.database.DatabaseDAO
+import uno.rebellious.twitchbot.database.WaypointDAO
 import uno.rebellious.twitchbot.model.Settings
 import uno.rebellious.twitchbot.pastebin.Pastebin
+import java.sql.Connection
 import java.util.*
+import kotlin.collections.HashMap
 
 object BotManager {
 

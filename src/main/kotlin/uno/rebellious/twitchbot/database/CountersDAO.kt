@@ -4,7 +4,7 @@ import java.sql.Connection
 import java.util.*
 import java.util.stream.BaseStream
 
-internal class CountersDAO(private val connectionList: HashMap<String, Connection>) : ICounters {
+class CountersDAO(private val connectionList: HashMap<String, Connection>) : ICounters {
 
     fun setupCounters(connection: Connection) {
         val counterTableSQL = "create table if not exists counters (command text, today int, total int, singular text, plural text)"

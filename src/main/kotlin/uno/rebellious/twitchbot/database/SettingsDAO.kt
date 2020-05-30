@@ -4,7 +4,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.util.*
 
-internal class SettingsDAO(private val connectionList: HashMap<String, Connection>) : ISettings {
+class SettingsDAO(private val connectionList: HashMap<String, Connection>) : ISettings {
 
     var settingsDB: Connection? = null
 

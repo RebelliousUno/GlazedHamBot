@@ -1,13 +1,20 @@
 package uno.rebellious.twitchbot.database
 
-import uno.rebellious.twitchbot.model.Quote
-import uno.rebellious.twitchbot.model.SpotifyToken
+import uno.rebellious.twitchbot.model.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-interface IDatabase : ICounters, IQuotes, ISettings, IResponse, ISpotify
-
+interface IWaypoint {
+    fun addWaypoint(channel: String, waypoint: Waypoint): Int
+    fun deleteWaypointByName(channel: String, waypoint: String)
+    fun deleteWaypointById(channel: String, id: Int)
+    fun listWaypoints(channel: String, waypointOrder: WaypointOrder): String
+    fun findWaypointByName(channel: String, waypoint: String): Waypoint
+    fun findWaypointById(channel: String, id: Int): Waypoint
+    fun findWaypointByCoords(channel: String, coordinate: WaypointCoordinate): Waypoint
+    fun distanceToWaypoint(channel: String, coordinate: WaypointCoordinate): Int
+}
 interface ISpotify {
     fun setTokensForChannel(channel: String, accessToken: String, refreshToken: String, expiryTime: LocalDateTime)
     fun getTokensForChannel(channel: String): SpotifyToken?

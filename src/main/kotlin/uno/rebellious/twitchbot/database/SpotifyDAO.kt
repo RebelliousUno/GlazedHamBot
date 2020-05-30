@@ -6,7 +6,7 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
 
-internal class SpotifyDAO(private val connectionList: HashMap<String, Connection>) : ISpotify {
+class SpotifyDAO(private val connectionList: HashMap<String, Connection>) : ISpotify {
 
     private fun getConnectionForChannel(channel: String) = connectionList[channel]
 
