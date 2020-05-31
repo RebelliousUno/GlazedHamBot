@@ -7,7 +7,7 @@ import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.subjects.BehaviorSubject
-import uno.rebellious.twitchbot.command.CommandManager
+import uno.rebellious.twitchbot.command.manager.CommandManager
 import uno.rebellious.twitchbot.database.Channel
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import uno.rebellious.twitchbot.model.Settings

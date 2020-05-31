@@ -87,7 +87,7 @@ class QuotesDAO(private val connectionList: HashMap<String, Connection>) : IQuot
         val quoteList = ArrayList<Quote>()
         val sql = "SELECT * from quotes where deleted = false"
         val statement = connectionList[channel]?.prepareStatement(sql)
-        val result = statement?.run {
+        statement?.run {
             executeQuery()
         }?.run {
             while (this.next()) {

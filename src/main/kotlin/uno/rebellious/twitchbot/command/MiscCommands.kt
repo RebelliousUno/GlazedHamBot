@@ -113,7 +113,7 @@ class MiscCommands(
 
             Fuel.request(Method.GET, BotManager.spotifyUrl)
                 .appendHeader("Authorization" to "Bearer ${spotifyToken?.accessToken}")
-                .responseString { s, e, result ->
+                .responseString { _, _, result ->
                     val resultJson = result.get()
                     val spotifyResponse = SpotifyResponse(resultJson)
                     twirk.channelMessage("$channel is listening to ${spotifyResponse.track} by ${spotifyResponse.artist} from the album ${spotifyResponse.album}")
