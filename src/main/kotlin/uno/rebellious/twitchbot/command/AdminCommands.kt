@@ -3,6 +3,7 @@ package uno.rebellious.twitchbot.command
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.types.users.TwitchUser
 import uno.rebellious.twitchbot.BotManager
+import uno.rebellious.twitchbot.command.model.Permission
 import uno.rebellious.twitchbot.database.Channel
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import java.util.*
@@ -26,7 +27,7 @@ class AdminCommands(
             prefix,
             "listchannels",
             "Usage: ${prefix}listchannels - Lists all the channels the bot is in",
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, _: List<String> ->
             val channelList = database.getListOfChannels().map {
                 it.channel
@@ -40,7 +41,7 @@ class AdminCommands(
             prefix,
             "setprefix",
             "Usage: '${prefix}setprefix !' - Sets the prefix for commands to '!'",
-            Permission(true, false, false)
+            Permission.OWNER_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
                 prefix = content[1]
@@ -56,7 +57,7 @@ class AdminCommands(
         return Command(
             prefix, "addchannel",
             "Usage: ${prefix}addchannel channeltoAdd - Add a GlazedHamBot to a channel",
-            Permission(false, false, false)
+            Permission.ANYONE
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
                 val newChannel = content[1].toLowerCase(Locale.ENGLISH)
@@ -70,7 +71,7 @@ class AdminCommands(
     private fun leaveChannelCommand(): Command {
         return Command(
             prefix, "hamleave", "Usage: ${prefix}hamleave - Asks the bot to leave the channel (Mod only)",
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, _: List<String> ->
             database.leaveChannel(channel)
             twirk.channelMessage("Leaving $channel")

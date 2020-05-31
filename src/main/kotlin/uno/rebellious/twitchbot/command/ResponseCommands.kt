@@ -2,6 +2,7 @@ package uno.rebellious.twitchbot.command
 
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.types.users.TwitchUser
+import uno.rebellious.twitchbot.command.model.Permission
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import java.util.*
 
@@ -22,7 +23,7 @@ class ResponseCommands(
             prefix,
             "delcmd",
             "Usage: ${prefix}delcmd cmd - deletes the command 'cmd' (Mod Only - Custom commands only)",
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             val removeCommand = content[1].toLowerCase(Locale.ENGLISH)
             database.removeResponse(channel, removeCommand)
@@ -34,7 +35,7 @@ class ResponseCommands(
             prefix,
             "addcmd",
             "Usage: ${prefix}addcmd cmd Response Text- Adds the command 'cmd' with the text 'Response Text' (Mod Only - Custom commands only)",
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 2) {
                 val newCommand = content[1].toLowerCase(Locale.ENGLISH)
@@ -49,7 +50,7 @@ class ResponseCommands(
             prefix,
             "editcmd",
             "Usage: ${prefix}editcmd cmd Response Text- Edits the command 'cmd' with the text 'Response Text' (Mod Only - Custom commands only)",
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 2) {
                 val newCommand = content[1].toLowerCase(Locale.ENGLISH)

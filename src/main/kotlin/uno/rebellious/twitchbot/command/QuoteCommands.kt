@@ -3,6 +3,7 @@ package uno.rebellious.twitchbot.command
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.types.users.TwitchUser
 import uno.rebellious.twitchbot.BotManager.pastebin
+import uno.rebellious.twitchbot.command.model.Permission
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import uno.rebellious.twitchbot.database.QuotesDAO
 import java.time.LocalDate
@@ -30,7 +31,7 @@ class QuoteCommands(
             prefix,
             "quotelist",
             helpString,
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, _: List<String> ->
             val quoteList = database.getAllQuotesForChannel(channel)
             val quotesString = pastebin.parseQuotes(quoteList)
@@ -45,7 +46,7 @@ class QuoteCommands(
             prefix,
             "delquote",
             helpString,
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
 
@@ -70,7 +71,7 @@ class QuoteCommands(
             prefix,
             "undelquote",
             helpString,
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
 
@@ -96,7 +97,7 @@ class QuoteCommands(
             prefix,
             "addquote",
             helpString,
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             // "!addquote This is the quote | this is the person | this is the date"
             if (content.size > 1) {
@@ -125,7 +126,7 @@ class QuoteCommands(
             prefix,
             "editquote",
             helpString,
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 2) {
                 try {
@@ -154,7 +155,7 @@ class QuoteCommands(
             prefix,
             "quote",
             helpString,
-            Permission(false, false, false)
+            Permission.ANYONE
         ) { _: TwitchUser, content: List<String> ->
             val message: String
             if (content.size > 1) {

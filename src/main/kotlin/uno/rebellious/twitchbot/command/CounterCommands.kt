@@ -2,6 +2,7 @@ package uno.rebellious.twitchbot.command
 
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.types.users.TwitchUser
+import uno.rebellious.twitchbot.command.model.Permission
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -30,7 +31,7 @@ class CounterCommands(
             prefix,
             "mean",
             helpString,
-            Permission(false, false, false)
+            Permission.ANYONE
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
                 val counter = content[1]
@@ -62,7 +63,7 @@ class CounterCommands(
             prefix,
             "meancounterlist",
             helpString,
-            Permission(false, false, false)
+            Permission.ANYONE
         ) { _: TwitchUser, _: List<String> ->
             val list = counterListMap()
             val streamCounter = list["stream"]
@@ -82,7 +83,7 @@ class CounterCommands(
             prefix,
             "resetallcounters",
             helpString,
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, _: List<String> ->
             database.showCountersForChannel(channel, true)
                 .map { it.split(":")[0] }
@@ -99,7 +100,7 @@ class CounterCommands(
             prefix,
             "deletecounter",
             helpString,
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size == 2) {
                 database.removeCounterForChannel(channel, content[1])
@@ -115,7 +116,7 @@ class CounterCommands(
             prefix,
             "resetcount",
             helpString,
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size == 2) {
                 database.resetTodaysCounterForChannel(channel, content[1])
@@ -131,7 +132,7 @@ class CounterCommands(
             prefix,
             "counterlist",
             helpString,
-            Permission(false, false, false)
+            Permission.ANYONE
         ) { _: TwitchUser, _: List<String> ->
             twirk.channelMessage(database.showCountersForChannel(channel, false).toString())
         }
@@ -144,7 +145,7 @@ class CounterCommands(
             prefix,
             "removecount",
             helpString,
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             val counter = content[1]
             try {
@@ -171,7 +172,7 @@ class CounterCommands(
             prefix,
             "addcount",
             helpString,
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             val counter = content[1]
             try {
@@ -197,7 +198,7 @@ class CounterCommands(
             prefix,
             "createcounter",
             helpString,
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size == 3) {
                 val counter = content[1]

@@ -8,6 +8,7 @@ import com.github.kittinunf.result.Result
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
 import uno.rebellious.twitchbot.BotManager
+import uno.rebellious.twitchbot.command.model.Permission
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import uno.rebellious.twitchbot.model.LastFMResponse
 import uno.rebellious.twitchbot.model.SpotifyAccessTokenResponse
@@ -37,7 +38,7 @@ class MiscCommands(
     private fun shoutOutCommand(): Command {
         return Command(
             prefix, "shoutout", "Usage: ${prefix}shoutout channelname - the name of the channel to shout out",
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
                 val shoutout = content[1]
@@ -60,7 +61,7 @@ class MiscCommands(
                 //get access token
                 //refresh spotifyToken
                 twirk.channelMessage("No Access Token requesting one")
-                val (request, response, result) = Fuel.request(Method.POST, "https://accounts.spotify.com/api/token")
+                val (_, response, result) = Fuel.request(Method.POST, "https://accounts.spotify.com/api/token")
                     .body("grant_type=authorization_code&code=${spotifyToken.authCode}&redirect_uri=http://bot.rebellious.uno/callback")
                     .appendHeader(BotManager.spotifyBasicAuth)
                     .appendHeader("Content-Type" to "application/x-www-form-urlencoded ")
@@ -87,7 +88,7 @@ class MiscCommands(
 
             if (spotifyToken?.refreshToken != null && (spotifyToken.expiryTime == null || ((spotifyToken.expiryTime as LocalDateTime) < now()))) {
                 //Access token is expired or has no expiry - refresh it
-                val (request, response, result) = Fuel.request(Method.POST, "https://accounts.spotify.com/api/token")
+                val (_, _, result) = Fuel.request(Method.POST, "https://accounts.spotify.com/api/token")
                     .appendHeader(BotManager.spotifyBasicAuth)
                     .appendHeader("Content-Type" to "application/x-www-form-urlencoded ")
                     .body("grant_type=refresh_token&refresh_token=${spotifyToken.refreshToken}")
@@ -124,7 +125,7 @@ class MiscCommands(
         return Command(
             prefix, "song",
             "Usage: ${prefix}song - The last song listened to by $channel",
-            Permission(false, false, false)
+            Permission.ANYONE
         ) { _: TwitchUser, _: List<String> ->
             Fuel.get(BotManager.lastFMUrl).responseString { _, _, result ->
                 val resultJson: String = result.get().replace("#", "")
@@ -142,7 +143,7 @@ class MiscCommands(
             prefix,
             "jackset",
             "Usage: ${prefix}jackset ROOM - Sets the jackbox code to ROOM",
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
                 jackboxCode = content[1].substring(0, 4).toUpperCase()
@@ -156,7 +157,7 @@ class MiscCommands(
             prefix,
             "jack",
             "Usage: ${prefix}jack - Gets the jackbox code for the current game",
-            Permission(false, false, false)
+            Permission.ANYONE
         ) { _: TwitchUser, _: List<String> ->
             twirk.channelMessage("Jackbox Code Set to $jackboxCode you can get the link by typing ${prefix}jack into chat")
         }

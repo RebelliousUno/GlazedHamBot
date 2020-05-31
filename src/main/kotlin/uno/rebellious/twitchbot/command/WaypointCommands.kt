@@ -3,6 +3,7 @@ package uno.rebellious.twitchbot.command
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.types.users.TwitchUser
 import uno.rebellious.twitchbot.BotManager.pastebin
+import uno.rebellious.twitchbot.command.model.Permission
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import uno.rebellious.twitchbot.model.Waypoint
 import uno.rebellious.twitchbot.model.WaypointCoordinate
@@ -27,7 +28,7 @@ class WaypointCommands(
             prefix,
             "waypoint",
             "Usage: ${prefix}waypoint",
-            Permission(false, false, false)
+            Permission.ANYONE
         ) { user: TwitchUser, content: List<String> ->
             val command = when (if (content.size > 1) content[1] else "") {
                 "add" -> addWaypointCommand()
@@ -48,7 +49,7 @@ class WaypointCommands(
             prefix,
             "waypoint add",
             "Usage: ${prefix}waypoint",
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             var errorMessage: String? = null
             if (content.size > 1) {
@@ -88,7 +89,7 @@ class WaypointCommands(
             prefix,
             "waypoint delete",
             "Usage: ${prefix}waypoint",
-            Permission(false, true, false)
+            Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
                 val id = content[1].toIntOrNull()
@@ -108,7 +109,7 @@ class WaypointCommands(
             prefix,
             "waypoint list",
             "Usage: ${prefix}waypoint",
-            Permission(false, false, false)
+            Permission.ANYONE
         ) { _: TwitchUser, content: List<String> ->
             val orderString = if (content.size == 2) {
                 content[1]
@@ -135,7 +136,7 @@ class WaypointCommands(
             prefix,
             "waypoint find",
             "Usage: ${prefix}waypoint",
-            Permission(false, false, false)
+            Permission.ANYONE
         ) { _: TwitchUser, content: List<String> ->
             //content find ....
             //content.size == 2?
@@ -186,7 +187,7 @@ class WaypointCommands(
             prefix,
             "waypoint distance",
             "Usage: ${prefix}waypoint",
-            Permission(false, false, false)
+            Permission.ANYONE
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
                 val pattern = Pattern.compile("[\\w\\s]+,(\\s*-?\\d+\\s*),(\\s*-?\\d+\\s*),(\\s*-?\\d+\\s*)")

@@ -1,6 +1,7 @@
 package uno.rebellious.twitchbot.command
 
 import com.gikk.twirk.types.users.TwitchUser
+import uno.rebellious.twitchbot.command.model.Permission
 
 class Command(
     var prefix: String,
