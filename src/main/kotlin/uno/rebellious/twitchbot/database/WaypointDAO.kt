@@ -124,7 +124,13 @@ class WaypointDAO(private val connectionList: HashMap<String, Connection>) : IWa
             executeQuery(sql)
         }?.run {
             while (next()) {
-                waypointList.add(Waypoint(getString("name"), WaypointCoordinate(getInt("x"), getInt("y"), getInt("z")), getInt("id")))
+                waypointList.add(
+                    Waypoint(
+                        getString("name"),
+                        WaypointCoordinate(getInt("x"), getInt("y"), getInt("z")),
+                        getInt("id")
+                    )
+                )
             }
         }
         return waypointList

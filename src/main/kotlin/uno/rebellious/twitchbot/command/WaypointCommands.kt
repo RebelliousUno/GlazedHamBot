@@ -27,7 +27,7 @@ class WaypointCommands(
             prefix,
             "waypoint",
             "Usage: ${prefix}waypoint",
-            Permission( false, false, false)
+            Permission(false, false, false)
         ) { user: TwitchUser, content: List<String> ->
             val command = when (if (content.size > 1) content[1] else "") {
                 "add" -> addWaypointCommand()
@@ -194,9 +194,20 @@ class WaypointCommands(
                     val waypointList = database.listWaypoints(channel, WaypointOrder.NAME)
                     val split = content[1].split(',').map { it.trim() }
                     val waypoint = waypointList.find { it.waypoint == split[0] }
-                    val distance = waypoint?.distanceToWaypoint(WaypointCoordinate(split[1].toInt(), split[2].toInt(), split[3].toInt()))
+                    val distance = waypoint?.distanceToWaypoint(
+                        WaypointCoordinate(
+                            split[1].toInt(),
+                            split[2].toInt(),
+                            split[3].toInt()
+                        )
+                    )
                     if (distance != null) {
-                        twirk.channelMessage("Distance to ${waypoint.waypointToString()}: ${BigDecimal(distance).setScale(2, RoundingMode.HALF_EVEN)}")
+                        twirk.channelMessage(
+                            "Distance to ${waypoint.waypointToString()}: ${BigDecimal(distance).setScale(
+                                2,
+                                RoundingMode.HALF_EVEN
+                            )}"
+                        )
                     } else {
                         twirk.channelMessage("Waypoint not found")
                     }

@@ -1,6 +1,10 @@
 package uno.rebellious.twitchbot.database
 
-import uno.rebellious.twitchbot.model.*
+import uno.rebellious.twitchbot.model.Quote
+import uno.rebellious.twitchbot.model.SpotifyToken
+import uno.rebellious.twitchbot.model.Waypoint
+import uno.rebellious.twitchbot.model.WaypointCoordinate
+import uno.rebellious.twitchbot.model.WaypointOrder
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -16,6 +20,7 @@ interface IWaypoint {
         coordinate: WaypointCoordinate,
         deleted: Boolean = false
     ): Pair<Double, Waypoint>
+
     fun findWaypointByName(channel: String, waypoint: String, deleted: Boolean = false): Waypoint?
 }
 
