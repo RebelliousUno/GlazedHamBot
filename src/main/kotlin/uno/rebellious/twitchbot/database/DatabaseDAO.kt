@@ -1,21 +1,18 @@
 package uno.rebellious.twitchbot.database
 
-import uno.rebellious.twitchbot.model.Quote
-import uno.rebellious.twitchbot.model.SpotifyToken
 import java.sql.Connection
 import java.sql.DriverManager
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
-class DatabaseDAO : IDatabase {
-
-    private var connectionList: HashMap<String, Connection> = HashMap()
-    private val countersDAO = CountersDAO(connectionList)
-    private val responsesDAO = ResponsesDAO(connectionList)
-    private val quotesDAO = QuotesDAO(connectionList)
-    private val settingsDAO = SettingsDAO(connectionList)
-    private val spotifyDAO = SpotifyDAO(connectionList)
+class DatabaseDAO(
+    private var connectionList: HashMap<String, Connection> = HashMap(),
+    private val countersDAO: CountersDAO = CountersDAO(connectionList),
+    private val responsesDAO: ResponsesDAO = ResponsesDAO(connectionList),
+    private val quotesDAO: QuotesDAO = QuotesDAO(connectionList),
+    private val settingsDAO: SettingsDAO = SettingsDAO(connectionList),
+    private val spotifyDAO: SpotifyDAO = SpotifyDAO(connectionList),
+    private val waypointDAO: WaypointDAO = WaypointDAO(connectionList)
+) : ICounters by countersDAO, IQuotes by quotesDAO, ISettings by settingsDAO, IResponse by responsesDAO,
+    ISpotify by spotifyDAO, IWaypoint by waypointDAO {
 
     init {
         setupSettings() //Set up Settings DB
@@ -23,50 +20,6 @@ class DatabaseDAO : IDatabase {
         connect(channelList)
         setupAllChannels()
     }
-
-    override fun createCounterForChannel(
-        channel: String,
-        counter: String,
-        responseSingular: String,
-        responsePlural: String
-    ) = countersDAO.createCounterForChannel(channel, counter, responseSingular, responsePlural)
-
-    override fun showCountersForChannel(channel: String, includeStream: Boolean): List<String> = countersDAO.showCountersForChannel(channel, includeStream)
-
-    override fun removeCounterForChannel(channel: String, counter: String) =
-            countersDAO.removeCounterForChannel(channel, counter)
-
-    override fun incrementCounterForChannel(channel: String, counter: String, by: Int) =
-            countersDAO.incrementCounterForChannel(channel, counter, by)
-
-    override fun getCounterForChannel(channel: String, counter: String): String =
-            countersDAO.getCounterForChannel(channel, counter)
-
-    override fun resetTodaysCounterForChannel(channel: String, counter: String) =
-            countersDAO.resetTodaysCounterForChannel(channel, counter)
-
-    override fun addQuoteForChannel(channel: String, date: LocalDate, person: String, quote: String): Int =
-            quotesDAO.addQuoteForChannel(channel, date, person, quote)
-
-    override fun delQuoteForChannel(channel: String, quoteId: Int) = quotesDAO.delQuoteForChannel(channel, quoteId)
-
-    override fun undeleteQuoteForChannel(channel: String, quoteId: Int) = quotesDAO.undeleteQuoteForChannel(channel, quoteId)
-    override fun getAllQuotesForChannel(channel: String) = quotesDAO.getAllQuotesForChannel(channel)
-
-
-    override fun editQuoteForChannel(channel: String, quoteId: Int, date: LocalDate?, person: String, quote: String) =
-            quotesDAO.editQuoteForChannel(channel, quoteId, date, person, quote)
-
-    override fun getQuoteForChannelById(channel: String, quoteId: Int): String =
-            quotesDAO.getQuoteForChannelById(channel, quoteId)
-
-    override fun getRandomQuoteForChannel(channel: String): String = quotesDAO.getRandomQuoteForChannel(channel)
-
-    override fun findQuoteByAuthor(channel: String, author: String): String =
-            quotesDAO.findQuoteByAuthor(channel, author)
-
-    override fun findQuoteByKeyword(channel: String, keyword: String): String =
-            quotesDAO.findQuoteByKeyword(channel, keyword)
 
     private fun setupSettings() {
         settingsDAO.createChannelsTable()
@@ -87,34 +40,7 @@ class DatabaseDAO : IDatabase {
             responsesDAO.createResponseTable(it.value)
             quotesDAO.createQuotesTable(it.value)
             countersDAO.setupCounters(it.value)
+            waypointDAO.setupWaypoints(it.value)
         }
     }
-
-    override fun getPrefixForChannel(channel: String): String  = settingsDAO.getPrefixForChannel(channel)
-
-    override fun setPrefixForChannel(channel: String, prefix: String) = settingsDAO.setPrefixForChannel(channel, prefix)
-
-    override fun findResponse(channel: String, command: String): String = responsesDAO.findResponse(channel, command)
-
-    override fun addChannel(newChannel: String, prefix: String) = settingsDAO.addChannel(newChannel, prefix)
-
-    override fun leaveChannel(channel: String) = settingsDAO.leaveChannel(channel)
-
-    override fun setResponse(channel: String, command: String, response: String) =
-            responsesDAO.setResponse(channel, command, response)
-
-    override fun removeResponse(channel: String, command: String) = responsesDAO.removeResponse(channel, command)
-
-    override fun setTokensForChannel(
-        channel: String,
-        accessToken: String,
-        refreshToken: String,
-        expiryTime: LocalDateTime
-    ) = spotifyDAO.setTokensForChannel(channel, accessToken, refreshToken, expiryTime)
-
-    override fun getTokensForChannel(channel: String): SpotifyToken? = spotifyDAO.getTokensForChannel(channel)
-
-    override fun getAllCommandList(channel: String): ArrayList<String> = settingsDAO.getAllCommandList(channel)
-
-    override fun getListOfChannels(): Array<Channel> = settingsDAO.getListOfChannels()
 }

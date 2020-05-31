@@ -5,7 +5,7 @@ package uno.rebellious.twitchbot
 
 fun main(args: Array<String>) {
     val channelList = BotManager.database.getListOfChannels()
-    channelList.forEach {channel ->
+    channelList.forEach { channel ->
         BotManager.startTwirkForChannel(channel)
     }
 }

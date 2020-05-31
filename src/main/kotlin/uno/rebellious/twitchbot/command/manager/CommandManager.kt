@@ -1,10 +1,19 @@
-package uno.rebellious.twitchbot.command
+package uno.rebellious.twitchbot.command.manager
 
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.events.TwirkListener
 import com.gikk.twirk.types.twitchMessage.TwitchMessage
 import com.gikk.twirk.types.users.TwitchUser
 import uno.rebellious.twitchbot.BotManager
+import uno.rebellious.twitchbot.command.AdminCommands
+import uno.rebellious.twitchbot.command.Command
+import uno.rebellious.twitchbot.command.CommandList
+import uno.rebellious.twitchbot.command.CounterCommands
+import uno.rebellious.twitchbot.command.MiscCommands
+import uno.rebellious.twitchbot.command.QuoteCommands
+import uno.rebellious.twitchbot.command.ResponseCommands
+import uno.rebellious.twitchbot.command.WaypointCommands
+import uno.rebellious.twitchbot.command.model.Permission
 import uno.rebellious.twitchbot.database.Channel
 import java.time.Instant
 import java.util.*
@@ -24,7 +33,7 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
         commands.add(ResponseCommands(prefix, twirk, channel.channel, database))
         commands.add(AdminCommands(prefix, twirk, channel.channel, database))
         commands.add(MiscCommands(prefix, twirk, channel.channel, database))
-
+        commands.add(WaypointCommands(prefix, twirk, channel.channel, database))
         commands.forEach {
             commandList.addAll(it.commandList)
         }
@@ -39,7 +48,7 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
             prefix,
             "help",
             "Usage: ${prefix}help cmd - to get help for a particular command",
-            Permission(false, false, false)
+            Permission.ANYONE
         ) { twitchUser: TwitchUser, content: List<String> ->
             if (content.size > 1) {
                 twirk.channelMessage(commandList.firstOrNull { command ->
@@ -70,7 +79,7 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
             prefix,
             "cmdlist",
             "Usage: ${prefix}cmdlist - lists the commands for this channel",
-            Permission(false, false, false)
+            Permission.ANYONE
         ) { twitchUser: TwitchUser, content: List<String> ->
             val dbCommands = database
                 .getAllCommandList(channel.channel)
@@ -111,7 +120,6 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
                 .filter { it.canUseCommand(twitchUser) }
                 .map { command -> command.prefix + command.command }
                 .sorted()
-            var commandlist = ""
             val cmdlist = content.joinToString()
             var commandList = ""
             cmdlist.toLowerCase().apply {

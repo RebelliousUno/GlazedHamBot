@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
 
-internal class QuotesDAO(private val connectionList: HashMap<String, Connection>) : IQuotes {
+class QuotesDAO(private val connectionList: HashMap<String, Connection>) : IQuotes {
 
     companion object {
         const val QUOTE_NOT_FOUND = "Quote not found"
@@ -59,22 +59,22 @@ internal class QuotesDAO(private val connectionList: HashMap<String, Connection>
             timestamp = Timestamp.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant())
             sqls.add("timestamp = ?")
             timestampId = idCount
-            idCount ++
+            idCount++
         }
         if (!person.isBlank()) {
             sqls.add("subject = ?")
             subjectId = idCount
-            idCount ++
+            idCount++
         }
         if (!quote.isBlank()) {
             sqls.add("quote = ?")
             newQuoteId = idCount
-            idCount ++
+            idCount++
         }
 
         val sql = "UPDATE quotes SET ${sqls.joinToString(", ")} WHERE ID = ?"
 
-        if (idCount > 1 ) connectionList[channel]?.prepareStatement(sql)?.apply {
+        if (idCount > 1) connectionList[channel]?.prepareStatement(sql)?.apply {
             if (timestampId > 0 && timestamp != null) setTimestamp(timestampId, timestamp)
             if (subjectId > 0) setString(subjectId, person)
             if (newQuoteId > 0) setString(newQuoteId, quote)
@@ -87,11 +87,18 @@ internal class QuotesDAO(private val connectionList: HashMap<String, Connection>
         val quoteList = ArrayList<Quote>()
         val sql = "SELECT * from quotes where deleted = false"
         val statement = connectionList[channel]?.prepareStatement(sql)
-        val result = statement?.run {
+        statement?.run {
             executeQuery()
         }?.run {
             while (this.next()) {
-                quoteList.add(Quote(getInt("ID"), getString("quote"), getString("subject"), getTimestamp("timestamp").toLocalDateTime()))
+                quoteList.add(
+                    Quote(
+                        getInt("ID"),
+                        getString("quote"),
+                        getString("subject"),
+                        getTimestamp("timestamp").toLocalDateTime()
+                    )
+                )
             }
         }
         return quoteList
@@ -108,7 +115,8 @@ internal class QuotesDAO(private val connectionList: HashMap<String, Connection>
 
     override fun getRandomQuoteForChannel(channel: String): String {
         val sql = "SELECT * from quotes where deleted = ? ORDER BY Random() LIMIT 1"
-        val statement = connectionList[channel]?.prepareStatement(sql)?.apply { setBoolean(1, false)
+        val statement = connectionList[channel]?.prepareStatement(sql)?.apply {
+            setBoolean(1, false)
             getQuotesFromStatement(this)
         }
         return getQuotesFromStatement(statement)
@@ -120,7 +128,8 @@ internal class QuotesDAO(private val connectionList: HashMap<String, Connection>
                 val id = getInt("ID")
                 val quote = getString("quote")
                 val subject = getString("subject")
-                val timestamp = getTimestamp("timestamp").toLocalDateTime().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+                val timestamp = getTimestamp("timestamp").toLocalDateTime()
+                    .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
                 "Quote $id: \"$quote\" - $subject - $timestamp"
             } else {
                 QUOTE_NOT_FOUND

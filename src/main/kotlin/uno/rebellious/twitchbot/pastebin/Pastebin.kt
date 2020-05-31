@@ -3,6 +3,8 @@ package uno.rebellious.twitchbot.pastebin
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.result.Result
 import uno.rebellious.twitchbot.model.Quote
+import uno.rebellious.twitchbot.model.Waypoint
+import uno.rebellious.twitchbot.model.waypointToString
 
 class Pastebin(devKey: String?, userKey: String?) {
 
@@ -12,6 +14,18 @@ class Pastebin(devKey: String?, userKey: String?) {
     private val apiUserKey = Pair("api_user_key", userKey)
 
     private val path = "https://pastebin.com/api/api_post.php"
+
+
+    fun parseWaypoints(waypoints: List<Waypoint>): String {
+        val waypointString = StringBuilder().append("Waypoints\n")
+        with(waypointString) {
+            waypoints.forEach {
+                append(it.waypointToString())
+                append("\n")
+            }
+        }
+        return waypointString.toString()
+    }
 
 
     fun parseQuotes(quotes: List<Quote>): String {

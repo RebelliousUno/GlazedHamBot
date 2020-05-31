@@ -7,12 +7,13 @@ import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.subjects.BehaviorSubject
-import uno.rebellious.twitchbot.command.CommandManager
+import uno.rebellious.twitchbot.command.manager.CommandManager
 import uno.rebellious.twitchbot.database.Channel
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import uno.rebellious.twitchbot.model.Settings
 import uno.rebellious.twitchbot.pastebin.Pastebin
 import java.util.*
+import kotlin.collections.HashMap
 
 object BotManager {
 
@@ -21,7 +22,8 @@ object BotManager {
     val lastFMUrl =
         "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${SETTINGS.lastFMUser}&api_key=${SETTINGS.lastFMAPI}&format=json&limit=1"
     val spotifyUrl = "https://api.spotify.com/v1/me/player"
-    private val basicAuth = Base64.getUrlEncoder().encodeToString("${SETTINGS.clientId}:${SETTINGS.clientSecret}".toByteArray())
+    private val basicAuth =
+        Base64.getUrlEncoder().encodeToString("${SETTINGS.clientId}:${SETTINGS.clientSecret}".toByteArray())
     val spotifyBasicAuth = "Authorization" to "Basic $basicAuth"
     private var threadList = HashMap<String, Pair<Thread, Disposable?>>()
 
@@ -37,22 +39,22 @@ object BotManager {
             val password = if (channel.token.isBlank()) SETTINGS.password else channel.token
 
             val twirk = TwirkBuilder("#${channel.channel}", nick, password)
-                    .setVerboseMode(true)
-                    .build()
+                .setVerboseMode(true)
+                .build()
             twirk.connect()
             twirk.addIrcListener(CommandManager(twirk, channel))
             twirk.addIrcListener(getOnDisconnectListener(twirk, channel))
 
             disposable = scanner
-                    .takeUntil { it == ".quit\n" }
-                    .subscribe {
-                        if (it == ".quit") {
-                            println("Quitting $channel")
-                            twirk.close()
-                        } else {
-                            twirk.channelMessage(it)
-                        }
+                .takeUntil { it == ".quit\n" }
+                .subscribe {
+                    if (it == ".quit") {
+                        println("Quitting $channel")
+                        twirk.close()
+                    } else {
+                        twirk.channelMessage(it)
                     }
+                }
         })
         twirkThread.name = channel.channel
         twirkThread.start()

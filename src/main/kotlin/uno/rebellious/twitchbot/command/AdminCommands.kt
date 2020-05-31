@@ -3,11 +3,17 @@ package uno.rebellious.twitchbot.command
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.types.users.TwitchUser
 import uno.rebellious.twitchbot.BotManager
+import uno.rebellious.twitchbot.command.model.Permission
 import uno.rebellious.twitchbot.database.Channel
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import java.util.*
 
-class AdminCommands(private var prefix: String, private val twirk: Twirk, private val channel: String, private val database: DatabaseDAO) : CommandList() {
+class AdminCommands(
+    private var prefix: String,
+    private val twirk: Twirk,
+    private val channel: String,
+    private val database: DatabaseDAO
+) : CommandList() {
 
     init {
         if (channel == "glazedhambot") commandList.add(addChannelCommand())
@@ -17,7 +23,12 @@ class AdminCommands(private var prefix: String, private val twirk: Twirk, privat
     }
 
     private fun listChannelsCommand(): Command {
-        return Command(prefix, "listchannels", "Usage: ${prefix}listchannels - Lists all the channels the bot is in", Permission(false, true, false)) { _: TwitchUser, _: List<String> ->
+        return Command(
+            prefix,
+            "listchannels",
+            "Usage: ${prefix}listchannels - Lists all the channels the bot is in",
+            Permission.MOD_ONLY
+        ) { _: TwitchUser, _: List<String> ->
             val channelList = database.getListOfChannels().map {
                 it.channel
             }
@@ -26,7 +37,12 @@ class AdminCommands(private var prefix: String, private val twirk: Twirk, privat
     }
 
     private fun setPrefixCommand(): Command {
-        return Command(prefix, "setprefix", "Usage: '${prefix}setprefix !' - Sets the prefix for commands to '!'", Permission(true, false, false)) { _: TwitchUser, content: List<String> ->
+        return Command(
+            prefix,
+            "setprefix",
+            "Usage: '${prefix}setprefix !' - Sets the prefix for commands to '!'",
+            Permission.OWNER_ONLY
+        ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
                 prefix = content[1]
                 database.setPrefixForChannel(channel, prefix)
@@ -38,9 +54,10 @@ class AdminCommands(private var prefix: String, private val twirk: Twirk, privat
     }
 
     private fun addChannelCommand(): Command {
-        return Command(prefix, "addchannel",
-                "Usage: ${prefix}addchannel channeltoAdd - Add a GlazedHamBot to a channel",
-                Permission(false, false, false)
+        return Command(
+            prefix, "addchannel",
+            "Usage: ${prefix}addchannel channeltoAdd - Add a GlazedHamBot to a channel",
+            Permission.ANYONE
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
                 val newChannel = content[1].toLowerCase(Locale.ENGLISH)
@@ -52,8 +69,10 @@ class AdminCommands(private var prefix: String, private val twirk: Twirk, privat
     }
 
     private fun leaveChannelCommand(): Command {
-        return Command(prefix, "hamleave", "Usage: ${prefix}hamleave - Asks the bot to leave the channel (Mod only)",
-                Permission(false, true, false)) { _: TwitchUser, _: List<String> ->
+        return Command(
+            prefix, "hamleave", "Usage: ${prefix}hamleave - Asks the bot to leave the channel (Mod only)",
+            Permission.MOD_ONLY
+        ) { _: TwitchUser, _: List<String> ->
             database.leaveChannel(channel)
             twirk.channelMessage("Leaving $channel")
             BotManager.stopTwirkForChannel(channel)
