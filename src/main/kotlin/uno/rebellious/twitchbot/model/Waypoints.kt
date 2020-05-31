@@ -5,7 +5,7 @@ import kotlin.math.sqrt
 
 data class WaypointCoordinate(val x: Int, val y: Int, val z: Int)
 
-data class Waypoint(val waypoint: String, val coordinate: WaypointCoordinate) {
+data class Waypoint(val waypoint: String, val coordinate: WaypointCoordinate, var id: Int = 0) {
     fun distanceToWaypoint(remote: WaypointCoordinate): Double {
         val x2 = ((remote.x) - (this.coordinate.x)).toDouble().pow(2)
         val y2 = ((remote.y) - (this.coordinate.y)).toDouble().pow(2)
@@ -15,7 +15,7 @@ data class Waypoint(val waypoint: String, val coordinate: WaypointCoordinate) {
 }
 
 fun Waypoint.waypointToString() =
-    "${this.waypoint}(${this.coordinate.x}, ${this.coordinate.y}, ${this.coordinate.z})"
+    "${this.id}: ${this.waypoint} (${this.coordinate.x}, ${this.coordinate.y}, ${this.coordinate.z})"
 
 enum class WaypointOrder(val column: String) {
     X("x"), Y("y"), Z("z"), ID("id"), NAME("name")

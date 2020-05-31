@@ -40,11 +40,21 @@ class WaypointDAO(private val connectionList: HashMap<String, Connection>) : IWa
     }
 
     override fun deleteWaypointByName(channel: String, waypoint: String) {
-        TODO("Not yet implemented")
+        val sql = "Update waypoints set deleted = ? where name = ?"
+        connectionList[channel]?.prepareStatement(sql)?.apply {
+            setBoolean(1, true)
+            setString(2, waypoint)
+            executeUpdate()
+        }
     }
 
     override fun deleteWaypointById(channel: String, id: Int) {
-        TODO("Not yet implemented")
+        val sql = "Update waypoints set deleted = ? where id = ?"
+        connectionList[channel]?.prepareStatement(sql)?.apply {
+            setBoolean(1, true)
+            setInt(2, id)
+            executeUpdate()
+        }
     }
 
     override fun listWaypoints(channel: String, orderBy: WaypointOrder): List<Waypoint> {
@@ -58,7 +68,8 @@ class WaypointDAO(private val connectionList: HashMap<String, Connection>) : IWa
                 val x = getInt("x")
                 val y = getInt("y")
                 val z = getInt("z")
-                Waypoint(waypoint, WaypointCoordinate(x, y, z))
+                val id = getInt("id")
+                Waypoint(waypoint, WaypointCoordinate(x, y, z), id)
             } else {
                 null
             }
@@ -113,7 +124,7 @@ class WaypointDAO(private val connectionList: HashMap<String, Connection>) : IWa
             executeQuery(sql)
         }?.run {
             while (next()) {
-                waypointList.add(Waypoint(getString("name"), WaypointCoordinate(getInt("x"), getInt("y"), getInt("z"))))
+                waypointList.add(Waypoint(getString("name"), WaypointCoordinate(getInt("x"), getInt("y"), getInt("z")), getInt("id")))
             }
         }
         return waypointList

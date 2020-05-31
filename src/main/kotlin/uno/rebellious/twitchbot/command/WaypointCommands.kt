@@ -90,7 +90,16 @@ class WaypointCommands(
             "Usage: ${prefix}waypoint",
             Permission(false, true, false)
         ) { _: TwitchUser, content: List<String> ->
-            twirk.channelMessage("deleteWaypointCommand")
+            if (content.size > 1) {
+                val id = content[1].toIntOrNull()
+                if (id != null) {
+                    database.deleteWaypointById(channel, id)
+                } else {
+                    database.deleteWaypointByName(channel, content[1])
+                }
+            } else {
+                twirk.channelMessage("!waypoint delete id/name")
+            }
         }
     }
 
