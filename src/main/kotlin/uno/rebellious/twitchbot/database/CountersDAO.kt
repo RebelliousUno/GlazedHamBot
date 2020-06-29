@@ -1,5 +1,6 @@
 package uno.rebellious.twitchbot.database
 
+import uno.rebellious.twitchbot.model.Counter
 import java.sql.Connection
 import java.util.*
 
@@ -16,75 +17,70 @@ class CountersDAO(private val connectionList: HashMap<String, Connection>) : ICo
 
     override fun createCounterForChannel(
         channel: String,
-        counter: String,
-        responseSingular: String,
-        responsePlural: String
+        counter: Counter
     ) {
         val sql = "INSERT INTO counters(command, today, total, singular, plural) VALUES (?, ?, ?, ?, ?)"
+        if (!counter.isValidCreateCounter()) return
         connectionList[channel]?.prepareStatement(sql)?.apply {
-            setString(1, counter)
+            setString(1, counter.command)
             setInt(2, 0)
             setInt(3, 0)
-            setString(4, responseSingular)
-            setString(5, responsePlural)
+            setString(4, counter.singular)
+            setString(5, counter.plural)
             executeUpdate()
         }
     }
 
-    override fun showCountersForChannel(channel: String, includeStream: Boolean): List<String> {
+    override fun showCountersForChannel(channel: String, includeStream: Boolean): List<Counter> {
         val sql =
             if (includeStream) "SELECT * from counters" else "SELECT * from counters where command NOT LIKE 'stream'"
-        val counters = ArrayList<String>()
+        val counters = ArrayList<Counter>()
         connectionList[channel]?.createStatement()?.run {
             executeQuery(sql)
         }?.run {
             while (next()) {
-                counters += "${getString("command")}: ${getString("today")}/${getString("total")}"
+                counters += Counter(command = getString("command"), today = getInt("today"), total = getInt("total"))
             }
         }
         return counters
     }
 
-    override fun removeCounterForChannel(channel: String, counter: String) {
+    override fun removeCounterForChannel(channel: String, counter: Counter) {
         val sql = "DELETE FROM counters WHERE command like ?"
         connectionList[channel]?.prepareStatement(sql)?.apply {
-            setString(1, counter)
+            setString(1, counter.command)
             executeUpdate()
         }
     }
 
-    override fun incrementCounterForChannel(channel: String, counter: String, by: Int) {
+    override fun incrementCounterForChannel(channel: String, counter: Counter, by: Int) {
         val todaySql = "UPDATE counters SET today = today + ?, total = total + ? WHERE command like ?"
         connectionList[channel]
         connectionList[channel]?.prepareStatement(todaySql)?.apply {
             setInt(1, by)
             setInt(2, by)
-            setString(3, counter)
+            setString(3, counter.command)
             executeUpdate()
         }
     }
 
-    override fun getCounterForChannel(channel: String, counter: String): String {
+    override fun getCounterForChannel(channel: String, counter: Counter): Counter {
         val sql = "SELECT * FROM counters where command like ?"
         connectionList[channel]?.prepareStatement(sql)?.run {
-            setString(1, counter)
+            setString(1, counter.command)
             executeQuery()
         }?.run {
             if (next()) {
-                val today = getInt("today")
-                val total = getInt("total")
-                val singular = getString("singular")
-                val plural = getString("plural")
-                return "There ${if (today == 1) "has" else "have"} been $today ${if (today == 1) singular else plural} today. Total $plural: $total"
+                return Counter(command = counter.command, today = getInt("today"), total = getInt("total"), singular = getString("singular"), plural = getString("plural"))
             }
         }
-        return ""
+        return Counter(counter.command)
     }
 
-    override fun resetTodaysCounterForChannel(channel: String, counter: String) {
+    override fun resetTodaysCounterForChannel(channel: String, counter: Counter) {
         val sql = "UPDATE counters SET today = 0 where command like ?"
         connectionList[channel]?.prepareStatement(sql)?.apply {
-            setString(1, counter)
+            setString(1, counter.command)
             executeUpdate()
         }
     }

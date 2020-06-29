@@ -4,6 +4,7 @@ import com.gikk.twirk.Twirk
 import com.gikk.twirk.types.users.TwitchUser
 import uno.rebellious.twitchbot.command.model.Permission
 import uno.rebellious.twitchbot.database.DatabaseDAO
+import uno.rebellious.twitchbot.model.Counter
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -36,12 +37,12 @@ class CounterCommands(
             if (content.size > 1) {
                 val counter = content[1]
                 val counterList = counterListMap()
-                if (counterList.containsKey(counter) && counterList.containsKey("stream") && counterList["stream"] ?: 0 > 0) {
-                    val counterValue = counterList[counter] ?: 0
-                    val streamCounter = counterList["stream"] ?: 1
+                if (counterList.containsKey(counter) && counterList.containsKey("stream") && counterList["stream"]?.total ?: 0 > 0) {
+                    val counterValue = counterList[counter]?.total ?: 0
+                    val streamCounter = counterList["stream"]?.total ?: 1
                     val meanValue = counterValue / (streamCounter).toDouble()
                     twirk.channelMessage(
-                        "Mean ${counter} per stream ($counterValue/$streamCounter) - ${BigDecimal(
+                        "Mean $counter per stream ($counterValue/$streamCounter) - ${BigDecimal(
                             meanValue
                         ).setScale(2, RoundingMode.HALF_EVEN)}"
                     )
@@ -50,10 +51,9 @@ class CounterCommands(
         }
     }
 
-    private fun counterListMap(): Map<String, Int> {
+    private fun counterListMap(): Map<String, Counter> {
         return database.showCountersForChannel(channel, true)
-            .map { it.split(":") }
-            .map { Pair(it[0], Integer.parseInt(it[1].split("/")[1].trim())) }
+            .map { Pair(it.command, it) }
             .toMap()
     }
 
@@ -67,12 +67,12 @@ class CounterCommands(
         ) { _: TwitchUser, _: List<String> ->
             val list = counterListMap()
             val streamCounter = list["stream"]
-            if (streamCounter != null && streamCounter > 0) {
+            if (streamCounter != null && streamCounter.total > 0) {
                 val meanValues = list
                     .filter { it.key != "stream" }
-                    .mapValues { it.value / streamCounter.toDouble() }
+                    .mapValues { it.value.total / streamCounter.total.toDouble() }
                     .map { "${it.key}: ${BigDecimal(it.value).setScale(2, RoundingMode.HALF_EVEN)}" }
-                twirk.channelMessage("Per Stream ($streamCounter) - ${meanValues}")
+                twirk.channelMessage("Per Stream ($streamCounter) - $meanValues")
             }
         }
     }
@@ -86,7 +86,6 @@ class CounterCommands(
             Permission.MOD_ONLY
         ) { _: TwitchUser, _: List<String> ->
             database.showCountersForChannel(channel, true)
-                .map { it.split(":")[0] }
                 .forEach {
                     database.resetTodaysCounterForChannel(channel, it)
                 }
@@ -103,7 +102,7 @@ class CounterCommands(
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size == 2) {
-                database.removeCounterForChannel(channel, content[1])
+                database.removeCounterForChannel(channel, Counter(command = content[1]))
             } else {
                 twirk.channelMessage(helpString)
             }
@@ -119,7 +118,7 @@ class CounterCommands(
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size == 2) {
-                database.resetTodaysCounterForChannel(channel, content[1])
+                database.resetTodaysCounterForChannel(channel, Counter(command = content[1]))
             } else {
                 twirk.channelMessage(helpString)
             }
@@ -147,7 +146,7 @@ class CounterCommands(
             helpString,
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
-            val counter = content[1]
+            val counter = Counter(command = content[1])
             try {
                 val by = if (content.size == 3) {
                     Integer.parseInt(content[2])
@@ -156,7 +155,7 @@ class CounterCommands(
                 }
                 if (by > 0) {
                     database.incrementCounterForChannel(channel, counter, -by)
-                    twirk.channelMessage(database.getCounterForChannel(channel, counter))
+                    twirk.channelMessage(database.getCounterForChannel(channel, counter).outputString)
                 } else
                     twirk.channelMessage("${content[2]} is not a valid number to decrement by")
             } catch (e: NumberFormatException) {
@@ -174,7 +173,7 @@ class CounterCommands(
             helpString,
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
-            val counter = content[1]
+            val counter = Counter(command = content[1])
             try {
                 val by = if (content.size == 3) {
                     Integer.parseInt(content[2])
@@ -183,7 +182,7 @@ class CounterCommands(
                 }
                 if (by > 0) {
                     database.incrementCounterForChannel(channel, counter, by)
-                    twirk.channelMessage(database.getCounterForChannel(channel, counter))
+                    twirk.channelMessage(database.getCounterForChannel(channel, counter).outputString)
                 } else twirk.channelMessage("${content[2]} is not a valid number to increment by")
             } catch (e: NumberFormatException) {
                 twirk.channelMessage("${content[2]} is not a valid number to increment by")
@@ -201,10 +200,8 @@ class CounterCommands(
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size == 3) {
-                val counter = content[1]
-                val singular = content[2].split(" ")[0]
-                val plural = content[2].split(" ")[1]
-                database.createCounterForChannel(channel, counter, singular, plural)
+                val counter = Counter(command = content[1], singular = content[2].split(" ")[0], plural = content[2].split(" ")[1])
+                database.createCounterForChannel(channel, counter)
             } else {
                 twirk.channelMessage(helpString)
             }
