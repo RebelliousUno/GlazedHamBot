@@ -39,7 +39,13 @@ class CountersDAO(private val connectionList: HashMap<String, Connection>) : ICo
             executeQuery(sql)
         }?.run {
             while (next()) {
-                counters += Counter(command = getString("command"), today = getInt("today"), total = getInt("total"))
+                counters += Counter(
+                    command = getString("command"),
+                    singular = getString("singular"),
+                    plural = getString("plural"),
+                    today = getInt("today"),
+                    total = getInt("total")
+                )
             }
         }
         return counters
@@ -71,10 +77,16 @@ class CountersDAO(private val connectionList: HashMap<String, Connection>) : ICo
             executeQuery()
         }?.run {
             if (next()) {
-                return Counter(command = counter.command, today = getInt("today"), total = getInt("total"), singular = getString("singular"), plural = getString("plural"))
+                return Counter(
+                    command = counter.command,
+                    today = getInt("today"),
+                    total = getInt("total"),
+                    singular = getString("singular"),
+                    plural = getString("plural")
+                )
             }
         }
-        return Counter(counter.command)
+        return Counter("")
     }
 
     override fun resetTodaysCounterForChannel(channel: String, counter: Counter) {

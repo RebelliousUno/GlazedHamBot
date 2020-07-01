@@ -5,14 +5,7 @@ import com.gikk.twirk.events.TwirkListener
 import com.gikk.twirk.types.twitchMessage.TwitchMessage
 import com.gikk.twirk.types.users.TwitchUser
 import uno.rebellious.twitchbot.BotManager
-import uno.rebellious.twitchbot.command.AdminCommands
-import uno.rebellious.twitchbot.command.Command
-import uno.rebellious.twitchbot.command.CommandList
-import uno.rebellious.twitchbot.command.CounterCommands
-import uno.rebellious.twitchbot.command.MiscCommands
-import uno.rebellious.twitchbot.command.QuoteCommands
-import uno.rebellious.twitchbot.command.ResponseCommands
-import uno.rebellious.twitchbot.command.WaypointCommands
+import uno.rebellious.twitchbot.command.*
 import uno.rebellious.twitchbot.command.model.Permission
 import uno.rebellious.twitchbot.database.Channel
 import uno.rebellious.twitchbot.model.Counter

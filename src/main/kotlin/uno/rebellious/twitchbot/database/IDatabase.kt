@@ -1,11 +1,6 @@
 package uno.rebellious.twitchbot.database
 
-import uno.rebellious.twitchbot.model.Counter
-import uno.rebellious.twitchbot.model.Quote
-import uno.rebellious.twitchbot.model.SpotifyToken
-import uno.rebellious.twitchbot.model.Waypoint
-import uno.rebellious.twitchbot.model.WaypointCoordinate
-import uno.rebellious.twitchbot.model.WaypointOrder
+import uno.rebellious.twitchbot.model.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
