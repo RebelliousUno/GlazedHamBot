@@ -200,8 +200,16 @@ class CounterCommands(
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size == 3) {
-                val counter = Counter(command = content[1], singular = content[2].split(" ")[0], plural = content[2].split(" ")[1])
-                database.createCounterForChannel(channel, counter)
+                try {
+                    val counter = Counter(
+                        command = content[1],
+                        singular = content[2].split(" ")[0],
+                        plural = content[2].split(" ")[1]
+                    )
+                    database.createCounterForChannel(channel, counter)
+                } catch (e: IndexOutOfBoundsException) {
+                    twirk.channelMessage(helpString)
+                }
             } else {
                 twirk.channelMessage(helpString)
             }
