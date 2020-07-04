@@ -1,45 +1,46 @@
 package uno.rebellious.twitchbot.database
 
+import uno.rebellious.twitchbot.model.Response
 import java.sql.Connection
 import java.util.*
 
 class ResponsesDAO(private val connectionList: HashMap<String, Connection>) : IResponse {
 
-    override fun findResponse(channel: String, command: String): String {
+    override fun findResponse(channel: String, command: Response): Response {
         val connection = connectionList[channel]
         val sql = "Select response from responses where command = ?"
         return connection?.prepareStatement(sql)?.run {
-            setString(1, command)
+            setString(1, command.command)
             executeQuery()
         }?.run {
             if (next()) {
-                getString("response")
+                Response(command.command, getString("response"))
             } else {
-                ""
+                Response("")
             }
-        } ?: ""
+        } ?: Response("")
     }
 
-    override fun setResponse(channel: String, command: String, response: String) {
+    override fun setResponse(channel: String, response: Response) {
         val connection = connectionList[channel]
-        val exists = findResponse(channel, command)
-        val sql = if (exists == "") {
+        val exists = findResponse(channel, response)
+        val sql = if (exists.isBlank()) {
             "INSERT INTO responses(response, command) VALUES (?, ?)"
         } else {
             "UPDATE responses SET response = ? WHERE command = ?"
         }
         connection?.prepareStatement(sql)?.apply {
-            setString(1, response)
-            setString(2, command)
+            setString(1, response.response)
+            setString(2, response.command)
             executeUpdate()
         }
     }
 
-    override fun removeResponse(channel: String, command: String) {
+    override fun removeResponse(channel: String, command: Response) {
         val connection = connectionList[channel]
         val sql = "DELETE FROM responses WHERE command = ?"
         connection?.prepareStatement(sql)?.apply {
-            setString(1, command)
+            setString(1, command.command)
             executeUpdate()
         }
     }
@@ -51,7 +52,5 @@ class ResponsesDAO(private val connectionList: HashMap<String, Connection>) : IR
         connection.createStatement().apply {
             executeUpdate(responsesTableSql)
         }
-
-
     }
 }

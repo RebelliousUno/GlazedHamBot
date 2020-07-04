@@ -9,6 +9,7 @@ import uno.rebellious.twitchbot.command.*
 import uno.rebellious.twitchbot.command.model.Permission
 import uno.rebellious.twitchbot.database.Channel
 import uno.rebellious.twitchbot.model.Counter
+import uno.rebellious.twitchbot.model.Response
 import java.time.Instant
 import java.util.*
 
@@ -58,18 +59,18 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
 
     private fun countCommand(): Command {
         return Command(prefix, "", "", Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
-            twirk.channelMessage(
-                database.getCounterForChannel(
-                    channel.channel,
-                    Counter(content[0].substring(1))
-                ).outputString
-            )
+            val counter = database.getCounterForChannel(
+                channel.channel,
+                Counter(content[0].substring(1)))
+            if (!counter.isEmpty())
+                twirk.channelMessage(counter.outputString)
         }
     }
 
     private fun responseCommand(): Command {
         return Command(prefix, "", "", Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
-            twirk.channelMessage(database.findResponse(channel.channel, content[0].substring(1)))
+            val response = Response(content[0].substring(1))
+            twirk.channelMessage(database.findResponse(channel.channel, response).response)
         }
     }
 
