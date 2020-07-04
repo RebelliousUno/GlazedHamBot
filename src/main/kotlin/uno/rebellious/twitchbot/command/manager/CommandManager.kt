@@ -158,7 +158,6 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
 
     private fun pruneExpiryList() {
         val expired = commandTimeout.filterValues { it < Instant.now() }
-        twirk.channelMessage(expired.toString())
         expired.keys.forEach { commandTimeout.remove(it) }
     }
 }
