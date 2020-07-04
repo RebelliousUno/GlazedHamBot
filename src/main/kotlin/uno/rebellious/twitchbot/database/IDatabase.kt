@@ -1,10 +1,6 @@
 package uno.rebellious.twitchbot.database
 
-import uno.rebellious.twitchbot.model.Quote
-import uno.rebellious.twitchbot.model.SpotifyToken
-import uno.rebellious.twitchbot.model.Waypoint
-import uno.rebellious.twitchbot.model.WaypointCoordinate
-import uno.rebellious.twitchbot.model.WaypointOrder
+import uno.rebellious.twitchbot.model.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -45,12 +41,12 @@ interface ISettings {
 }
 
 interface ICounters {
-    fun createCounterForChannel(channel: String, counter: String, responseSingular: String, responsePlural: String)
-    fun removeCounterForChannel(channel: String, counter: String)
-    fun incrementCounterForChannel(channel: String, counter: String, by: Int = 1)
-    fun getCounterForChannel(channel: String, counter: String): String
-    fun resetTodaysCounterForChannel(channel: String, counter: String)
-    fun showCountersForChannel(channel: String, includeStream: Boolean): List<String>
+    fun createCounterForChannel(channel: String, counter: Counter)
+    fun removeCounterForChannel(channel: String, counter: Counter)
+    fun incrementCounterForChannel(channel: String, counter: Counter, by: Int = 1)
+    fun getCounterForChannel(channel: String, counter: Counter): Counter
+    fun resetTodaysCounterForChannel(channel: String, counter: Counter)
+    fun showCountersForChannel(channel: String, includeStream: Boolean): List<Counter>
 }
 
 interface IQuotes {

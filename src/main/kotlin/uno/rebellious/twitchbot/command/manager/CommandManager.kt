@@ -5,16 +5,10 @@ import com.gikk.twirk.events.TwirkListener
 import com.gikk.twirk.types.twitchMessage.TwitchMessage
 import com.gikk.twirk.types.users.TwitchUser
 import uno.rebellious.twitchbot.BotManager
-import uno.rebellious.twitchbot.command.AdminCommands
-import uno.rebellious.twitchbot.command.Command
-import uno.rebellious.twitchbot.command.CommandList
-import uno.rebellious.twitchbot.command.CounterCommands
-import uno.rebellious.twitchbot.command.MiscCommands
-import uno.rebellious.twitchbot.command.QuoteCommands
-import uno.rebellious.twitchbot.command.ResponseCommands
-import uno.rebellious.twitchbot.command.WaypointCommands
+import uno.rebellious.twitchbot.command.*
 import uno.rebellious.twitchbot.command.model.Permission
 import uno.rebellious.twitchbot.database.Channel
+import uno.rebellious.twitchbot.model.Counter
 import java.time.Instant
 import java.util.*
 
@@ -64,7 +58,12 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
 
     private fun countCommand(): Command {
         return Command(prefix, "", "", Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
-            twirk.channelMessage(database.getCounterForChannel(channel.channel, content[0].substring(1)))
+            twirk.channelMessage(
+                database.getCounterForChannel(
+                    channel.channel,
+                    Counter(content[0].substring(1))
+                ).outputString
+            )
         }
     }
 
@@ -111,7 +110,7 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
                 .sorted()
             val countersCommands = database
                 .showCountersForChannel(channel.channel, false)
-                .map { it.split(":")[0] }
+                .map { it.command }
                 .map { command -> prefix + command }
                 .sorted()
             val counterCmds = commands
@@ -153,6 +152,12 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
                 countCommand().action.invoke(sender, splitContent)
                 responseCommand().action.invoke(sender, splitContent)
             }
+            pruneExpiryList()
         }
+    }
+
+    private fun pruneExpiryList() {
+        val expired = commandTimeout.filterValues { it < Instant.now() }
+        expired.keys.forEach { commandTimeout.remove(it) }
     }
 }

@@ -14,6 +14,7 @@ import uno.rebellious.twitchbot.model.Settings
 import uno.rebellious.twitchbot.pastebin.Pastebin
 import java.util.*
 import kotlin.collections.HashMap
+import kotlin.collections.set
 
 object BotManager {
 
