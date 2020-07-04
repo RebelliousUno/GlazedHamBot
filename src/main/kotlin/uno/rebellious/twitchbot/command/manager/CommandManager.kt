@@ -152,6 +152,13 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
                 countCommand().action.invoke(sender, splitContent)
                 responseCommand().action.invoke(sender, splitContent)
             }
+            pruneExpiryList()
         }
+    }
+
+    private fun pruneExpiryList() {
+        val expired = commandTimeout.filterValues { it < Instant.now() }
+        twirk.channelMessage(expired.toString())
+        expired.keys.forEach { commandTimeout.remove(it) }
     }
 }
