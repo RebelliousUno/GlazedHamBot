@@ -72,7 +72,7 @@ class CounterCommands(
                     .filter { it.key != "stream" }
                     .mapValues { it.value.total / streamCounter.total.toDouble() }
                     .map { "${it.key}: ${BigDecimal(it.value).setScale(2, RoundingMode.HALF_EVEN)}" }
-                twirk.channelMessage("Per Stream ($streamCounter) - $meanValues")
+                twirk.channelMessage("Per Stream (${streamCounter.total}) - $meanValues")
             }
         }
     }
@@ -157,8 +157,8 @@ class CounterCommands(
                 if (by > 0) {
                     database.incrementCounterForChannel(channel, counter, -by)
                     val newCounter = database.getCounterForChannel(channel, counter)
-                        if (!newCounter.isEmpty())
-                            twirk.channelMessage(newCounter.outputString)
+                    if (!newCounter.isEmpty())
+                        twirk.channelMessage(newCounter.outputString)
                 } else
                     twirk.channelMessage("${content[2]} is not a valid number to decrement by")
             } catch (e: NumberFormatException) {

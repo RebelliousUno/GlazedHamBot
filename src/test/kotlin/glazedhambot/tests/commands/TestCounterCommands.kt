@@ -1,33 +1,19 @@
 package glazedhambot.tests.commands
 
 import com.gikk.twirk.Twirk
-import com.gikk.twirk.TwirkBuilder
 import com.gikk.twirk.types.users.TwitchUser
-import com.gikk.twirk.types.users.TwitchUserBuilder
-import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import org.mockito.ArgumentMatchers
-import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.*
 import uno.rebellious.twitchbot.command.CounterCommands
-import uno.rebellious.twitchbot.database.CountersDAO
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import uno.rebellious.twitchbot.model.Counter
-import kotlin.test.expect
 
-/*
-        commandList.add(addCountCommand())
-        commandList.add(removeCountCommand())
-        commandList.add(resetCountCommand())
-        commandList.add(listCountersCommand())
-        commandList.add(deleteCounterCommand())
-        commandList.add(resetAllCountersCommand())
-        commandList.add(meanCounterListCommand())
-        commandList.add(meanCounterCommand())
- */
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TestCounterCommands {
@@ -37,6 +23,7 @@ class TestCounterCommands {
     lateinit var mockTwirk: Twirk
     lateinit var mockTwitchUser: TwitchUser
     val channel = "test"
+
     @BeforeEach
     fun setup() {
         mockTwirk = mock(Twirk::class.java)
@@ -48,27 +35,111 @@ class TestCounterCommands {
 
     @Test
     fun testContainsAllCommands() {
-        val commandList = listOf("createcounter","addcount", "removecount", "counterlist", "resetcount", "deletecounter", "meancounterlist", "resetallcounters", "mean")
+        val commandList = listOf(
+            "createcounter",
+            "addcount",
+            "removecount",
+            "counterlist",
+            "resetcount",
+            "deletecounter",
+            "meancounterlist",
+            "resetallcounters",
+            "mean"
+        )
         assertTrue(commandList.containsAll(counterCommands.commandList.map { it.command }))
+    }
+
+    @Test
+    fun testResetAllCountersCommand() {
+        val command = counterCommands.commandList.first { it.command == "resetallcounters" }
+        val commandString = "!resetallcounters".split(" ", limit = 3)
+        val expectedCounterList = listOf(
+            Counter("fall", "fall", "falls", 0, 5),
+            Counter("test", "test", "tests", 0, 3),
+            Counter("break", "break", "breaks", 0, 20),
+            Counter("dave", "dave", "daves", 0, 10)
+        )
+        `when`(mockCountersDAO.showCountersForChannel(anyString(), eq(true))).thenReturn(expectedCounterList)
+        command.action(mockTwitchUser, commandString)
+        expectedCounterList.forEach {
+            verify(mockCountersDAO).resetTodaysCounterForChannel(channel, it)
+        }
+    }
+
+    @Test
+    fun testDeleteValidCounterCommand() {
+        val command = counterCommands.commandList.first { it.command == "deletecounter" }
+        val commandString = "!deletecounter falls".split(" ", limit = 3)
+        val counter = Counter("falls")
+        command.action(mockTwitchUser, commandString)
+        verify(mockCountersDAO).removeCounterForChannel(channel, counter)
+    }
+
+    @Test
+    fun testDeleteInvalidCounterCommand() {
+        val command = counterCommands.commandList.first { it.command == "deletecounter" }
+        val commandString = "!deletecounter".split(" ", limit = 3)
+        command.action(mockTwitchUser, commandString)
+        verify(mockTwirk).channelMessage(command.helpString)
     }
 
 
     @Test
+    fun testMeanCounterCommand() {
+        val command = counterCommands.commandList.first { it.command == "mean" }
+        val commandString = "!mean breaks".split(" ", limit = 3)
+        val breaks = Counter("breaks", "break", "breaks", 0, 444)
+        val streams = Counter("stream", "stream", "streams", 0, 99)
+        `when`(mockCountersDAO.showCountersForChannel(anyString(), eq(true))).thenReturn(listOf(breaks, streams))
+        command.action(mockTwitchUser, commandString)
+        val expectedString = "Mean breaks per stream (444/99) - 4.48"
+        verify(mockTwirk, times(1)).channelMessage(expectedString)
+    }
+
+    @Test
+    fun testMeanInvalidCounterCommand() {
+        val command = counterCommands.commandList.first { it.command == "mean" }
+        val commandString = "!mean test".split(" ", limit = 3)
+        val breaks = Counter("breaks", "break", "breaks", 0, 444)
+        val streams = Counter("stream", "stream", "streams", 0, 99)
+        `when`(mockCountersDAO.showCountersForChannel(anyString(), eq(true))).thenReturn(listOf(breaks, streams))
+        command.action(mockTwitchUser, commandString)
+        verify(mockTwirk, times(0)).channelMessage(anyString())
+    }
+
+
+    @Test
+    fun testMeanCounterListCommand() {
+        val command = counterCommands.commandList.first { it.command == "meancounterlist" }
+        val commandString = "!meancounterlist".split(" ", limit = 3)
+        val expectedCounterList = listOf(
+            Counter("fall", "fall", "falls", 0, 5),
+            Counter("test", "test", "tests", 0, 3),
+            Counter("break", "break", "breaks", 10, 20),
+            Counter("stream", "stream", "streams", 1, 10)
+        )
+        `when`(mockCountersDAO.showCountersForChannel(anyString(), eq(true))).thenReturn(expectedCounterList)
+        command.action(mockTwitchUser, commandString)
+        verify(mockTwirk, times(1)).channelMessage("Per Stream (10) - [fall: 0.50, test: 0.30, break: 2.00]")
+    }
+
+    @Test
     fun testListCountersCommand() {
-        val command = counterCommands.commandList.first { it.command == "counterlist"}
+        val command = counterCommands.commandList.first { it.command == "counterlist" }
         val commandString = "!counterlist".split(" ", limit = 3)
-        //            twirk.channelMessage(database.showCountersForChannel(channel, false).toString())
-        val expectedCounterList = listOf(Counter("fall", "fall", "falls", 0, 5),
-        Counter("test", "test", "tests", 0, 3),
-        Counter("break", "break", "breaks", 10, 20))
+        val expectedCounterList = listOf(
+            Counter("fall", "fall", "falls", 0, 5),
+            Counter("test", "test", "tests", 0, 3),
+            Counter("break", "break", "breaks", 10, 20)
+        )
         `when`(mockCountersDAO.showCountersForChannel(anyString(), eq(false))).thenReturn(expectedCounterList)
         command.action(mockTwitchUser, commandString)
-        verify(mockTwirk,times(1)).channelMessage("[fall: 0/5, test: 0/3, break: 10/20]")
+        verify(mockTwirk, times(1)).channelMessage("[fall: 0/5, test: 0/3, break: 10/20]")
     }
 
     @Test
     fun testResetCountCommand() {
-        val command = counterCommands.commandList.first {it.command == "resetcount"}
+        val command = counterCommands.commandList.first { it.command == "resetcount" }
         val commndString = "!resetcount falls".split(" ", limit = 3)
         val counter = Counter("falls")
         command.action(mockTwitchUser, commndString)
@@ -77,7 +148,7 @@ class TestCounterCommands {
 
     @Test
     fun testResetCountHelpCommand() {
-        val command = counterCommands.commandList.first {it.command == "resetcount"}
+        val command = counterCommands.commandList.first { it.command == "resetcount" }
         val commndString = "!resetcount".split(" ", limit = 3)
         val counter = Counter("falls")
         command.action(mockTwitchUser, commndString)
@@ -88,7 +159,7 @@ class TestCounterCommands {
 
     @Test
     fun testAddOneCount() {
-        val command = counterCommands.commandList.first {it.command == "addcount"}
+        val command = counterCommands.commandList.first { it.command == "addcount" }
         val commandString = "!addcount falls".split(" ", limit = 3)
         val counter = Counter("falls")
         val expectedCounter = Counter("falls", "fall", "falls", 1, 1)
@@ -102,7 +173,7 @@ class TestCounterCommands {
 
     @Test
     fun testAddMultipleCount() {
-        val command = counterCommands.commandList.first {it.command == "addcount"}
+        val command = counterCommands.commandList.first { it.command == "addcount" }
         val commandString = "!addcount falls 5".split(" ", limit = 3)
         val counter = Counter("falls")
         val expectedCounter = Counter("falls", "fall", "falls", 5, 5)
@@ -116,7 +187,7 @@ class TestCounterCommands {
 
     @Test
     fun testAddToInvalidCounter() {
-        val command = counterCommands.commandList.first {it.command == "addcount"}
+        val command = counterCommands.commandList.first { it.command == "addcount" }
         val commandString = "!addcount falls 5".split(" ", limit = 3)
         val counter = Counter("falls")
         val expectedCounter = Counter("")
@@ -131,7 +202,7 @@ class TestCounterCommands {
     @ParameterizedTest
     @ValueSource(strings = ["burb", "-10"])
     fun testAddInvalidNumber(count: String) {
-        val command = counterCommands.commandList.first {it.command == "addcount"}
+        val command = counterCommands.commandList.first { it.command == "addcount" }
         val commandString = "!addcount falls $count".split(" ", limit = 3)
         val counter = Counter("falls")
         val expectedCounter = Counter("falls", "fall", "falls", 5, 5)
@@ -145,7 +216,7 @@ class TestCounterCommands {
 
     @Test
     fun testRemoveOneCount() {
-        val command = counterCommands.commandList.first {it.command == "removecount"}
+        val command = counterCommands.commandList.first { it.command == "removecount" }
         val commandString = "!removecount falls".split(" ", limit = 3)
         val counter = Counter("falls")
         val expectedCounter = Counter("falls", "fall", "falls", 1, 1)
@@ -159,7 +230,7 @@ class TestCounterCommands {
 
     @Test
     fun testRemoveMultipleCount() {
-        val command = counterCommands.commandList.first {it.command == "removecount"}
+        val command = counterCommands.commandList.first { it.command == "removecount" }
         val commandString = "!removecount falls 5".split(" ", limit = 3)
         val counter = Counter("falls")
         val expectedCounter = Counter("falls", "fall", "falls", 5, 5)
@@ -173,7 +244,7 @@ class TestCounterCommands {
 
     @Test
     fun testRemoveToInvalidCounter() {
-        val command = counterCommands.commandList.first {it.command == "removecount"}
+        val command = counterCommands.commandList.first { it.command == "removecount" }
         val commandString = "!removecount falls 5".split(" ", limit = 3)
         val counter = Counter("falls")
         val expectedCounter = Counter("")
@@ -188,7 +259,7 @@ class TestCounterCommands {
     @ParameterizedTest
     @ValueSource(strings = ["burb", "-10"])
     fun testRemoveInvalidNumber(count: String) {
-        val command = counterCommands.commandList.first {it.command == "removecount"}
+        val command = counterCommands.commandList.first { it.command == "removecount" }
         val commandString = "!removecount falls $count".split(" ", limit = 3)
         val counter = Counter("falls")
         val expectedCounter = Counter("falls", "fall", "falls", 5, 5)
@@ -199,7 +270,6 @@ class TestCounterCommands {
         verify(mockCountersDAO, times(0)).incrementCounterForChannel(channel, counter, by = 5)
         verify(mockTwirk, times(1)).channelMessage("$count is not a valid number to decrement by")
     }
-
 
 
     @Test

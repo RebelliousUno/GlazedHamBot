@@ -22,7 +22,7 @@ class TestCountersDAO {
     private val channel = "test"
 
     @BeforeEach
-    fun setupTestDB()  {
+    fun setupTestDB() {
         con = DriverManager.getConnection("jdbc:sqlite:$channel.db")
         connectionList[channel] = con
         countersDAO = CountersDAO(connectionList)
@@ -44,12 +44,13 @@ class TestCountersDAO {
         val resultList = ArrayList<String>()
         con.createStatement()
             .executeQuery("SELECT name FROM SQLITE_MASTER")?.run {
-                while(next()) {
+                while (next()) {
                     resultList.add(getString(1))
                 }
             }
         assert(resultList.containsAll(nameList))
     }
+
     @Test
     fun testAddCounter() {
         val counter = Counter(command = "test", plural = "plural", singular = "single")
@@ -80,7 +81,7 @@ class TestCountersDAO {
         val r1 = countersDAO.getCounterForChannel(channel, counter)
         countersDAO.incrementCounterForChannel(channel, counter)
         val r2 = countersDAO.getCounterForChannel(channel, counter)
-        countersDAO.incrementCounterForChannel(channel, counter,2)
+        countersDAO.incrementCounterForChannel(channel, counter, 2)
         val r3 = countersDAO.getCounterForChannel(channel, counter)
 
         assertEquals(0, r1.today)
@@ -98,7 +99,7 @@ class TestCountersDAO {
         val r1 = countersDAO.getCounterForChannel(channel, counter)
         countersDAO.incrementCounterForChannel(channel, counter, 5)
         val r2 = countersDAO.getCounterForChannel(channel, counter)
-        countersDAO.incrementCounterForChannel(channel, counter,-1)
+        countersDAO.incrementCounterForChannel(channel, counter, -1)
         val r3 = countersDAO.getCounterForChannel(channel, counter)
 
         assertEquals(0, r1.today)
@@ -113,11 +114,11 @@ class TestCountersDAO {
     fun resetCounters() {
         val counter = Counter(command = "test", plural = "plural", singular = "single")
         countersDAO.createCounterForChannel(channel, counter)
-        countersDAO.incrementCounterForChannel(channel, counter,5)
+        countersDAO.incrementCounterForChannel(channel, counter, 5)
         val r1 = countersDAO.getCounterForChannel(channel, counter)
         countersDAO.resetTodaysCounterForChannel(channel, counter)
         val r2 = countersDAO.getCounterForChannel(channel, counter)
-        countersDAO.incrementCounterForChannel(channel, counter,5)
+        countersDAO.incrementCounterForChannel(channel, counter, 5)
         val r3 = countersDAO.getCounterForChannel(channel, counter)
         assertEquals(5, r1.today)
         assertEquals(5, r1.total)
