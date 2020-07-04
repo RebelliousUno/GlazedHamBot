@@ -133,7 +133,8 @@ class CounterCommands(
             helpString,
             Permission.ANYONE
         ) { _: TwitchUser, _: List<String> ->
-            twirk.channelMessage(database.showCountersForChannel(channel, false).toString())
+            val countersForChannel = database.showCountersForChannel(channel, false)
+            twirk.channelMessage(countersForChannel.map { it.totalString }.toString())
         }
     }
 
@@ -155,7 +156,9 @@ class CounterCommands(
                 }
                 if (by > 0) {
                     database.incrementCounterForChannel(channel, counter, -by)
-                    twirk.channelMessage(database.getCounterForChannel(channel, counter).outputString)
+                    val newCounter = database.getCounterForChannel(channel, counter)
+                        if (!newCounter.isEmpty())
+                            twirk.channelMessage(newCounter.outputString)
                 } else
                     twirk.channelMessage("${content[2]} is not a valid number to decrement by")
             } catch (e: NumberFormatException) {
@@ -182,7 +185,9 @@ class CounterCommands(
                 }
                 if (by > 0) {
                     database.incrementCounterForChannel(channel, counter, by)
-                    twirk.channelMessage(database.getCounterForChannel(channel, counter).outputString)
+                    val newCounter = database.getCounterForChannel(channel, counter)
+                    if (!newCounter.isEmpty())
+                        twirk.channelMessage(newCounter.outputString)
                 } else twirk.channelMessage("${content[2]} is not a valid number to increment by")
             } catch (e: NumberFormatException) {
                 twirk.channelMessage("${content[2]} is not a valid number to increment by")
