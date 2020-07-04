@@ -1,6 +1,6 @@
 language: java
 install: gradle clean
-script: gradle shadowJar
+script: gradle check shadowJar
 before_deploy:
   # Set up git user name and tag this commit
   - git config --local user.name "RebelliousUno"
