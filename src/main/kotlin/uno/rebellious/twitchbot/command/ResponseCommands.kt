@@ -4,6 +4,7 @@ import com.gikk.twirk.Twirk
 import com.gikk.twirk.types.users.TwitchUser
 import uno.rebellious.twitchbot.command.model.Permission
 import uno.rebellious.twitchbot.database.DatabaseDAO
+import uno.rebellious.twitchbot.model.Response
 import java.util.*
 
 class ResponseCommands(
@@ -26,7 +27,7 @@ class ResponseCommands(
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             val removeCommand = content[1].toLowerCase(Locale.ENGLISH)
-            database.removeResponse(channel, removeCommand)
+            database.removeResponse(channel, Response(removeCommand))
         }
     }
 
@@ -40,7 +41,7 @@ class ResponseCommands(
             if (content.size > 2) {
                 val newCommand = content[1].toLowerCase(Locale.ENGLISH)
                 val newResponse = content[2]
-                database.setResponse(channel, newCommand, newResponse)
+                database.setResponse(channel, Response(newCommand, newResponse))
             }
         }
     }
@@ -55,7 +56,7 @@ class ResponseCommands(
             if (content.size > 2) {
                 val newCommand = content[1].toLowerCase(Locale.ENGLISH)
                 val newResponse = content[2]
-                database.setResponse(channel, newCommand, newResponse)
+                database.setResponse(channel, Response(newCommand, newResponse))
             }
         }
     }

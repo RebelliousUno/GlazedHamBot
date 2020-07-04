@@ -26,9 +26,9 @@ interface ISpotify {
 }
 
 interface IResponse {
-    fun findResponse(channel: String, command: String): String
-    fun setResponse(channel: String, command: String, response: String)
-    fun removeResponse(channel: String, command: String)
+    fun findResponse(channel: String, command: Response): Response
+    fun setResponse(channel: String, response: Response)
+    fun removeResponse(channel: String, command: Response)
 }
 
 interface ISettings {
