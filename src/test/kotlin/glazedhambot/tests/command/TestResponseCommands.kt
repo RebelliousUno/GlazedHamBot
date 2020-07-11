@@ -1,4 +1,4 @@
-package glazedhambot.tests.commands
+package glazedhambot.tests.command
 
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.types.users.TwitchUser
@@ -55,6 +55,7 @@ class TestResponseCommands {
         command.action(mockTwitchUser, commandString)
         verifyNoInteractions(mockResponseDAO)
     }
+
     @Test
     fun testEditResponse() {
         val command = responseCommands.commandList.first { it.command == "editcmd" }

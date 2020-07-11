@@ -1,4 +1,4 @@
-package glazedhambot.tests.commands
+package glazedhambot.tests.command
 
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.types.users.TwitchUser

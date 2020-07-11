@@ -6,6 +6,7 @@ import uno.rebellious.twitchbot.BotManager.pastebin
 import uno.rebellious.twitchbot.command.model.Permission
 import uno.rebellious.twitchbot.database.DatabaseDAO
 import uno.rebellious.twitchbot.database.QuotesDAO
+import java.time.Clock
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 
@@ -14,7 +15,8 @@ class QuoteCommands(
     private val prefix: String,
     private val twirk: Twirk,
     val channel: String,
-    val database: DatabaseDAO
+    val database: DatabaseDAO,
+    val clock: Clock = Clock.systemDefaultZone()
 ) : CommandList() {
     init {
         commandList.add(quoteListCommand())
@@ -110,7 +112,7 @@ class QuoteCommands(
                     twirk.channelMessage("Could not parse date ${quoteDetails[2]} - Use format YYYY-MM-DD")
                     null
                 } else
-                    LocalDate.now()
+                    LocalDate.now(clock)
                 if (date != null) {
                     val id = database.addQuoteForChannel(channel, date, person, quote)
                     twirk.channelMessage("Added with ID $id : $quote - $person on $date")
