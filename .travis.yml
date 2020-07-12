@@ -2,8 +2,11 @@ language: java
 os: linux
 dist: bionic
 install: gradle clean
+
 jobs:
   include:
+    - state: Check Timezone
+      script: timedatectl
     - stage: test
       script: gradle check
     - stage: build
