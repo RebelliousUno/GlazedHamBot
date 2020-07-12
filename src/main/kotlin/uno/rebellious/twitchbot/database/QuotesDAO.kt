@@ -131,7 +131,7 @@ class QuotesDAO(private val connectionList: HashMap<String, Connection>, val clo
                 val quote = getString("quote")
                 val subject = getString("subject")
                 val timestamp = getTimestamp("timestamp").toLocalDateTime()
-                    .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+                    .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withZone(clock.zone))
                 "Quote $id: \"$quote\" - $subject - $timestamp"
             } else {
                 QUOTE_NOT_FOUND
