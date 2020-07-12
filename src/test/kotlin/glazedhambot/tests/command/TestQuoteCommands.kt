@@ -31,7 +31,7 @@ class TestQuoteCommands {
         mockQuotesDAO = Mockito.mock(DatabaseDAO::class.java)
         mockTwitchUser = Mockito.mock(TwitchUser::class.java)
 
-        quoteCommands = QuoteCommands("!", mockTwirk, channel, mockQuotesDAO)
+        quoteCommands = QuoteCommands("!", mockTwirk, channel, mockQuotesDAO, clock)
     }
 
     /*
