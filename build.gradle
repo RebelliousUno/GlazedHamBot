@@ -60,7 +60,7 @@ tasks.test {
     testLogging {
         events "passed", "skipped", "failed"
         showStackTraces = true
-        exceptionFormat = TestExceptionFormat.FULL
+        exceptionFormat = 'full'
     }
 }
 
