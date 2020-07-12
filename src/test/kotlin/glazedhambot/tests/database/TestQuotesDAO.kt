@@ -25,7 +25,7 @@ class TestQuotesDAO {
     fun setupTestDB() {
         con = DriverManager.getConnection("jdbc:sqlite:$channel.db")
         connectionList[channel] = con
-        quotesDAO = QuotesDAO(connectionList)
+        quotesDAO = QuotesDAO(connectionList, clock)
         quotesDAO.createQuotesTable(connectionList[channel]!!)
     }
 
