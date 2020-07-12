@@ -19,7 +19,7 @@ class TestQuotesDAO {
     private var connectionList: HashMap<String, Connection> = HashMap()
     lateinit var con: Connection
     private val channel = "test"
-    private val clock = Clock.fixed(Instant.parse("2020-07-11T11:00:00Z"), ZoneId.of("Europe/London"))
+    private val clock = Clock.fixed(Instant.parse("2020-07-11T11:00:00Z"), ZoneId.of("UTC"))
 
     @BeforeEach
     fun setupTestDB() {

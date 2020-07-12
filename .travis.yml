@@ -5,7 +5,7 @@ install: gradle clean
 
 jobs:
   include:
-    - state: Check Timezone
+    - stage: Check Timezone
       script: timedatectl
     - stage: test
       script: gradle check
