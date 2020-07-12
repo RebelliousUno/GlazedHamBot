@@ -1,6 +1,6 @@
 language: java
 os: linux
-dist: trusty
+dist: bionic
 install: gradle clean
 jobs:
   include:
