@@ -4,7 +4,5 @@ build/
 out/
 src/main/java/
 src/main/resources/settings.properties
-*.db
-*.db-shm
-*.db-wal
+*.db*
 /gradle/wrapper/gradle-wrapper.jar
