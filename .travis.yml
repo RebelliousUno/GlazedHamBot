@@ -13,8 +13,8 @@ before_deploy:
   - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
   provider: releases
-  api_key: $githubToken
+  token: $githubToken
   file: "./build/libs/TwitchBot-*.jar"
-  skip_cleanup: true
+  cleanup: false
   on:
     tags: true
