@@ -89,7 +89,7 @@ class CounterCommands(
                 .forEach {
                     database.resetTodaysCounterForChannel(channel, it)
                 }
-            twirk.channelMessage(database.showCountersForChannel(channel, true).toString())
+            twirk.channelMessage(database.showCountersForChannel(channel, true).map{ it.totalString }.toString())
         }
     }
 
