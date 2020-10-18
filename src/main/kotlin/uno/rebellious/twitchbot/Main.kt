@@ -3,8 +3,6 @@
  */
 package uno.rebellious.twitchbot
 
-import uno.rebellious.twitchbot.database.SettingsDyanmoDBDAO
-
 fun main(args: Array<String>) {
     val channelList = BotManager.database.getListOfChannels()
     channelList.forEach { channel ->

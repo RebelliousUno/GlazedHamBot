@@ -166,9 +166,11 @@ class WaypointCommands(
                 if (waypoint != null) {
                     if (distance != null) {
                         twirk.channelMessage(
-                            "Closest Waypoint: ${waypoint.waypointToString()} Distance: ${BigDecimal(
-                                distance
-                            ).setScale(2, RoundingMode.HALF_EVEN)}"
+                            "Closest Waypoint: ${waypoint.waypointToString()} Distance: ${
+                                BigDecimal(
+                                    distance
+                                ).setScale(2, RoundingMode.HALF_EVEN)
+                            }"
                         )
                     } else {
                         twirk.channelMessage("Waypoint: ${waypoint.waypointToString()}")
@@ -204,10 +206,12 @@ class WaypointCommands(
                     )
                     if (distance != null) {
                         twirk.channelMessage(
-                            "Distance to ${waypoint.waypointToString()}: ${BigDecimal(distance).setScale(
-                                2,
-                                RoundingMode.HALF_EVEN
-                            )}"
+                            "Distance to ${waypoint.waypointToString()}: ${
+                                BigDecimal(distance).setScale(
+                                    2,
+                                    RoundingMode.HALF_EVEN
+                                )
+                            }"
                         )
                     } else {
                         twirk.channelMessage("Waypoint not found")

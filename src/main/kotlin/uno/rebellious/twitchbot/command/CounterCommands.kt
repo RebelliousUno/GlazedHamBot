@@ -42,9 +42,11 @@ class CounterCommands(
                     val streamCounter = counterList["stream"]?.total ?: 1
                     val meanValue = counterValue / (streamCounter).toDouble()
                     twirk.channelMessage(
-                        "Mean $counter per stream ($counterValue/$streamCounter) - ${BigDecimal(
-                            meanValue
-                        ).setScale(2, RoundingMode.HALF_EVEN)}"
+                        "Mean $counter per stream ($counterValue/$streamCounter) - ${
+                            BigDecimal(
+                                meanValue
+                            ).setScale(2, RoundingMode.HALF_EVEN)
+                        }"
                     )
                 }
             }
@@ -89,7 +91,7 @@ class CounterCommands(
                 .forEach {
                     database.resetTodaysCounterForChannel(channel, it)
                 }
-            twirk.channelMessage(database.showCountersForChannel(channel, true).map{ it.totalString }.toString())
+            twirk.channelMessage(database.showCountersForChannel(channel, true).map { it.totalString }.toString())
         }
     }
 

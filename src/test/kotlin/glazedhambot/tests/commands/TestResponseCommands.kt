@@ -55,6 +55,7 @@ class TestResponseCommands {
         command.action(mockTwitchUser, commandString)
         verifyNoInteractions(mockResponseDAO)
     }
+
     @Test
     fun testEditResponse() {
         val command = responseCommands.commandList.first { it.command == "editcmd" }

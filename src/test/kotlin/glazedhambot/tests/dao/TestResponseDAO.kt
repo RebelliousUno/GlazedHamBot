@@ -2,7 +2,6 @@ package glazedhambot.tests.dao
 
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertTrue
-import uno.rebellious.twitchbot.database.CountersDAO
 import uno.rebellious.twitchbot.database.ResponsesDAO
 import uno.rebellious.twitchbot.model.Response
 import java.sql.Connection
@@ -11,8 +10,7 @@ import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.Alphanumeric::class)
-class TestResponseDAO
-{
+class TestResponseDAO {
     lateinit var responsesDAO: ResponsesDAO
     private var connectionList: HashMap<String, Connection> = HashMap()
     lateinit var con: Connection
@@ -50,7 +48,7 @@ class TestResponseDAO
 
 
     @Test
-    fun findResponse(){
+    fun findResponse() {
         val cmd = "cmd"
         val response = "This is a test response"
         responsesDAO.setResponse(channel, Response(cmd, response))
@@ -59,7 +57,7 @@ class TestResponseDAO
     }
 
     @Test
-    fun findMissingResponse(){
+    fun findMissingResponse() {
         val cmd = "cmd"
         val response = "This is a test response"
         responsesDAO.setResponse(channel, Response(cmd, response))
@@ -73,7 +71,7 @@ class TestResponseDAO
         val cmd = "cmd"
         val response = "This is a test response"
         responsesDAO.setResponse(channel, Response(cmd, response))
-        val result = responsesDAO.findResponse(channel,Response(cmd))
+        val result = responsesDAO.findResponse(channel, Response(cmd))
         assertEquals(response, result.response)
     }
 
@@ -84,12 +82,12 @@ class TestResponseDAO
         val responseEdit = "$response edit"
         responsesDAO.setResponse(channel, Response(cmd, response))
         responsesDAO.setResponse(channel, Response(cmd, responseEdit))
-        val result = responsesDAO.findResponse(channel,Response(cmd))
+        val result = responsesDAO.findResponse(channel, Response(cmd))
         assertEquals(responseEdit, result.response)
     }
 
     @Test
-    fun removeResponse(){
+    fun removeResponse() {
         val cmd = "cmd"
         val response = "This is a test response"
         responsesDAO.setResponse(channel, Response(cmd, response))

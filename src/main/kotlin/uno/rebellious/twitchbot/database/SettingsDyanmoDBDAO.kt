@@ -5,9 +5,6 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.*
 import uno.rebellious.twitchbot.BotManager
-import java.sql.Connection
-import java.util.*
-import kotlin.collections.HashMap
 
 
 class SettingsDyanmoDBDAO : ISettings {
