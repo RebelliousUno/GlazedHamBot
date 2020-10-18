@@ -18,8 +18,12 @@ import kotlin.collections.set
 
 object BotManager {
 
+    //AWS
+    var env: String = System.getProperty("env")
+    val awsCredentials: DBCredentials
+    private val SETTINGS: Settings = Settings()
     private val scanner: Observable<String> = Scanner(System.`in`).useDelimiter("\n").toObservable().share()
-    private val SETTINGS = Settings()
+
     val lastFMUrl =
         "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${SETTINGS.lastFMUser}&api_key=${SETTINGS.lastFMAPI}&format=json&limit=1"
     val spotifyUrl = "https://api.spotify.com/v1/me/player"
@@ -29,7 +33,13 @@ object BotManager {
     private var threadList = HashMap<String, Pair<Thread, Disposable?>>()
 
     val pastebin = Pastebin(SETTINGS.pastebinDev, SETTINGS.pastebinUser)
-    val database = DatabaseDAO()
+    val database: DatabaseDAO
+
+    init {
+        awsCredentials = DBCredentials(SETTINGS.awsAccessKeyId ?: "", SETTINGS.awsAccessKey ?: "")
+        database = DatabaseDAO()
+    }
+
 
     fun startTwirkForChannel(channel: Channel) {
         var disposable: Disposable? = null

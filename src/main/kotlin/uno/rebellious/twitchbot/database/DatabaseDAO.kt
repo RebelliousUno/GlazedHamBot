@@ -8,7 +8,7 @@ class DatabaseDAO(
     private val countersDAO: CountersDAO = CountersDAO(connectionList),
     private val responsesDAO: ResponsesDAO = ResponsesDAO(connectionList),
     private val quotesDAO: QuotesDAO = QuotesDAO(connectionList),
-    private val settingsDAO: SettingsDAO = SettingsDAO(connectionList),
+    private val settingsDAO: SettingsDyanmoDBDAO = SettingsDyanmoDBDAO(),
     private val spotifyDAO: SpotifyDAO = SpotifyDAO(connectionList),
     private val waypointDAO: WaypointDAO = WaypointDAO(connectionList)
 ) : ICounters by countersDAO, IQuotes by quotesDAO, ISettings by settingsDAO, IResponse by responsesDAO,

@@ -16,18 +16,6 @@ class SettingsDAO(private val connectionList: HashMap<String, Connection>) : ISe
         settingsDB = DriverManager.getConnection("jdbc:sqlite:settings.db")
     }
 
-    override fun getAllCommandList(channel: String): ArrayList<String> {
-        val connection = connectionList[channel]
-        val sql = "SELECT command FROM responses"
-        val returnList = ArrayList<String>()
-        connection?.prepareStatement(sql)?.run {
-            executeQuery()
-        }?.apply {
-            while (next()) returnList.add(getString("command"))
-        }
-        return returnList
-    }
-
     override fun leaveChannel(channel: String) {
         val sql = "DELETE FROM channels WHERE channel = ?"
         settingsDB?.prepareStatement(sql)?.apply {
@@ -85,7 +73,7 @@ class SettingsDAO(private val connectionList: HashMap<String, Connection>) : ISe
         }?.run { next() } ?: false
     }
 
-    fun createChannelsTable() {
+    override fun createChannelsTable() {
         val channelList = "create table if not exists channels (" +
                 "channel text, prefix text DEFAULT '!', nick text default '', token text default '')"
 
