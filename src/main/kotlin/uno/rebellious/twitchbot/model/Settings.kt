@@ -22,51 +22,27 @@ class Settings {
             props.getProperty("client.id"),
             props.getProperty("client.secret"),
             props.getProperty("pastebin_dev"),
-            props.getProperty("pastebin_user")
+            props.getProperty("pastebin_user"),
+            props.getProperty("aws.accessKeyId"),
+            props.getProperty("aws.secretAccessKey")
         )
     }
 
-    val pastebinDev: String?
-        get() {
-            return settings?.PASTEBIN_DEV
-        }
-    val pastebinUser: String?
-        get() {
-            return settings?.PASTEBIN_USER
-        }
+    val pastebinDev = settings?.PASTEBIN_DEV
+    val pastebinUser = settings?.PASTEBIN_USER
 
-    val spotifyOAuthToken: String?
-        get() {
-            return settings?.SPOTIFY_OAUTH
-        }
+    val spotifyOAuthToken = settings?.SPOTIFY_OAUTH
 
-    val nick: String?
-        get() {
-            return settings?.MY_NICK
-        }
+    val nick = settings?.MY_NICK
 
-    val password: String?
-        get() {
-            return settings?.MY_PASS
-        }
+    val password = settings?.MY_PASS
 
-    val lastFMAPI: String?
-        get() {
-            return settings?.LAST_FM_API
-        }
-    val lastFMUser: String?
-        get() {
-            return settings?.LAST_FM_USER
-        }
-    val clientId: String?
-        get() {
-            return settings?.CLIENT_ID
-        }
-    val clientSecret: String?
-        get() {
-            return settings?.CLIENT_SECRET
-        }
-
+    val lastFMAPI = settings?.LAST_FM_API
+    val lastFMUser = settings?.LAST_FM_USER
+    val clientId = settings?.CLIENT_ID
+    val clientSecret = settings?.CLIENT_SECRET
+    val awsAccessKeyId = settings?.AWS_ACCESS_KEY_ID
+    val awsAccessKey = settings?.AWS_ACCESS_KEY
 }
 
 data class DataSettings(
@@ -79,5 +55,7 @@ data class DataSettings(
     val CLIENT_ID: String,
     val CLIENT_SECRET: String,
     val PASTEBIN_DEV: String,
-    val PASTEBIN_USER: String
+    val PASTEBIN_USER: String,
+    val AWS_ACCESS_KEY_ID: String,
+    val AWS_ACCESS_KEY: String
 )
