@@ -46,10 +46,10 @@ class SettingsDyanmoDBDAO : ISettings {
         val c = SettingsDAO(HashMap()).getListOfChannels()
         c.forEach {
             val h = mapOf(
-                "channel" to AttributeValue.builder().s(it.channel).build(),
-                "nick" to AttributeValue.builder().s(it.nick).build(),
-                "prefix" to AttributeValue.builder().s(it.prefix).build(),
-                "token" to AttributeValue.builder().s(it.token).build()
+                "channel" to DynamoDBHelper.attributeValue(it.channel),
+                "nick" to DynamoDBHelper.attributeValue(it.nick),
+                "prefix" to DynamoDBHelper.attributeValue(it.prefix),
+                "token" to DynamoDBHelper.attributeValue(it.token)
             )
             val request = PutItemRequest.builder().tableName(tableName).item(h).build()
             ddb.putItem(request)
@@ -58,7 +58,7 @@ class SettingsDyanmoDBDAO : ISettings {
 
     override fun leaveChannel(channel: String) {
         val ddb = dbClient()
-        val request = deleteItemRequest(channel)
+        val request = DynamoDBHelper.deleteItemRequest(channel, tableName)
         ddb.deleteItem(request)
     }
 
@@ -67,16 +67,16 @@ class SettingsDyanmoDBDAO : ISettings {
         // Check if the channel exists
         val ddb = dbClient()
 
-        val exists = ddb.getItem(itemRequest(newChannel)).hasItem()
+        val exists = ddb.getItem(DynamoDBHelper.itemRequest(newChannel, tableName)).hasItem()
 
         if (!exists) {
             println("Not Exists")
 
             val h = mapOf(
-                "channel" to AttributeValue.builder().s(newChannel).build(),
-                "prefix" to AttributeValue.builder().s(prefix).build(),
-                "nick" to AttributeValue.builder().s("").build(),
-                "token" to AttributeValue.builder().s("").build()
+                "channel" to DynamoDBHelper.attributeValue(newChannel),
+                "prefix" to DynamoDBHelper.attributeValue(prefix),
+                "nick" to DynamoDBHelper.attributeValue(""),
+                "token" to DynamoDBHelper.attributeValue("")
             )
             val request = PutItemRequest.builder().tableName(tableName).item(h).build()
             ddb.putItem(request)
@@ -87,7 +87,7 @@ class SettingsDyanmoDBDAO : ISettings {
 
     override fun getPrefixForChannel(channel: String): String {
         val ddb = dbClient()
-        val request = itemRequest(channel)
+        val request = DynamoDBHelper.itemRequest(channel, tableName)
         val response = ddb.getItem(request)
         return if (response.hasItem()) {
             response.item()["prefix"]?.s()
@@ -107,7 +107,7 @@ class SettingsDyanmoDBDAO : ISettings {
             .key(mapOf("channel" to AttributeValue.builder().s(channel).build()))
             .attributeUpdates(
                 mapOf(
-                    "prefix" to AttributeValueUpdate.builder().value(AttributeValue.builder().s(prefix).build())
+                    "prefix" to AttributeValueUpdate.builder().value(DynamoDBHelper.attributeValue(prefix))
                         .action(AttributeAction.PUT).build()
                 )
             )
@@ -129,13 +129,4 @@ class SettingsDyanmoDBDAO : ISettings {
         }
         return arr.toTypedArray()
     }
-
-
-    private fun deleteItemRequest(channel: String) = DeleteItemRequest.builder().tableName(tableName)
-        .key(mapOf("channel" to AttributeValue.builder().s(channel).build())).build()
-
-    private fun itemRequest(channel: String) = GetItemRequest.builder().tableName(tableName)
-        .key(mapOf("channel" to AttributeValue.builder().s(channel).build())).build()
-
-
 }
