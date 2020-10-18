@@ -1,12 +1,13 @@
 package glazedhambot.tests.dao
 
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import uno.rebellious.twitchbot.database.ResponsesDAO
 import uno.rebellious.twitchbot.model.Response
 import java.sql.Connection
 import java.sql.DriverManager
-import kotlin.test.assertEquals
+
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.Alphanumeric::class)
