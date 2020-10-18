@@ -5,6 +5,7 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.*
 import uno.rebellious.twitchbot.BotManager
+import kotlin.concurrent.thread
 
 
 class SettingsDyanmoDBDAO : ISettings {
@@ -33,7 +34,10 @@ class SettingsDyanmoDBDAO : ISettings {
 
         try {
             val result = ddb.createTable(request)
+            println("Channels Table Created")
+            println("Migrate from Old DB")
             migrateFromOldDB()
+
             println(result.tableDescription().tableName())
 
         } catch (e: DynamoDbException) {
@@ -43,6 +47,16 @@ class SettingsDyanmoDBDAO : ISettings {
 
     private fun migrateFromOldDB() {
         val ddb = dbClient()
+        var describe = false
+        var i = 0
+        while (!describe && i < 20) { // Need to extract this to the aws helper... later
+            describe = ddb.describeTable {
+                it.tableName(tableName).build()
+            }.table().tableStatus() == TableStatus.ACTIVE
+            Thread.sleep(500) // Wait half a second before checking the table again
+            i++ // Only try 20 times
+        }
+
         val c = SettingsDAO(HashMap()).getListOfChannels()
         c.forEach {
             val h = mapOf(
