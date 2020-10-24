@@ -26,9 +26,9 @@ apply plugin: 'com.github.johnrengelman.shadow'
 group 'uno.rebellious'
 version '1.8.0-SNAPSHOT'
 
-mainClassName = 'uno.rebellious.twitchbot.MainKt'
+//mainClassName = 'uno.rebellious.twitchbot.MainKt'
 
-sourceCompatibility = 1.8
+//sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()

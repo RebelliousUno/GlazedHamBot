@@ -9,7 +9,7 @@ class DatabaseDAO(
     private val responsesDAO: ResponsesDAO = ResponsesDAO(connectionList),
     private val quotesDAO: QuotesDAO = QuotesDAO(connectionList),
     private val settingsDAO: SettingsDyanmoDBDAO = SettingsDyanmoDBDAO(),
-    private val spotifyDAO: SpotifyDAO = SpotifyDAO(connectionList),
+    private val spotifyDAO: SpotifyDynamoDBDAO = SpotifyDynamoDBDAO(),
     private val waypointDAO: WaypointDAO = WaypointDAO(connectionList)
 ) : ICounters by countersDAO, IQuotes by quotesDAO, ISettings by settingsDAO, IResponse by responsesDAO,
     ISpotify by spotifyDAO, IWaypoint by waypointDAO {
@@ -19,6 +19,7 @@ class DatabaseDAO(
         val channelList = settingsDAO.getListOfChannels()
         connect(channelList)
         setupAllChannels()
+        setupSpotifyForAllChannels(channelList)
     }
 
     private fun setupSettings() {
@@ -33,6 +34,10 @@ class DatabaseDAO(
             val con = DriverManager.getConnection("jdbc:sqlite:${it.channel.toLowerCase()}.db")
             connectionList[it.channel] = con
         }
+    }
+
+    private fun setupSpotifyForAllChannels(channels: Array<Channel>) {
+        spotifyDAO.createTableForChannel(channels)
     }
 
     private fun setupAllChannels() {
