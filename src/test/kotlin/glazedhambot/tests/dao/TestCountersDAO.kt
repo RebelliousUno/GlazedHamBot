@@ -9,7 +9,6 @@ import java.sql.Connection
 import java.sql.DriverManager
 
 
-
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.Alphanumeric::class)
 class TestCountersDAO {

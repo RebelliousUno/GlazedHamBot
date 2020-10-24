@@ -1,23 +1,13 @@
 package uno.rebellious.twitchbot.database
 
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
-import software.amazon.awssdk.regions.Region
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.*
 import uno.rebellious.twitchbot.BotManager
-import kotlin.concurrent.thread
+import uno.rebellious.twitchbot.database.DynamoDBHelper.dbClient
 
 
 class SettingsDyanmoDBDAO : ISettings {
 
     private val tableName = "${BotManager.env}_settings"
-
-    private fun dbClient(): DynamoDbClient {
-        return DynamoDbClient.builder()
-            .region(Region.US_EAST_2)
-            .credentialsProvider(AwsCredentialsProvider { BotManager.awsCredentials })
-            .build()
-    }
 
     override fun createChannelsTable() {
         val request = CreateTableRequest.builder()
