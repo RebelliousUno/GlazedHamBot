@@ -82,20 +82,21 @@ class SpotifyDynamoDBDAO : ISpotify {
     }
 
     override fun getTokensForChannel(channel: String): SpotifyToken? {
-            val ddb = DynamoDBHelper.dbClient()
-            val request = DynamoDBHelper.itemRequest(channel, tableName)
-            val response = ddb.getItem(request)
-            return if (response.hasItem()) {
-                with(response.item()) {
-                    SpotifyToken(
-                        authCode = get("authCode")?.s() ?: "",
-                        accessToken = get("accessToken")?.s(),
-                        refreshToken = get("refreshToken")?.s(),
-                        expiryTime = LocalDateTime.parse(get("expiryTime")?.s())
-                    )                }
-            } else {
-                null
+        val ddb = DynamoDBHelper.dbClient()
+        val request = DynamoDBHelper.itemRequest(channel, tableName)
+        val response = ddb.getItem(request)
+        return if (response.hasItem()) {
+            with(response.item()) {
+                SpotifyToken(
+                    authCode = get("authCode")?.s() ?: "",
+                    accessToken = get("accessToken")?.s(),
+                    refreshToken = get("refreshToken")?.s(),
+                    expiryTime = LocalDateTime.parse(get("expiryTime")?.s())
+                )
             }
+        } else {
+            null
+        }
     }
 
 

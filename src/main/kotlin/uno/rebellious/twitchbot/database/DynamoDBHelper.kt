@@ -12,8 +12,9 @@ import java.time.format.DateTimeFormatter
 
 object DynamoDBHelper {
 
-    fun deleteItemRequest(channel: String, tableName: String): DeleteItemRequest = DeleteItemRequest.builder().tableName(tableName)
-        .key(mapOf("channel" to attributeValue(channel))).build()
+    fun deleteItemRequest(channel: String, tableName: String): DeleteItemRequest =
+        DeleteItemRequest.builder().tableName(tableName)
+            .key(mapOf("channel" to attributeValue(channel))).build()
 
     fun itemRequest(channel: String, tableName: String): GetItemRequest = GetItemRequest.builder().tableName(tableName)
         .key(mapOf("channel" to attributeValue(channel))).build()
