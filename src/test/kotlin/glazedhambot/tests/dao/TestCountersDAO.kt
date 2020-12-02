@@ -7,6 +7,9 @@ import uno.rebellious.twitchbot.database.CountersDAO
 import uno.rebellious.twitchbot.model.Counter
 import java.sql.Connection
 import java.sql.DriverManager
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -38,7 +41,9 @@ class TestCountersDAO {
 
     @Test
     fun failingTest() {
-        assertFalse(true)
+        val r = Random()
+        val rand = r.nextInt(100)
+        assertTrue(rand>50)
     }
 
     @Test
