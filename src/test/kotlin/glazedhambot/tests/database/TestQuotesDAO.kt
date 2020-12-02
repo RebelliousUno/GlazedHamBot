@@ -1,6 +1,7 @@
 package glazedhambot.tests.database
 
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import uno.rebellious.twitchbot.database.QuotesDAO
 import java.sql.Connection
 import java.sql.DriverManager
@@ -8,7 +9,6 @@ import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import kotlin.test.assertEquals
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
