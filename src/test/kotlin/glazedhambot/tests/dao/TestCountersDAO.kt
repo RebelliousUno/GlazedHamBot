@@ -37,6 +37,11 @@ class TestCountersDAO {
     }
 
     @Test
+    fun failingTest() {
+        assertFalse(true)
+    }
+
+    @Test
     fun testDatabaseSetup() {
         val nameList = ArrayList(listOf("counters"))
         val resultList = ArrayList<String>()
