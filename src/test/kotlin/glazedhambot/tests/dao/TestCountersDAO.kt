@@ -43,6 +43,7 @@ class TestCountersDAO {
     fun failingTest() {
         val r = Random()
         val rand = r.nextInt(100)
+        System.out.println(rand)
         assertTrue(rand>50)
     }
 
