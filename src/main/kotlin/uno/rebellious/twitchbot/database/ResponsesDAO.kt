@@ -6,6 +6,18 @@ import java.util.*
 
 class ResponsesDAO(private val connectionList: HashMap<String, Connection>) : IResponse {
 
+    override fun getAllCommandList(channel: String): ArrayList<String> {
+        val connection = connectionList[channel]
+        val sql = "SELECT command FROM responses"
+        val returnList = ArrayList<String>()
+        connection?.prepareStatement(sql)?.run {
+            executeQuery()
+        }?.apply {
+            while (next()) returnList.add(getString("command"))
+        }
+        return returnList
+    }
+
     override fun findResponse(channel: String, command: Response): Response {
         val connection = connectionList[channel]
         val sql = "Select response from responses where command = ?"

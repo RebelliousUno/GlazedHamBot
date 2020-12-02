@@ -2,13 +2,30 @@ package uno.rebellious.twitchbot.database
 
 import uno.rebellious.twitchbot.model.SpotifyToken
 import java.sql.Connection
+import java.sql.DriverManager
 import java.sql.Timestamp
 import java.time.LocalDateTime
-import java.util.*
 
 class SpotifyDAO(private val connectionList: HashMap<String, Connection>) : ISpotify {
 
+    constructor(channel: String) : this(HashMap()) {
+        connectionList[channel] = DriverManager.getConnection("jdbc:sqlite:${channel.toLowerCase()}.db")
+    }
+
     private fun getConnectionForChannel(channel: String) = connectionList[channel]
+
+    fun createTableForChannel(con: Connection) {
+        val createSQL = """CREATE TABLE if not exists spotifysettings (
+            authCode	TEXT NOT NULL,
+            refreshToken	TEXT,
+            accessToken	TEXT,
+            expires	NUMERIC)"""
+        con.createStatement()?.apply {
+            queryTimeout = 30
+            executeUpdate(createSQL)
+        }
+    }
+
 
     override fun setTokensForChannel(
         channel: String,

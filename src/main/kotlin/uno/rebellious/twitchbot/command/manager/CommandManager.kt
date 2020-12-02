@@ -132,10 +132,21 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
                 if (commandList.isBlank())
                     commandList =
                         "Quotes: $quoteCmds, Responses: $dbCommands $responseCmds, Counters: $countersCommands $counterCmds, Misc: $miscCmds,  Admin: $adminCmds"
-                twirk.channelMessage(commandList.trim())
+
+                if (commandList.length > 300) {
+                    val url = BotManager.pastebin.createPaste("Command List", commandList)
+                    twirk.channelMessage("It's a bit long... so here's a pastebin url with the list $url")
+                } else {
+                    twirk.channelMessage(commandList.trim())
+                }
+
             }
         }
     }
+
+    /*
+    Quotes: [!addquote, !delquote, !editquote, !quote, !quotelist, !undelquote], Responses: [!challenge, !chunk!, !cooltunes, !datapack, !drink, !flan, !flanument, !floatingpoint, !goodideas, !hole, !hubris, !ip, !money, !netherflan, !plan, !point, !pride, !redstone, !rules, !schedule, !seed, !shader, !smash, !sponges, !textures] [!addcmd, !delcmd, !editcmd], Counters: [!breaks, !chunks, !diamonds, !dragons, !falls, !murders, !phases, !ragequits, !silverfish] [!addcount, !counterlist, !crea
+     */
 
     override fun onPrivMsg(sender: TwitchUser, message: TwitchMessage) {
         val content: String = message.content.trim()

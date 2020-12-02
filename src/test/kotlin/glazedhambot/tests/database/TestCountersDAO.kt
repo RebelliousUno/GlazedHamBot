@@ -2,13 +2,11 @@ package glazedhambot.tests.database
 
 
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.*
 import uno.rebellious.twitchbot.database.CountersDAO
 import uno.rebellious.twitchbot.model.Counter
 import java.sql.Connection
 import java.sql.DriverManager
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

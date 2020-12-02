@@ -29,10 +29,12 @@ interface IResponse {
     fun findResponse(channel: String, command: Response): Response
     fun setResponse(channel: String, response: Response)
     fun removeResponse(channel: String, command: Response)
+    fun getAllCommandList(channel: String): ArrayList<String>
+
 }
 
 interface ISettings {
-    fun getAllCommandList(channel: String): ArrayList<String>
+    fun createChannelsTable()
     fun leaveChannel(channel: String)
     fun addChannel(newChannel: String, prefix: String = "!")
     fun getPrefixForChannel(channel: String): String
