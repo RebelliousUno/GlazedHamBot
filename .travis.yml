@@ -1,16 +1,16 @@
 language: java
 os: linux
 dist: bionic
-install: gradle clean
 
+install: ./gradlew clean
 jobs:
   include:
     - stage: Check Timezone
       script: timedatectl
     - stage: test
-      script: gradle check
+      script: ./gradlew check
     - stage: build
-      script: gradle shadowJar
+      script: ./gradlew shadowJar
 before_deploy:
   # Set up git user name and tag this commit
   - git config --local user.name "RebelliousUno"
@@ -20,6 +20,6 @@ deploy:
   provider: releases
   token: $githubToken
   file: "./build/libs/TwitchBot-*.jar"
-  cleanup: false
+  cleanup: true
   on:
     tags: true

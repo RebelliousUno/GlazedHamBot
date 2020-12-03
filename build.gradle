@@ -11,11 +11,11 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:6.1.0'
     }
 }
 plugins {
-    id "org.jetbrains.kotlin.jvm" version "1.4.10"
+    id "org.jetbrains.kotlin.jvm" version "1.4.20"
 }
 
 apply plugin: 'java'
@@ -37,17 +37,16 @@ repositories {
 
 dependencies {
     implementation 'com.github.salomonbrys.kotson:kotson:2.5.0'
-    implementation 'com.github.Gikkman:Java-Twirk:0.6.2'
+    implementation 'com.github.Gikkman:Java-Twirk:0.6.3'
     implementation 'com.github.kittinunf.fuel:fuel:2.3.0' //for JVM
     implementation 'com.beust:klaxon:5.4'
-    implementation 'org.xerial:sqlite-jdbc:3.30.1'
+    implementation 'org.xerial:sqlite-jdbc:3.32.3.2'
     implementation 'io.reactivex.rxjava3:rxkotlin:3.0.1'
     implementation 'com.jayway.jsonpath:json-path:2.4.0'
-    implementation platform('software.amazon.awssdk:bom:2.15.7')
-    implementation 'software.amazon.awssdk:dynamodb:2.15.7'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.6.2'
-    testImplementation 'org.mockito:mockito-core:3.3.3'
-//    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
+    implementation platform('software.amazon.awssdk:bom:2.15.39')
+    implementation 'software.amazon.awssdk:dynamodb:2.15.39'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.0'
+    testImplementation 'org.mockito:mockito-core:3.6.28'
 }
 
 compileKotlin {
