@@ -45,7 +45,7 @@ dependencies {
     implementation 'com.jayway.jsonpath:json-path:2.4.0'
     implementation platform('software.amazon.awssdk:bom:2.15.39')
     implementation 'software.amazon.awssdk:dynamodb:2.15.39'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.6.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.0'
     testImplementation 'org.mockito:mockito-core:3.6.28'
 }
 
