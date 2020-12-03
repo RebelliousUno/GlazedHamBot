@@ -1,11 +1,11 @@
 language: java
-install: gradle clean
+install: ./gradlew clean
 jobs:
   include:
     - stage: test
-      script: gradle check
+      script: ./gradlew check
     - stage: build
-      script: gradle shadowJar
+      script: ./gradlew shadowJar
 before_deploy:
   # Set up git user name and tag this commit
   - git config --local user.name "RebelliousUno"
@@ -13,8 +13,8 @@ before_deploy:
   - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
   provider: releases
-  api_key: $githubToken
+  token: $githubToken
   file: "./build/libs/TwitchBot-*.jar"
-  skip_cleanup: true
+  cleanup: true
   on:
     tags: true
