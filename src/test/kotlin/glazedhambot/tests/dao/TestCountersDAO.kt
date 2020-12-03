@@ -39,12 +39,6 @@ class TestCountersDAO {
         con.close()
     }
 
-    @Test
-    fun failingTest() {
-        val r = Random()
-        val rand = r.nextInt(100)
-        assertTrue(rand>50)
-    }
 
     @Test
     fun testDatabaseSetup() {
