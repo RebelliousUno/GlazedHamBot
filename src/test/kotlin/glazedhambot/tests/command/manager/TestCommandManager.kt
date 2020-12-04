@@ -3,8 +3,6 @@ package glazedhambot.tests.command.manager
 import com.gikk.twirk.Twirk
 import com.gikk.twirk.types.twitchMessage.TwitchMessage
 import com.gikk.twirk.types.users.TwitchUser
-import jdk.nashorn.internal.ir.annotations.Ignore
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
@@ -33,19 +31,17 @@ class TestCommandManager {
 
     //Tests ignored because they try to set up DynamoDB tables in AWS...need to mock the DynamoDB classes....
 
-    @Test
-    @Ignore
-    fun testCommandManagerSetUp() {
-        commandManager = CommandManager(mockTwirk, channel)
-        verify(mockTwirk).channelMessage("Starting up for test - prefix is !")
-    }
-
-
-    @Test
-    @Ignore
-    fun testOnPrivMessageWithoutPrefix() {
-        `when`(mockMessage.content).thenReturn("Not a real message")
-        commandManager.onPrivMsg(mockSender, mockMessage)
-        verifyNoInteractions(mockTwirk)
-    }
+//    @Test
+//    fun testCommandManagerSetUp() {
+//        commandManager = CommandManager(mockTwirk, channel)
+//        verify(mockTwirk).channelMessage("Starting up for test - prefix is !")
+//    }
+//
+//
+//    @Test
+//    fun testOnPrivMessageWithoutPrefix() {
+//        `when`(mockMessage.content).thenReturn("Not a real message")
+//        commandManager.onPrivMsg(mockSender, mockMessage)
+//        verifyNoInteractions(mockTwirk)
+//    }
 }
