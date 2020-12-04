@@ -3,16 +3,15 @@ package uno.rebellious.twitchbot.database
 import uno.rebellious.twitchbot.model.Quote
 import java.sql.Connection
 import java.sql.PreparedStatement
-import java.sql.Time
 import java.sql.Timestamp
 import java.time.Clock
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.*
 
-class QuotesDAO(private val connectionList: HashMap<String, Connection>, val clock: Clock = Clock.systemDefaultZone()) : IQuotes {
+class QuotesDAO(private val connectionList: HashMap<String, Connection>, val clock: Clock = Clock.systemDefaultZone()) :
+    IQuotes {
 
     companion object {
         const val QUOTE_NOT_FOUND = "Quote not found"
