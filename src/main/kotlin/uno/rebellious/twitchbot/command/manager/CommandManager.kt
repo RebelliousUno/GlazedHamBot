@@ -70,7 +70,7 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
 
     private fun responseCommand(): Command {
         return Command(prefix, "", "", Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
-            val response = Response(content[0].substring(1))
+            val response = Response(content[0].substring(1).toLowerCase(Locale.ENGLISH))
             twirk.channelMessage(database.findResponse(channel.channel, response).response)
         }
     }

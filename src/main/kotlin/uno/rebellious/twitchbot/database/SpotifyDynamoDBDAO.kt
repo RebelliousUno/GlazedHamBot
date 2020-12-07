@@ -22,7 +22,7 @@ class SpotifyDynamoDBDAO : ISpotify {
             .tableName(tableName)
             .build()
 
-        val ddb = DynamoDBHelper.dbClient()
+        val ddb = DynamoDBHelper.client
 
         try {
             val result = ddb.createTable(request)
@@ -42,7 +42,7 @@ class SpotifyDynamoDBDAO : ISpotify {
     }
 
     private fun migrateFromOldDB(channel: String) {
-        val ddb = DynamoDBHelper.dbClient()
+        val ddb = DynamoDBHelper.client
         var describe = false
         var i = 0
         while (!describe && i < 20) { // Need to extract this to the aws helper... later
@@ -76,13 +76,13 @@ class SpotifyDynamoDBDAO : ISpotify {
         refreshToken: String,
         expiryTime: LocalDateTime
     ) {
-        val ddb = DynamoDBHelper.dbClient()
+        val ddb = DynamoDBHelper.client
         val request = updateItemRequest(channel, accessToken, refreshToken, expiryTime)
         ddb.updateItem(request)
     }
 
     override fun getTokensForChannel(channel: String): SpotifyToken? {
-        val ddb = DynamoDBHelper.dbClient()
+        val ddb = DynamoDBHelper.client
         val request = DynamoDBHelper.itemRequest(channel, tableName)
         val response = ddb.getItem(request)
         return if (response.hasItem()) {
