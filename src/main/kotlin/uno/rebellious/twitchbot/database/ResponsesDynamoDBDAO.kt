@@ -60,7 +60,7 @@ class ResponsesDynamoDBDAO : IResponse {
             val response = ResponsesDAO(channel).findResponse(channel, Response(it))
             val h = mapOf(
                 "channel" to DynamoDBHelper.attributeValue(channel),
-                "command" to DynamoDBHelper.attributeValue(response.command),
+                "command" to DynamoDBHelper.attributeValue(response.command.toLowerCase(Locale.ENGLISH)),
                 "response" to DynamoDBHelper.attributeValue(response.response)
             )
             val request = PutItemRequest.builder().tableName(tableName).item(h).build()
