@@ -29,17 +29,12 @@ class ResponsesDynamoDBDAO : IResponse {
         val ddb = DynamoDBHelper.client
 
         try {
-            val result = ddb.createTable(request)
-            println("Spotify Table Created")
-            println("Migrate from Old DB")
+            ddb.createTable(request)
             channels.forEach {
                 migrateFromOldDB(it.channel)
             }
-            println(result.tableDescription().tableName())
-
         } catch (e: DynamoDbException) {
             System.err.println(e.message)
-
         }
     }
 
@@ -55,17 +50,12 @@ class ResponsesDynamoDBDAO : IResponse {
             i++ // Only try 20 times
         }
 
-        val c = ResponsesDAO(channel).getAllCommandList(channel)
-        c.forEach {
-            val response = ResponsesDAO(channel).findResponse(channel, Response(it))
-            val h = mapOf(
-                "channel" to DynamoDBHelper.attributeValue(channel),
-                "command" to DynamoDBHelper.attributeValue(response.command.toLowerCase(Locale.ENGLISH)),
-                "response" to DynamoDBHelper.attributeValue(response.response)
-            )
-            val request = PutItemRequest.builder().tableName(tableName).item(h).build()
-            ddb.putItem(request)
-        }
+        ResponsesDAO(channel).getAllCommandList(channel)
+            .map {
+                ResponsesDAO(channel).findResponse(channel, Response(it))
+            }.forEach {
+                setResponse(channel, it)
+            }
     }
 
 
@@ -86,7 +76,7 @@ class ResponsesDynamoDBDAO : IResponse {
         val ddb = DynamoDBHelper.client
         val item = mapOf(
             keyField to channel,
-            sortField to response.command,
+            sortField to response.command.toLowerCase(Locale.ENGLISH),
             "response" to response.response
         ).mapValues { DynamoDBHelper.attributeValue(it.value) }
         val request = PutItemRequest.builder().item(item).tableName(tableName).build()
