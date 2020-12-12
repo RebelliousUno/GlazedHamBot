@@ -52,7 +52,7 @@ class SpotifyDynamoDBDAO : ISpotify {
             Thread.sleep(500) // Wait half a second before checking the table again
             i++ // Only try 20 times
         }
-
+        System.out.println("Migrating Channel $channel")
         val c = SpotifyDAO(channel).getTokensForChannel(channel)
         c?.let {
             val h = mapOf(
