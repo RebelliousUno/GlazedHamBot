@@ -77,7 +77,7 @@ object BotManager {
         thread?.second?.dispose()
     }
 
-    private fun getOnDisconnectListener(twirk: Twirk, channel: Channel): TwirkListener? {
+    private fun getOnDisconnectListener(twirk: Twirk, channel: Channel): TwirkListener {
         return UnoBotBase(twirk, channel)
     }
 }
