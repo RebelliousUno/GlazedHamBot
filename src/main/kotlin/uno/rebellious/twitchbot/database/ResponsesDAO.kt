@@ -2,9 +2,14 @@ package uno.rebellious.twitchbot.database
 
 import uno.rebellious.twitchbot.model.Response
 import java.sql.Connection
+import java.sql.DriverManager
 import java.util.*
 
 class ResponsesDAO(private val connectionList: HashMap<String, Connection>) : IResponse {
+
+    constructor(channel: String) : this(HashMap()) {
+        connectionList[channel] = DriverManager.getConnection("jdbc:sqlite:${channel.toLowerCase()}.db")
+    }
 
     override fun getAllCommandList(channel: String): ArrayList<String> {
         val connection = connectionList[channel]

@@ -7,9 +7,6 @@ import uno.rebellious.twitchbot.database.CountersDAO
 import uno.rebellious.twitchbot.model.Counter
 import java.sql.Connection
 import java.sql.DriverManager
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

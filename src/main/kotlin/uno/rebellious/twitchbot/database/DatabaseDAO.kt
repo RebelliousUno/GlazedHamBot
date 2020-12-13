@@ -6,7 +6,7 @@ import java.sql.DriverManager
 class DatabaseDAO(
     private var connectionList: HashMap<String, Connection> = HashMap(),
     private val countersDAO: CountersDAO = CountersDAO(connectionList),
-    private val responsesDAO: ResponsesDAO = ResponsesDAO(connectionList),
+    private val responsesDAO: ResponsesDynamoDBDAO = ResponsesDynamoDBDAO(),
     private val quotesDAO: QuotesDAO = QuotesDAO(connectionList),
     private val settingsDAO: SettingsDyanmoDBDAO = SettingsDyanmoDBDAO(),
     private val spotifyDAO: SpotifyDynamoDBDAO = SpotifyDynamoDBDAO(),
@@ -20,6 +20,7 @@ class DatabaseDAO(
         connect(channelList)
         setupAllChannels()
         setupSpotifyForAllChannels(channelList)
+        responsesDAO.createTablesForChannels(channelList)
     }
 
     private fun setupSettings() {
@@ -41,8 +42,9 @@ class DatabaseDAO(
     }
 
     private fun setupAllChannels() {
+
         connectionList.forEach {
-            responsesDAO.createResponseTable(it.value)
+
             quotesDAO.createQuotesTable(it.value)
             countersDAO.setupCounters(it.value)
             waypointDAO.setupWaypoints(it.value)

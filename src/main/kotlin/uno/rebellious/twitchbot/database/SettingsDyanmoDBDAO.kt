@@ -2,7 +2,6 @@ package uno.rebellious.twitchbot.database
 
 import software.amazon.awssdk.services.dynamodb.model.*
 import uno.rebellious.twitchbot.BotManager
-import uno.rebellious.twitchbot.database.DynamoDBHelper.dbClient
 
 
 class SettingsDyanmoDBDAO : ISettings {
@@ -20,7 +19,7 @@ class SettingsDyanmoDBDAO : ISettings {
             .tableName(tableName)
             .build()
 
-        val ddb = dbClient()
+        val ddb = DynamoDBHelper.client
 
         try {
             val result = ddb.createTable(request)
@@ -36,7 +35,7 @@ class SettingsDyanmoDBDAO : ISettings {
     }
 
     private fun migrateFromOldDB() {
-        val ddb = dbClient()
+        val ddb = DynamoDBHelper.client
         var describe = false
         var i = 0
         while (!describe && i < 20) { // Need to extract this to the aws helper... later
@@ -61,7 +60,7 @@ class SettingsDyanmoDBDAO : ISettings {
     }
 
     override fun leaveChannel(channel: String) {
-        val ddb = dbClient()
+        val ddb = DynamoDBHelper.client
         val request = DynamoDBHelper.deleteItemRequest(channel, tableName)
         ddb.deleteItem(request)
     }
@@ -69,7 +68,7 @@ class SettingsDyanmoDBDAO : ISettings {
 
     override fun addChannel(newChannel: String, prefix: String) {
         // Check if the channel exists
-        val ddb = dbClient()
+        val ddb = DynamoDBHelper.client
 
         val exists = ddb.getItem(DynamoDBHelper.itemRequest(newChannel, tableName)).hasItem()
 
@@ -90,7 +89,7 @@ class SettingsDyanmoDBDAO : ISettings {
     }
 
     override fun getPrefixForChannel(channel: String): String {
-        val ddb = dbClient()
+        val ddb = DynamoDBHelper.client
         val request = DynamoDBHelper.itemRequest(channel, tableName)
         val response = ddb.getItem(request)
         return if (response.hasItem()) {
@@ -101,7 +100,7 @@ class SettingsDyanmoDBDAO : ISettings {
     }
 
     override fun setPrefixForChannel(channel: String, prefix: String) {
-        val ddb = dbClient()
+        val ddb = DynamoDBHelper.client
         val request = updateItemRequest(channel, prefix)
         ddb.updateItem(request)
     }
@@ -120,7 +119,7 @@ class SettingsDyanmoDBDAO : ISettings {
 
     override fun getListOfChannels(): Array<Channel> {
         val arr = arrayListOf<Channel>()
-        val ddb = dbClient()
+        val ddb = DynamoDBHelper.client
         val response = ddb.scan(ScanRequest.builder().tableName(tableName).build())
         response.items().forEach {
             val c = Channel(
