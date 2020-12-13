@@ -9,7 +9,7 @@ class UnoBotBase(private val twirk: Twirk, private val channel: Channel) : Twirk
     override fun onDisconnect() {
         println("$channel Disconnect")
         try {
-            if (!twirk.connect()){
+            if (!twirk.connect()) {
                 twirk.close()
                 println("$channel closed")
             } else {
