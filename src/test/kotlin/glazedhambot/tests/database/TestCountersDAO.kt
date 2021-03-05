@@ -1,4 +1,4 @@
-package glazedhambot.tests.dao
+package glazedhambot.tests.database
 
 
 import org.junit.jupiter.api.*

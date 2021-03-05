@@ -1,7 +1,12 @@
 language: java
+os: linux
+dist: bionic
+
 install: ./gradlew clean
 jobs:
   include:
+    - stage: Check Timezone
+      script: timedatectl
     - stage: test
       script: ./gradlew check
     - stage: build
