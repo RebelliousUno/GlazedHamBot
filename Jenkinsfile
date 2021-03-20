@@ -3,9 +3,9 @@ pipeline {
 agent any
 stages {
 
-stage('clean'){}
-stage('build'){}
-stage ('deploy'){}
+stage('clean'){steps{ echo 'cleaning'}}
+stage('build'){steps {echo 'building'} }
+stage ('deploy'){steps echo 'deploying'}}
 }
 
 }
