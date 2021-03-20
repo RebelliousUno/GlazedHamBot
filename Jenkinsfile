@@ -10,7 +10,9 @@ pipeline {
         stage('clean') {
             steps {
                 echo 'cleaning'
-                bat 'gradlew.bat clean'
+                withGradle {
+                    bat './gradlew.bat clean'
+                }
             }
         }
         stage('build') {
