@@ -18,11 +18,13 @@ pipeline {
         stage('build') {
             steps {
                 echo 'building'
+bat 'gradlew.bat build'
             }
         }
-        stage ('deploy') {
+        stage ('test') {
             steps {
-                echo 'deploying'
+                echo 'testing'
+bat 'gradlew.bat test'
             }
         }
     }
