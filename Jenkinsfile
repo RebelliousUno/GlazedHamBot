@@ -1,6 +1,9 @@
 
 pipeline {
 agent any
+triggers {
+  cron 'H * * * *'
+}
 stages {
 
 stage('clean'){steps{ echo 'cleaning'
