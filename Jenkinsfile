@@ -18,14 +18,20 @@ pipeline {
         stage('build') {
             steps {
                 echo 'building'
-bat 'gradlew.bat build'
+                bat 'gradlew.bat build'
             }
         }
         stage ('test') {
             steps {
                 echo 'testing'
-bat 'gradlew.bat test'
+                bat 'gradlew.bat check'
             }
+        }        
+    }
+     post {
+        always {
+            archiveArtifacts artifacts: 'build/libs/**/*.jar', fingerprint: true
+            junit 'build/reports/**/*.xml'
         }
     }
 }
