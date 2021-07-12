@@ -26,7 +26,7 @@ class ResponseCommands(
             "Usage: ${prefix}delcmd cmd - deletes the command 'cmd' (Mod Only - Custom commands only)",
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
-            val removeCommand = content[1].toLowerCase(Locale.ENGLISH)
+            val removeCommand = content[1].lowercase(Locale.ENGLISH)
             database.removeResponse(channel, Response(removeCommand))
         }
     }
@@ -39,7 +39,7 @@ class ResponseCommands(
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 2) {
-                val newCommand = content[1].toLowerCase(Locale.ENGLISH)
+                val newCommand = content[1].lowercase(Locale.ENGLISH)
                 val newResponse = content[2]
                 database.setResponse(channel, Response(newCommand, newResponse))
             }
@@ -54,7 +54,7 @@ class ResponseCommands(
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 2) {
-                val newCommand = content[1].toLowerCase(Locale.ENGLISH)
+                val newCommand = content[1].lowercase(Locale.ENGLISH)
                 val newResponse = content[2]
                 database.setResponse(channel, Response(newCommand, newResponse))
             }

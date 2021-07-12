@@ -60,7 +60,7 @@ class AdminCommands(
             Permission.ANYONE
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
-                val newChannel = content[1].toLowerCase(Locale.ENGLISH)
+                val newChannel = content[1].lowercase(Locale.ENGLISH)
                 val chan = Channel(newChannel, "!", "", "")
                 database.addChannel(chan.channel)
                 BotManager.startTwirkForChannel(chan)

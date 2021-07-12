@@ -38,7 +38,7 @@ class SettingsDAO(private val connectionList: HashMap<String, Connection>) : ISe
     }
 
     private fun connect(channel: String) {
-        val con = DriverManager.getConnection("jdbc:sqlite:${channel.toLowerCase()}.db")
+        val con = DriverManager.getConnection("jdbc:sqlite:${channel.lowercase(Locale.getDefault())}.db")
         connectionList[channel] = con
     }
 

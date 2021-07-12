@@ -70,7 +70,7 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
 
     private fun responseCommand(): Command {
         return Command(prefix, "", "", Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
-            val response = Response(content[0].substring(1).toLowerCase(Locale.ENGLISH))
+            val response = Response(content[0].substring(1).lowercase(Locale.ENGLISH))
             twirk.channelMessage(database.findResponse(channel.channel, response).response)
         }
     }
@@ -123,7 +123,7 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
                 .sorted()
             val cmdlist = content.joinToString()
             var commandList = ""
-            cmdlist.toLowerCase().apply {
+            cmdlist.lowercase(Locale.getDefault()).apply {
                 if (contains("quote")) commandList += "Quotes: $quoteCmds "
                 if (contains("response")) commandList += "Responses: $dbCommands $responseCmds "
                 if (contains("counter")) commandList += "Counters: $countersCommands $counterCmds "
@@ -153,11 +153,11 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
         if (!content.startsWith(prefix)) return
 
         val splitContent = content.split(' ', ignoreCase = true, limit = 3)
-        val command = splitContent[0].toLowerCase(Locale.ENGLISH)
-        val expiry = commandTimeout[content.toLowerCase()]
+        val command = splitContent[0].lowercase(Locale.ENGLISH).trim()
+        val expiry = commandTimeout[content.lowercase(Locale.getDefault())]
         val now = Instant.now()
         if (expiry == null || expiry.isBefore(now)) {
-            commandTimeout[content.toLowerCase()] = now.plusSeconds(30)
+            commandTimeout[content.lowercase(Locale.getDefault())] = now.plusSeconds(30)
             commandList
                 .filter { command.startsWith("${it.prefix}${it.command}") }
                 .firstOrNull { it.canUseCommand(sender) }

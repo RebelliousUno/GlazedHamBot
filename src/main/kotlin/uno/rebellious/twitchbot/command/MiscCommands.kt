@@ -16,6 +16,7 @@ import uno.rebellious.twitchbot.model.SpotifyRefreshTokenResponse
 import uno.rebellious.twitchbot.model.SpotifyResponse
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
+import java.util.*
 
 class MiscCommands(
     private val prefix: String,
@@ -146,7 +147,7 @@ class MiscCommands(
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
-                jackboxCode = content[1].substring(0, 4).toUpperCase()
+                jackboxCode = content[1].substring(0, 4).uppercase(Locale.getDefault())
                 twirk.channelMessage("Jackbox Code Set to $jackboxCode you can get the link by typing ${prefix}jack into chat")
             }
         }

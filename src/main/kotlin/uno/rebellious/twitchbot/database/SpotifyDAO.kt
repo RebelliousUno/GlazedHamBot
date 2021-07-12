@@ -5,11 +5,13 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.Timestamp
 import java.time.LocalDateTime
+import java.util.*
+import kotlin.collections.HashMap
 
 class SpotifyDAO(private val connectionList: HashMap<String, Connection>) : ISpotify {
 
     constructor(channel: String) : this(HashMap()) {
-        connectionList[channel] = DriverManager.getConnection("jdbc:sqlite:${channel.toLowerCase()}.db")
+        connectionList[channel] = DriverManager.getConnection("jdbc:sqlite:${channel.lowercase(Locale.getDefault())}.db")
     }
 
     private fun getConnectionForChannel(channel: String) = connectionList[channel]

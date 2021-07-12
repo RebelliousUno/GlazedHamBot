@@ -76,7 +76,7 @@ class ResponsesDynamoDBDAO : IResponse {
         val ddb = DynamoDBHelper.client
         val item = mapOf(
             keyField to channel,
-            sortField to response.command.toLowerCase(Locale.ENGLISH),
+            sortField to response.command.lowercase(Locale.ENGLISH),
             "response" to response.response
         ).mapValues { DynamoDBHelper.attributeValue(it.value) }
         val request = PutItemRequest.builder().item(item).tableName(tableName).build()

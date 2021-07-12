@@ -2,6 +2,8 @@ package uno.rebellious.twitchbot.database
 
 import java.sql.Connection
 import java.sql.DriverManager
+import java.util.*
+import kotlin.collections.HashMap
 
 class DatabaseDAO(
     private var connectionList: HashMap<String, Connection> = HashMap(),
@@ -32,7 +34,7 @@ class DatabaseDAO(
 
     private fun connect(channels: Array<Channel>) {
         channels.forEach {
-            val con = DriverManager.getConnection("jdbc:sqlite:${it.channel.toLowerCase()}.db")
+            val con = DriverManager.getConnection("jdbc:sqlite:${it.channel.lowercase(Locale.getDefault())}.db")
             connectionList[it.channel] = con
         }
     }
