@@ -12,7 +12,7 @@ import java.time.ZoneId
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.Alphanumeric::class)
+@TestMethodOrder(MethodOrderer.MethodName::class)
 class TestQuotesDAO {
 
     lateinit var quotesDAO: QuotesDAO

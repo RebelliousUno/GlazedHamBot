@@ -10,7 +10,7 @@ import java.sql.DriverManager
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.Alphanumeric::class)
+@TestMethodOrder(MethodOrderer.MethodName::class)
 class TestResponseDAO {
     lateinit var responsesDAO: ResponsesDAO
     private var connectionList: HashMap<String, Connection> = HashMap()
