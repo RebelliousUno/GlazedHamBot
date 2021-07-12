@@ -115,8 +115,8 @@ class TestQuotesDAO {
 
     @Test
     fun testFindQuoteByAuthor() {
-        val id = quotesDAO.addQuoteForChannel(channel, LocalDate.now(clock), "Uno", "This is a Uno quote")
-        val id2 = quotesDAO.addQuoteForChannel(channel, LocalDate.now(clock), "James", "This is a James quote")
+        quotesDAO.addQuoteForChannel(channel, LocalDate.now(clock), "Uno", "This is a Uno quote")
+        quotesDAO.addQuoteForChannel(channel, LocalDate.now(clock), "James", "This is a James quote")
         val unoQuote = quotesDAO.findQuoteByAuthor(channel, "Uno")
         val jamesQuote = quotesDAO.findQuoteByAuthor(channel, "James")
         val unoExpected = "Quote 1: \"This is a Uno quote\" - Uno - 11-Jul-2020"
@@ -150,8 +150,8 @@ class TestQuotesDAO {
 
     @Test
     fun testGetAllQuotesForChannel() {
-        val id = quotesDAO.addQuoteForChannel(channel, LocalDate.now(clock), "Uno", "This is a quote about butts")
-        val id2 = quotesDAO.addQuoteForChannel(channel, LocalDate.now(clock), "James", "This is a quote about sheep")
+        quotesDAO.addQuoteForChannel(channel, LocalDate.now(clock), "Uno", "This is a quote about butts")
+        quotesDAO.addQuoteForChannel(channel, LocalDate.now(clock), "James", "This is a quote about sheep")
         val quotes = quotesDAO.getAllQuotesForChannel(channel)
         assertEquals(2, quotes.size)
     }
