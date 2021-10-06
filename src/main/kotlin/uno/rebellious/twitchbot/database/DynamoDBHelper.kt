@@ -31,13 +31,12 @@ object DynamoDBHelper {
             }).build()
     }
 
-    fun attributeValue(value: String): AttributeValue {
-        return AttributeValue.builder().s(value).build()
-    }
+    fun attributeValue(value: String): AttributeValue = AttributeValue.builder().s(value).build()
 
-    fun attributeValue(value: LocalDateTime): AttributeValue {
-        return AttributeValue.builder().s(value.format(DateTimeFormatter.ISO_DATE_TIME)).build()
-    }
+    fun attributeValue(value: LocalDateTime): AttributeValue =
+        AttributeValue.builder().s(value.format(DateTimeFormatter.ISO_DATE_TIME)).build()
+
+    fun attributeValue(value: Comparable<*>): AttributeValue = AttributeValue.builder().s(value.toString()).build()
 
 
     private fun createDBClient(): DynamoDbClient {
@@ -47,5 +46,7 @@ object DynamoDBHelper {
             .build()
 
     }
+
+
 
 }

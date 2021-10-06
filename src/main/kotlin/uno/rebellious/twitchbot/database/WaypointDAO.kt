@@ -4,9 +4,18 @@ import uno.rebellious.twitchbot.model.Waypoint
 import uno.rebellious.twitchbot.model.WaypointCoordinate
 import uno.rebellious.twitchbot.model.WaypointOrder
 import java.sql.Connection
+import java.sql.DriverManager
 import java.sql.ResultSet
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class WaypointDAO(private val connectionList: HashMap<String, Connection>) : IWaypoint {
+
+    constructor(channel: String) : this(java.util.HashMap()) {
+        connectionList[channel] = DriverManager.getConnection("jdbc:sqlite:${channel.lowercase(Locale.getDefault())}.db")
+    }
+
     fun setupWaypoints(connection: Connection) {
         val waypointTableSQL = """
             CREATE TABLE IF NOT EXISTS "waypoints" (
