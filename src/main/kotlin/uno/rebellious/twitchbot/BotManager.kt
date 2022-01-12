@@ -33,6 +33,7 @@ object BotManager {
 
     val pastebin = Pastebin(SETTINGS.pastebinDev, SETTINGS.pastebinUser)
     val database: DatabaseDAO
+    val stupidJokeUrl = SETTINGS.stupidJokeUrl
 
     init {
         awsCredentials = DBCredentials(SETTINGS.awsAccessKeyId ?: "", SETTINGS.awsAccessKey ?: "")

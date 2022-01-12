@@ -2,9 +2,14 @@ package uno.rebellious.twitchbot.database
 
 import uno.rebellious.twitchbot.model.Counter
 import java.sql.Connection
+import java.sql.DriverManager
 import java.util.*
 
 class CountersDAO(private val connectionList: HashMap<String, Connection>) : ICounters {
+
+    constructor(channel: String) : this(HashMap()) {
+        connectionList[channel] = DriverManager.getConnection("jdbc:sqlite:${channel.lowercase(Locale.getDefault())}.db")
+    }
 
     fun setupCounters(connection: Connection) {
         val counterTableSQL =
