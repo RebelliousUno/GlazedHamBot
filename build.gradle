@@ -71,5 +71,6 @@ jar {
     manifest {
         attributes 'Main-Class': 'uno.rebellious.twitchbot.MainKt'
     }
+    jar.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 }
