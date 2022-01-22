@@ -76,7 +76,7 @@ class CountersDynamoDBDAO : ICounters {
         val ddb = DynamoDBHelper.client
         val request =
             DynamoDBHelper.deleteItemRequest(tableName, mapOf("channel" to channel, "counter" to counter.command))
-        val response = ddb.deleteItem(request)
+        ddb.deleteItem(request)
     }
 
     override fun incrementCounterForChannel(channel: String, counter: Counter, by: Int) {
