@@ -5,7 +5,7 @@ pipeline {
         pollSCM 'H * * * *'
     }
     tools {
-        jdk 'JDK 8'
+        jdk 'JDK 17'
     }
     stages {
 
@@ -13,20 +13,20 @@ pipeline {
             steps {
                 echo 'cleaning'
                 withGradle {
-                    bat 'gradlew.bat clean'
+                    sh './gradlew clean'
                 }
             }
         }
         stage('build') {
             steps {
                 echo 'building'
-                bat 'gradlew.bat build'
+                sh './gradlew build'
             }
         }
         stage ('test') {
             steps {
                 echo 'testing'
-                bat 'gradlew.bat check'
+                sh './gradlew check'
             }
         }        
     }
