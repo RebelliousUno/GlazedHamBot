@@ -12,6 +12,8 @@ import uno.rebellious.twitchbot.database.DatabaseDAO
 import uno.rebellious.twitchbot.model.Settings
 import uno.rebellious.twitchbot.pastebin.Pastebin
 import java.util.*
+import java.util.logging.Level.WARNING
+import java.util.logging.Logger
 import kotlin.collections.HashMap
 import kotlin.collections.set
 
@@ -46,13 +48,15 @@ object BotManager {
         val twirkThread = Thread {
             val shouldStop = BehaviorSubject.create<Boolean>()
             shouldStop.onNext(false)
-            val nick = if (channel.nick.isBlank()) SETTINGS.nick else channel.nick
-            val password = if (channel.token.isBlank()) SETTINGS.password else channel.token
+            val nick = channel.nick.ifBlank { SETTINGS.nick }
+            val password = channel.token.ifBlank { SETTINGS.password }
 
             val twirk = TwirkBuilder("#${channel.channel}", nick, password)
                 .setVerboseMode(true)
                 .build()
-            twirk.connect()
+            if (!twirk.connect()) {
+                Logger.getAnonymousLogger().log(WARNING,"Could not connect to ${channel.channel}")
+            }
             twirk.addIrcListener(CommandManager(twirk, channel))
             twirk.addIrcListener(getOnDisconnectListener(twirk, channel))
 

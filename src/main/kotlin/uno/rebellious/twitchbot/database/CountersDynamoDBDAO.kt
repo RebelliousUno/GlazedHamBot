@@ -95,9 +95,9 @@ class CountersDynamoDBDAO : ICounters {
         ddb.updateItem(request)
     }
 
-    override fun getCounterForChannel(channel: String, counter: Counter): Counter {
+    override fun getCounterForChannel(channel: String, counter: Counter, consistentRead: Boolean): Counter {
         val ddb = DynamoDBHelper.client
-        val request = DynamoDBHelper.itemRequest(tableName, mapOf("channel" to channel, "counter" to counter.command))
+        val request = DynamoDBHelper.itemRequest(tableName, mapOf("channel" to channel, "counter" to counter.command), consistentRead)
         val response = ddb.getItem(request)
         return if (response.hasItem()) {
             with(response.item()) {

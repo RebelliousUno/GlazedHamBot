@@ -37,11 +37,11 @@ object DynamoDBHelper {
     fun itemRequest(channel: String, tableName: String): GetItemRequest = GetItemRequest.builder().tableName(tableName)
         .key(mapOf("channel" to attributeValue(channel))).build()
 
-    fun itemRequest(tableName: String, map: Map<String, String>): GetItemRequest {
+    fun itemRequest(tableName: String, map: Map<String, String>, consistentRead: Boolean = false): GetItemRequest {
         return GetItemRequest.builder().tableName(tableName)
             .key(map.mapValues {
                 attributeValue(it.value)
-            }).build()
+            }).consistentRead(consistentRead).build()
     }
 
 

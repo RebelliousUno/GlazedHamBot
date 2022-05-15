@@ -158,7 +158,7 @@ class CounterCommands(
                 }
                 if (by > 0) {
                     database.incrementCounterForChannel(channel, counter, -by)
-                    val newCounter = database.getCounterForChannel(channel, counter)
+                    val newCounter = database.getCounterForChannel(channel, counter, true)
                     if (!newCounter.isEmpty())
                         twirk.channelMessage(newCounter.outputString)
                 } else
@@ -187,7 +187,7 @@ class CounterCommands(
                 }
                 if (by > 0) {
                     database.incrementCounterForChannel(channel, counter, by)
-                    val newCounter = database.getCounterForChannel(channel, counter)
+                    val newCounter = database.getCounterForChannel(channel, counter, true)
                     if (!newCounter.isEmpty())
                         twirk.channelMessage(newCounter.outputString)
                 } else twirk.channelMessage("${content[2]} is not a valid number to increment by")
