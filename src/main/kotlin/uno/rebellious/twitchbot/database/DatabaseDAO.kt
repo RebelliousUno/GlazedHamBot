@@ -7,7 +7,7 @@ import kotlin.collections.HashMap
 
 class DatabaseDAO(
     private var connectionList: HashMap<String, Connection> = HashMap(),
-    private val countersDAO: CountersDAO = CountersDAO(connectionList),
+    private val countersDAO: CountersDynamoDBDAO = CountersDynamoDBDAO(),
     private val responsesDAO: ResponsesDynamoDBDAO = ResponsesDynamoDBDAO(),
     private val quotesDAO: QuotesDAO = QuotesDAO(connectionList),
     private val settingsDAO: SettingsDyanmoDBDAO = SettingsDyanmoDBDAO(),
@@ -23,6 +23,7 @@ class DatabaseDAO(
         setupAllChannels()
         setupSpotifyForAllChannels(channelList)
         responsesDAO.createTablesForChannels(channelList)
+        countersDAO.createTablesForChannels(channelList)
     }
 
     private fun setupSettings() {
@@ -48,7 +49,6 @@ class DatabaseDAO(
         connectionList.forEach {
 
             quotesDAO.createQuotesTable(it.value)
-            countersDAO.setupCounters(it.value)
             waypointDAO.setupWaypoints(it.value)
         }
     }

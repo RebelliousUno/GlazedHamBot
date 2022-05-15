@@ -151,8 +151,8 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
     override fun onPrivMsg(sender: TwitchUser, message: TwitchMessage) {
         val content: String = message.content.trim()
         if (!content.startsWith(prefix)) return
-
-        val splitContent = content.split(' ', ignoreCase = true, limit = 3)
+        val prefixlessContent = content.removePrefix(prefix).trim().replace("\\s+".toRegex(), " ")
+        val splitContent = "$prefix$prefixlessContent".split(' ', ignoreCase = true, limit = 3)
         val command = splitContent[0].lowercase(Locale.ENGLISH).trim()
         val expiry = commandTimeout[content.lowercase(Locale.getDefault())]
         val now = Instant.now()
@@ -170,7 +170,6 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
     }
 
     private fun pruneExpiryList() {
-        val expired = commandTimeout.filterValues { it < Instant.now() }
-        expired.keys.forEach { commandTimeout.remove(it) }
+        commandTimeout.filterValues { it < Instant.now() }.keys.forEach(commandTimeout::remove)
     }
 }

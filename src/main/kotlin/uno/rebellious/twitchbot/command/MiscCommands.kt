@@ -32,6 +32,7 @@ class MiscCommands(
         if (channel == "rebelliousuno") commandList.add(jackSetCommand())
         if (channel == "rebelliousuno") commandList.add(jackCommand())
         if (channel == "rebelliousuno" || channel == "james_lrr") commandList.add(spotifyCommand())
+        if (channel == "rebelliousuno" || channel == "james_lrr") commandList.add(stupidJokeCommand())
 
         commandList.add(shoutOutCommand())
     }
@@ -135,6 +136,23 @@ class MiscCommands(
                 val track = json.recenttracks.track[0].name
                 val album = json.recenttracks.track[0].album.text
                 twirk.channelMessage("$channel last listened to $track by $artist from the album $album")
+            }
+        }
+    }
+
+    private fun stupidJokeCommand(): Command {
+        return Command(
+            prefix,
+            "stupidjoke",
+            "Usage: ${prefix}stupidjoke",
+            Permission.ANYONE
+        ) { _: TwitchUser, _ ->
+            with(BotManager.stupidJokeUrl ?: "") {
+                Fuel.get(this).responseString { _, _, result ->
+                    val holes = result.get()
+                    println(holes)
+                    twirk.channelMessage("Do you ever just think about $holes?")
+                }
             }
         }
     }

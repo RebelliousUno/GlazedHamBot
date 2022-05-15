@@ -24,7 +24,8 @@ class Settings {
             props.getProperty("pastebin_dev"),
             props.getProperty("pastebin_user"),
             props.getProperty("aws.accessKeyId"),
-            props.getProperty("aws.secretAccessKey")
+            props.getProperty("aws.secretAccessKey"),
+            props.getProperty("stupidJokeUrl")
         )
     }
 
@@ -43,6 +44,7 @@ class Settings {
     val clientSecret = settings?.CLIENT_SECRET
     val awsAccessKeyId = settings?.AWS_ACCESS_KEY_ID
     val awsAccessKey = settings?.AWS_ACCESS_KEY
+    val stupidJokeUrl = settings?.STUPID_JOKE_URL
 }
 
 data class DataSettings(
@@ -57,5 +59,6 @@ data class DataSettings(
     val PASTEBIN_DEV: String,
     val PASTEBIN_USER: String,
     val AWS_ACCESS_KEY_ID: String,
-    val AWS_ACCESS_KEY: String
+    val AWS_ACCESS_KEY: String,
+    val STUPID_JOKE_URL: String
 )

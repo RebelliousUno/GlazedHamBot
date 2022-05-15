@@ -46,7 +46,7 @@ interface ICounters {
     fun createCounterForChannel(channel: String, counter: Counter)
     fun removeCounterForChannel(channel: String, counter: Counter)
     fun incrementCounterForChannel(channel: String, counter: Counter, by: Int = 1)
-    fun getCounterForChannel(channel: String, counter: Counter): Counter
+    fun getCounterForChannel(channel: String, counter: Counter, consistentRead: Boolean = false): Counter
     fun resetTodaysCounterForChannel(channel: String, counter: Counter)
     fun showCountersForChannel(channel: String, includeStream: Boolean): List<Counter>
 }
