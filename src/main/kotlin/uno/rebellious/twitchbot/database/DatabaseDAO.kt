@@ -12,7 +12,7 @@ class DatabaseDAO(
     private val quotesDAO: QuotesDAO = QuotesDAO(connectionList),
     private val settingsDAO: SettingsDyanmoDBDAO = SettingsDyanmoDBDAO(),
     private val spotifyDAO: SpotifyDynamoDBDAO = SpotifyDynamoDBDAO(),
-    private val waypointDAO: WaypointDAO = WaypointDAO(connectionList)
+    private val waypointDAO: WaypointDBDAO = WaypointDBDAO()
 ) : ICounters by countersDAO, IQuotes by quotesDAO, ISettings by settingsDAO, IResponse by responsesDAO,
     ISpotify by spotifyDAO, IWaypoint by waypointDAO {
 
@@ -24,6 +24,7 @@ class DatabaseDAO(
         setupSpotifyForAllChannels(channelList)
         responsesDAO.createTablesForChannels(channelList)
         countersDAO.createTablesForChannels(channelList)
+        waypointDAO.createTablesForChannels(channelList)
     }
 
     private fun setupSettings() {
@@ -45,11 +46,8 @@ class DatabaseDAO(
     }
 
     private fun setupAllChannels() {
-
         connectionList.forEach {
-
             quotesDAO.createQuotesTable(it.value)
-            waypointDAO.setupWaypoints(it.value)
         }
     }
 }

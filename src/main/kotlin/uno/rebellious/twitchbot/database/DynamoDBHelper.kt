@@ -26,16 +26,26 @@ object DynamoDBHelper {
         expressionNames: Map<String, String>,
         expressionAttributeValues: Map<String, AttributeValue>
     ): UpdateItemRequest {
+        return updateItemRequest(tableName, item = map.mapValues { attributeValue(it.value) }, updateExpression, expressionNames, expressionAttributeValues)
+    }
+
+    @JvmName("updateItemRequest1")
+    fun updateItemRequest(
+        tableName: String,
+        item: Map<String, AttributeValue>,
+        updateExpression: String,
+        expressionNames: Map<String, String>,
+        expressionAttributeValues: Map<String, AttributeValue>
+    ): UpdateItemRequest {
         return UpdateItemRequest.builder().tableName(tableName)
-            .key(map.mapValues { attributeValue(it.value) })
+            .key(item)
             .updateExpression(updateExpression)
             .expressionAttributeNames(expressionNames)
             .expressionAttributeValues(expressionAttributeValues).build()
-
     }
 
-    fun itemRequest(channel: String, tableName: String): GetItemRequest = GetItemRequest.builder().tableName(tableName)
-        .key(mapOf("channel" to attributeValue(channel))).build()
+    fun itemRequest(channel: String, tableName: String, consistentRead: Boolean = false): GetItemRequest = GetItemRequest.builder().tableName(tableName)
+        .key(mapOf("channel" to attributeValue(channel))).consistentRead(consistentRead).build()
 
     fun itemRequest(tableName: String, map: Map<String, String>, consistentRead: Boolean = false): GetItemRequest {
         return GetItemRequest.builder().tableName(tableName)
@@ -44,6 +54,10 @@ object DynamoDBHelper {
             }).consistentRead(consistentRead).build()
     }
 
+    @JvmName("itemRequest1")
+    fun itemRequest(tableName: String, item: Map<String, AttributeValue>, consistentRead: Boolean = false): GetItemRequest {
+        return GetItemRequest.builder().tableName(tableName).key(item).consistentRead(consistentRead).build()
+    }
 
     fun <K, V> attributeValue(entry: Map.Entry<K, V>): AttributeValue {
         with(entry.value) {
@@ -61,10 +75,10 @@ object DynamoDBHelper {
     fun attributeValue(value: Int): AttributeValue {
         return AttributeValue.builder().n(value.toString()).build()
     }
-        fun attributeValue(value: LocalDateTime): AttributeValue =
+    fun attributeValue(value: LocalDateTime): AttributeValue =
         AttributeValue.builder().s(value.format(DateTimeFormatter.ISO_DATE_TIME)).build()
 
-    fun attributeValue(value: Comparable<*>): AttributeValue = AttributeValue.builder().s(value.toString()).build()
+//    fun attributeValue(value: Comparable<*>): AttributeValue = AttributeValue.builder().s(value.toString()).build()
 
 
     private fun createDBClient(): DynamoDbClient {
