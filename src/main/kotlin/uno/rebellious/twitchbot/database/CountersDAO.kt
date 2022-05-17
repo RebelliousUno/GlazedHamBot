@@ -75,7 +75,7 @@ class CountersDAO(private val connectionList: HashMap<String, Connection>) : ICo
         }
     }
 
-    override fun getCounterForChannel(channel: String, counter: Counter, consistantRead: Boolean): Counter {
+    override fun getCounterForChannel(channel: String, counter: Counter, consistentRead: Boolean): Counter {
         val sql = "SELECT * FROM counters where command like ?"
         connectionList[channel]?.prepareStatement(sql)?.run {
             setString(1, counter.command)
