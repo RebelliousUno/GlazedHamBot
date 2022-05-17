@@ -163,7 +163,7 @@ class TestCounterCommands {
         val commandString = "!addcount falls".split(" ", limit = 3)
         val counter = Counter("falls")
         val expectedCounter = Counter("falls", "fall", "falls", 1, 1)
-        `when`(mockCountersDAO.getCounterForChannel(channel, counter)).thenReturn(expectedCounter)
+        `when`(mockCountersDAO.getCounterForChannel(channel, counter, true)).thenReturn(expectedCounter)
 
         command.action(mockTwitchUser, commandString)
 
@@ -177,7 +177,7 @@ class TestCounterCommands {
         val commandString = "!addcount falls 5".split(" ", limit = 3)
         val counter = Counter("falls")
         val expectedCounter = Counter("falls", "fall", "falls", 5, 5)
-        `when`(mockCountersDAO.getCounterForChannel(channel, counter)).thenReturn(expectedCounter)
+        `when`(mockCountersDAO.getCounterForChannel(channel, counter, true)).thenReturn(expectedCounter)
 
         command.action(mockTwitchUser, commandString)
 
@@ -191,7 +191,7 @@ class TestCounterCommands {
         val commandString = "!addcount falls 5".split(" ", limit = 3)
         val counter = Counter("falls")
         val expectedCounter = Counter("")
-        `when`(mockCountersDAO.getCounterForChannel(channel, counter)).thenReturn(expectedCounter)
+        `when`(mockCountersDAO.getCounterForChannel(channel, counter, true)).thenReturn(expectedCounter)
 
         command.action(mockTwitchUser, commandString)
 
@@ -206,7 +206,7 @@ class TestCounterCommands {
         val commandString = "!addcount falls $count".split(" ", limit = 3)
         val counter = Counter("falls")
         val expectedCounter = Counter("falls", "fall", "falls", 5, 5)
-        `when`(mockCountersDAO.getCounterForChannel(channel, counter)).thenReturn(expectedCounter)
+        `when`(mockCountersDAO.getCounterForChannel(channel, counter, true)).thenReturn(expectedCounter)
 
         command.action(mockTwitchUser, commandString)
 
@@ -220,7 +220,7 @@ class TestCounterCommands {
         val commandString = "!removecount falls".split(" ", limit = 3)
         val counter = Counter("falls")
         val expectedCounter = Counter("falls", "fall", "falls", 1, 1)
-        `when`(mockCountersDAO.getCounterForChannel(channel, counter)).thenReturn(expectedCounter)
+        `when`(mockCountersDAO.getCounterForChannel(channel, counter, true)).thenReturn(expectedCounter)
 
         command.action(mockTwitchUser, commandString)
 
@@ -234,7 +234,7 @@ class TestCounterCommands {
         val commandString = "!removecount falls 5".split(" ", limit = 3)
         val counter = Counter("falls")
         val expectedCounter = Counter("falls", "fall", "falls", 5, 5)
-        `when`(mockCountersDAO.getCounterForChannel(channel, counter)).thenReturn(expectedCounter)
+        `when`(mockCountersDAO.getCounterForChannel(channel, counter, true)).thenReturn(expectedCounter)
 
         command.action(mockTwitchUser, commandString)
 
@@ -248,7 +248,7 @@ class TestCounterCommands {
         val commandString = "!removecount falls 5".split(" ", limit = 3)
         val counter = Counter("falls")
         val expectedCounter = Counter("")
-        `when`(mockCountersDAO.getCounterForChannel(channel, counter)).thenReturn(expectedCounter)
+        `when`(mockCountersDAO.getCounterForChannel(channel, counter, true)).thenReturn(expectedCounter)
 
         command.action(mockTwitchUser, commandString)
 
@@ -263,7 +263,7 @@ class TestCounterCommands {
         val commandString = "!removecount falls $count".split(" ", limit = 3)
         val counter = Counter("falls")
         val expectedCounter = Counter("falls", "fall", "falls", 5, 5)
-        `when`(mockCountersDAO.getCounterForChannel(channel, counter)).thenReturn(expectedCounter)
+        `when`(mockCountersDAO.getCounterForChannel(channel, counter, true)).thenReturn(expectedCounter)
 
         command.action(mockTwitchUser, commandString)
 
