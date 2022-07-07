@@ -41,8 +41,8 @@ dependencies {
     implementation 'org.xerial:sqlite-jdbc:3.36.0.3'
     implementation 'io.reactivex.rxjava3:rxkotlin:3.0.1'
     implementation 'com.jayway.jsonpath:json-path:2.7.0'
-    implementation platform('software.amazon.awssdk:bom:2.17.226')
-    implementation 'software.amazon.awssdk:dynamodb:2.17.226'
+    implementation platform('software.amazon.awssdk:bom:2.17.227')
+    implementation 'software.amazon.awssdk:dynamodb:2.17.227'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
     testImplementation 'org.mockito:mockito-core:4.6.1'
 }
