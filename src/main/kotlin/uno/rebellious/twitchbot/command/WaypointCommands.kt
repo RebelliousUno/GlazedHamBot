@@ -23,11 +23,22 @@ class WaypointCommands(
         commandList.add(waypointCommand())
     }
 
+    private fun helpString(command: List<String>): String {
+        println(command)
+        if (command.size < 3) return "Usage: ${prefix}waypoint [add|delete|list|find|distance]"
+        return when (command[2]) {
+            "add" -> addWaypointCommand().helpString.invoke(command)
+            "delete" -> deleteWaypointCommand().helpString.invoke(command)
+            "list" -> listWaypointCommand().helpString.invoke(command)
+            else -> "Usage: ${prefix}waypoint"
+        }
+    }
+
     private fun waypointCommand(): Command {
         return Command(
             prefix,
             "waypoint",
-            "Usage: ${prefix}waypoint",
+            ::helpString,
             Permission.ANYONE
         ) { user: TwitchUser, content: List<String> ->
             val command = when (if (content.size > 1) content[1] else "") {
@@ -48,7 +59,7 @@ class WaypointCommands(
         return Command(
             prefix,
             "waypoint add",
-            "Usage: ${prefix}waypoint",
+            { "\"Usage: ${prefix}waypoint add X, Y, Z, name" },
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             var errorMessage: String? = null
@@ -67,8 +78,10 @@ class WaypointCommands(
                     if (waypointCoordinate != null) {
                         val waypoint = Waypoint(split[3], waypointCoordinate)
                         val waypointId = database.addWaypoint(channel, waypoint)
-                        if (waypointId > 0)
+                        if (waypointId > 0) {
+                            waypoint.id = waypointId
                             twirk.channelMessage("Waypoint: ${waypoint.waypointToString()} added as $waypointId")
+                        }
                         else
                             twirk.channelMessage("Waypoint: ${waypoint.waypointToString()} not added")
                     }
@@ -88,7 +101,7 @@ class WaypointCommands(
         return Command(
             prefix,
             "waypoint delete",
-            "Usage: ${prefix}waypoint",
+            { "\"Usage: ${prefix}waypoint delete id/name" },
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
@@ -108,7 +121,7 @@ class WaypointCommands(
         return Command(
             prefix,
             "waypoint list",
-            "Usage: ${prefix}waypoint",
+            { "\"Usage: ${prefix}waypoint list [id|x|y|z|id]" },
             Permission.ANYONE
         ) { _: TwitchUser, content: List<String> ->
             val orderString = if (content.size == 2) {
@@ -135,7 +148,7 @@ class WaypointCommands(
         return Command(
             prefix,
             "waypoint find",
-            "Usage: ${prefix}waypoint",
+            ::helpString,
             Permission.ANYONE
         ) { _: TwitchUser, content: List<String> ->
             //content find ....
@@ -188,7 +201,7 @@ class WaypointCommands(
         return Command(
             prefix,
             "waypoint distance",
-            "Usage: ${prefix}waypoint",
+            ::helpString,
             Permission.ANYONE
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {

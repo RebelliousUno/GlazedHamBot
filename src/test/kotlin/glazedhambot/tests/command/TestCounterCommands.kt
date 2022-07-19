@@ -80,7 +80,7 @@ class TestCounterCommands {
         val command = counterCommands.commandList.first { it.command == "deletecounter" }
         val commandString = "!deletecounter".split(" ", limit = 3)
         command.action(mockTwitchUser, commandString)
-        verify(mockTwirk).channelMessage(command.helpString)
+        verify(mockTwirk).channelMessage(command.helpString(emptyList()))
     }
 
 
@@ -153,7 +153,7 @@ class TestCounterCommands {
         val counter = Counter("falls")
         command.action(mockTwitchUser, commndString)
         verify(mockCountersDAO, times(0)).resetTodaysCounterForChannel(channel, counter)
-        verify(mockTwirk, times(1)).channelMessage(command.helpString)
+        verify(mockTwirk, times(1)).channelMessage(command.helpString(emptyList()))
     }
 
 
@@ -289,6 +289,6 @@ class TestCounterCommands {
         val counter = Counter(command = "fall", singular = "fall", plural = "falls")
         command.action(mockTwitchUser, commandString)
         verify(mockCountersDAO, times(0)).createCounterForChannel(channel, counter)
-        verify(mockTwirk, times(1)).channelMessage(command.helpString)
+        verify(mockTwirk, times(1)).channelMessage(command.helpString(emptyList()))
     }
 }

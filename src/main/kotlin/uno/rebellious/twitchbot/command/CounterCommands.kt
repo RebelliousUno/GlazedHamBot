@@ -31,7 +31,7 @@ class CounterCommands(
         return Command(
             prefix,
             "mean",
-            helpString,
+            { helpString },
             Permission.ANYONE
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
@@ -64,7 +64,7 @@ class CounterCommands(
         return Command(
             prefix,
             "meancounterlist",
-            helpString,
+            { helpString },
             Permission.ANYONE
         ) { _: TwitchUser, _: List<String> ->
             val list = counterListMap()
@@ -84,7 +84,7 @@ class CounterCommands(
         return Command(
             prefix,
             "resetallcounters",
-            helpString,
+            { helpString },
             Permission.MOD_ONLY
         ) { _: TwitchUser, _: List<String> ->
             database.showCountersForChannel(channel, true)
@@ -100,7 +100,7 @@ class CounterCommands(
         return Command(
             prefix,
             "deletecounter",
-            helpString,
+            { helpString },
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size == 2) {
@@ -116,7 +116,7 @@ class CounterCommands(
         return Command(
             prefix,
             "resetcount",
-            helpString,
+            { helpString },
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size == 2) {
@@ -132,7 +132,7 @@ class CounterCommands(
         return Command(
             prefix,
             "counterlist",
-            helpString,
+            { helpString },
             Permission.ANYONE
         ) { _: TwitchUser, _: List<String> ->
             val countersForChannel = database.showCountersForChannel(channel, false)
@@ -146,7 +146,7 @@ class CounterCommands(
         return Command(
             prefix,
             "removecount",
-            helpString,
+            { helpString },
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             val counter = Counter(command = content[1])
@@ -175,7 +175,7 @@ class CounterCommands(
         return Command(
             prefix,
             "addcount",
-            helpString,
+            { helpString },
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             val counter = Counter(command = content[1])
@@ -203,7 +203,7 @@ class CounterCommands(
         return Command(
             prefix,
             "createcounter",
-            helpString,
+            { helpString },
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size == 3) {

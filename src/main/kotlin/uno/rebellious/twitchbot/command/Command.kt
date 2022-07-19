@@ -6,7 +6,7 @@ import uno.rebellious.twitchbot.command.model.Permission
 class Command(
     var prefix: String,
     val command: String,
-    val helpString: String,
+    val helpString: (List<String>) -> String,
     private val permissions: Permission,
     val action: (TwitchUser, List<String>) -> Any
 ) {

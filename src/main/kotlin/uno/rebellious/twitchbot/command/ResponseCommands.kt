@@ -23,7 +23,7 @@ class ResponseCommands(
         return Command(
             prefix,
             "delcmd",
-            "Usage: ${prefix}delcmd cmd - deletes the command 'cmd' (Mod Only - Custom commands only)",
+            { "Usage: ${prefix}delcmd cmd - deletes the command 'cmd' (Mod Only - Custom commands only)" },
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             val removeCommand = content[1].lowercase(Locale.ENGLISH)
@@ -35,7 +35,7 @@ class ResponseCommands(
         return Command(
             prefix,
             "addcmd",
-            "Usage: ${prefix}addcmd cmd Response Text- Adds the command 'cmd' with the text 'Response Text' (Mod Only - Custom commands only)",
+            { "Usage: ${prefix}addcmd cmd Response Text- Adds the command 'cmd' with the text 'Response Text' (Mod Only - Custom commands only)" },
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 2) {
@@ -50,7 +50,7 @@ class ResponseCommands(
         return Command(
             prefix,
             "editcmd",
-            "Usage: ${prefix}editcmd cmd Response Text- Edits the command 'cmd' with the text 'Response Text' (Mod Only - Custom commands only)",
+            { "Usage: ${prefix}editcmd cmd Response Text- Edits the command 'cmd' with the text 'Response Text' (Mod Only - Custom commands only)" },
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 2) {

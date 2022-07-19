@@ -10,14 +10,21 @@ import java.time.format.DateTimeFormatter
 
 object DynamoDBHelper {
     val client: DynamoDbClient = createDBClient()
+
     fun deleteItemRequest(channel: String, tableName: String): DeleteItemRequest =
         DeleteItemRequest.builder().tableName(tableName)
             .key(mapOf("channel" to attributeValue(channel))).build()
 
     fun deleteItemRequest(tableName: String, map: Map<String, String>): DeleteItemRequest {
-        return DeleteItemRequest.builder().tableName(tableName)
-            .key(map.mapValues { attributeValue(it.value) }).build()
+        return deleteItemRequest(tableName, map.mapValues(::attributeValue))
     }
+
+    @JvmName("deleteItemRequest1")
+    fun deleteItemRequest(tableName: String, map: Map<String, AttributeValue>): DeleteItemRequest {
+        return DeleteItemRequest.builder().tableName(tableName).key(map).build()
+    }
+
+
 
     fun updateItemRequest(
         tableName: String,
@@ -59,6 +66,8 @@ object DynamoDBHelper {
         return GetItemRequest.builder().tableName(tableName).key(item).consistentRead(consistentRead).build()
     }
 
+
+
     fun <K, V> attributeValue(entry: Map.Entry<K, V>): AttributeValue {
         with(entry.value) {
             return when (this) {
@@ -88,4 +97,6 @@ object DynamoDBHelper {
             .build()
 
     }
+
+
 }

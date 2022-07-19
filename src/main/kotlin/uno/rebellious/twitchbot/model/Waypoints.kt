@@ -1,5 +1,6 @@
 package uno.rebellious.twitchbot.model
 
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -11,6 +12,21 @@ data class Waypoint(val waypoint: String, val coordinate: WaypointCoordinate, va
         val y2 = ((remote.y) - (this.coordinate.y)).toDouble().pow(2)
         val z2 = ((remote.z) - (this.coordinate.z)).toDouble().pow(2)
         return sqrt(x2 + y2 + z2)
+    }
+
+    companion object {
+        fun from(item: MutableMap<String, AttributeValue>): Waypoint? {
+            val waypoint = item["waypoint"]?.s()
+            val x= item["x"]?.n()?.toInt()
+            val y= item["y"]?.n()?.toInt()
+            val z =item["z"]?.n()?.toInt()
+            val id = item["id"]?.n()?.toInt()
+            return if (null !in listOf(waypoint, x, y, z,id)) {
+                Waypoint(waypoint!!, WaypointCoordinate(x!!, y!!, z!!), id!!)
+            } else {
+                null
+            }
+        }
     }
 }
 

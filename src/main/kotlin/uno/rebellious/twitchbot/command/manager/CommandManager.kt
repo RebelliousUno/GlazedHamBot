@@ -42,7 +42,7 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
         return Command(
             prefix,
             "help",
-            "Usage: ${prefix}help cmd - to get help for a particular command",
+            { "Usage: ${prefix}help cmd - to get help for a particular command" } ,
             Permission.ANYONE
         ) { twitchUser: TwitchUser, content: List<String> ->
             if (content.size > 1) {
@@ -50,7 +50,7 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
                     command.command == content[1] && command.canUseCommand(
                         twitchUser
                     )
-                }?.helpString)
+                }?.helpString?.invoke(content))
             } else {
                 twirk.channelMessage("Usage: ${prefix}help cmd - to get help for a particular command")
             }
@@ -58,7 +58,7 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
     }
 
     private fun countCommand(): Command {
-        return Command(prefix, "", "", Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
+        return Command(prefix, "", {""}, Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
             val counter = database.getCounterForChannel(
                 channel.channel,
                 Counter(content[0].substring(1))
@@ -69,7 +69,7 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
     }
 
     private fun responseCommand(): Command {
-        return Command(prefix, "", "", Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
+        return Command(prefix, "", { "" }, Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
             val response = Response(content[0].substring(1).lowercase(Locale.ENGLISH))
             twirk.channelMessage(database.findResponse(channel.channel, response).response)
         }
@@ -79,7 +79,7 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
         return Command(
             prefix,
             "cmdlist",
-            "Usage: ${prefix}cmdlist - lists the commands for this channel",
+            { "Usage: ${prefix}cmdlist - lists the commands for this channel" },
             Permission.ANYONE
         ) { twitchUser: TwitchUser, content: List<String> ->
             val dbCommands = database

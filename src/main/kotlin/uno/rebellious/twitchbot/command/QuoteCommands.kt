@@ -32,7 +32,7 @@ class QuoteCommands(
         return Command(
             prefix,
             "quotelist",
-            helpString,
+            { helpString },
             Permission.MOD_ONLY
         ) { _: TwitchUser, _: List<String> ->
             val quoteList = database.getAllQuotesForChannel(channel)
@@ -47,7 +47,7 @@ class QuoteCommands(
         return Command(
             prefix,
             "delquote",
-            helpString,
+            { helpString },
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
@@ -72,7 +72,7 @@ class QuoteCommands(
         return Command(
             prefix,
             "undelquote",
-            helpString,
+            { helpString },
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
@@ -98,7 +98,7 @@ class QuoteCommands(
         return Command(
             prefix,
             "addquote",
-            helpString,
+            { helpString },
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             // "!addquote This is the quote | this is the person | this is the date"
@@ -127,7 +127,7 @@ class QuoteCommands(
         return Command(
             prefix,
             "editquote",
-            helpString,
+            { helpString },
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 2) {
@@ -156,7 +156,7 @@ class QuoteCommands(
         return Command(
             prefix,
             "quote",
-            helpString,
+            { helpString },
             Permission.ANYONE
         ) { _: TwitchUser, content: List<String> ->
             val message: String

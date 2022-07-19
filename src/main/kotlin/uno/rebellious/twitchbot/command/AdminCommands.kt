@@ -26,7 +26,7 @@ class AdminCommands(
         return Command(
             prefix,
             "listchannels",
-            "Usage: ${prefix}listchannels - Lists all the channels the bot is in",
+            { "Usage: ${prefix}listchannels - Lists all the channels the bot is in" },
             Permission.MOD_ONLY
         ) { _: TwitchUser, _: List<String> ->
             val channelList = database.getListOfChannels().map {
@@ -40,7 +40,7 @@ class AdminCommands(
         return Command(
             prefix,
             "setprefix",
-            "Usage: '${prefix}setprefix !' - Sets the prefix for commands to '!'",
+            { "Usage: '${prefix}setprefix !' - Sets the prefix for commands to '!'" },
             Permission.OWNER_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
@@ -56,7 +56,7 @@ class AdminCommands(
     private fun addChannelCommand(): Command {
         return Command(
             prefix, "addchannel",
-            "Usage: ${prefix}addchannel channeltoAdd - Add a GlazedHamBot to a channel",
+            { "Usage: ${prefix}addchannel channeltoAdd - Add a GlazedHamBot to a channel" },
             Permission.ANYONE
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
@@ -70,7 +70,7 @@ class AdminCommands(
 
     private fun leaveChannelCommand(): Command {
         return Command(
-            prefix, "hamleave", "Usage: ${prefix}hamleave - Asks the bot to leave the channel (Mod only)",
+            prefix, "hamleave", { "Usage: ${prefix}hamleave - Asks the bot to leave the channel (Mod only)" },
             Permission.MOD_ONLY
         ) { _: TwitchUser, _: List<String> ->
             database.leaveChannel(channel)

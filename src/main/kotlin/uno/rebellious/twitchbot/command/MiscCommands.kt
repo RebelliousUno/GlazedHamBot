@@ -39,7 +39,7 @@ class MiscCommands(
 
     private fun shoutOutCommand(): Command {
         return Command(
-            prefix, "shoutout", "Usage: ${prefix}shoutout channelname - the name of the channel to shout out",
+            prefix, "shoutout", { "Usage: ${prefix}shoutout channelname - the name of the channel to shout out" },
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
@@ -50,7 +50,7 @@ class MiscCommands(
     }
 
     private fun spotifyCommand(): Command {
-        return Command(prefix, "spotify", "", Permission(false, false, false)) { _: TwitchUser, _: List<String> ->
+        return Command(prefix, "spotify", { "" }, Permission(false, false, false)) { _: TwitchUser, _: List<String> ->
 
             var spotifyToken = database.getTokensForChannel(channel)
             if (spotifyToken == null) {
@@ -126,7 +126,7 @@ class MiscCommands(
     private fun lastfmCommand(): Command {
         return Command(
             prefix, "song",
-            "Usage: ${prefix}song - The last song listened to by $channel",
+            { "Usage: ${prefix}song - The last song listened to by $channel" },
             Permission.ANYONE
         ) { _: TwitchUser, _: List<String> ->
             Fuel.get(BotManager.lastFMUrl).responseString { _, _, result ->
@@ -144,7 +144,7 @@ class MiscCommands(
         return Command(
             prefix,
             "stupidjoke",
-            "Usage: ${prefix}stupidjoke",
+            { "Usage: ${prefix}stupidjoke" },
             Permission.ANYONE
         ) { _: TwitchUser, _ ->
             with(BotManager.stupidJokeUrl ?: "") {
@@ -161,7 +161,7 @@ class MiscCommands(
         return Command(
             prefix,
             "jackset",
-            "Usage: ${prefix}jackset ROOM - Sets the jackbox code to ROOM",
+            { "Usage: ${prefix}jackset ROOM - Sets the jackbox code to ROOM" },
             Permission.MOD_ONLY
         ) { _: TwitchUser, content: List<String> ->
             if (content.size > 1) {
@@ -175,7 +175,7 @@ class MiscCommands(
         return Command(
             prefix,
             "jack",
-            "Usage: ${prefix}jack - Gets the jackbox code for the current game",
+            { "Usage: ${prefix}jack - Gets the jackbox code for the current game" },
             Permission.ANYONE
         ) { _: TwitchUser, _: List<String> ->
             twirk.channelMessage("Jackbox Code Set to $jackboxCode you can get the link by typing ${prefix}jack into chat")
