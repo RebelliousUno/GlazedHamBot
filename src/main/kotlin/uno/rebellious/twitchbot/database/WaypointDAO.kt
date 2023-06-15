@@ -79,7 +79,7 @@ class WaypointDAO(private val connectionList: HashMap<String, Connection>) : IWa
     override fun findWaypointByName(channel: String, waypoint: String, deleted: Boolean): Waypoint? {
         val sql = "SELECT * from waypoints where name like ? AND deleted = ? limit 1"
         return findWaypointResult(connectionList[channel]?.prepareStatement(sql)?.run {
-            setString(1, "%"+waypoint+"%")
+            setString(1, "%$waypoint%")
             setBoolean(2, deleted)
             executeQuery()
         })
