@@ -44,7 +44,7 @@ dependencies {
     implementation platform('software.amazon.awssdk:bom:2.20.86')
     implementation 'software.amazon.awssdk:dynamodb:2.20.86'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
-    testImplementation 'org.mockito:mockito-core:5.3.0'
+    testImplementation 'org.mockito:mockito-core:5.3.1'
 }
 
 compileKotlin {
