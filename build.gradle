@@ -13,7 +13,7 @@ buildscript {
     }
 }
 plugins {
-    id "org.jetbrains.kotlin.jvm" version "1.7.21"
+    id "org.jetbrains.kotlin.jvm" version "1.8.22"
 }
 
 apply plugin: 'java'
@@ -45,17 +45,6 @@ dependencies {
     implementation 'software.amazon.awssdk:dynamodb:2.20.87'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
     testImplementation 'org.mockito:mockito-core:5.3.1'
-}
-
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
 }
 
 tasks.test {
