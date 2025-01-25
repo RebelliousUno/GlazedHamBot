@@ -5,7 +5,6 @@ import com.gikk.twirk.types.users.TwitchUser
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Method
 import com.github.kittinunf.result.Result
-import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
 import uno.rebellious.twitchbot.BotManager
 import uno.rebellious.twitchbot.command.model.Permission
@@ -131,7 +130,7 @@ class MiscCommands(
         ) { _: TwitchUser, _: List<String> ->
             Fuel.get(BotManager.lastFMUrl).responseString { _, _, result ->
                 val resultJson: String = result.get().replace("#", "")
-                val json = gson.fromJson<LastFMResponse>(resultJson)
+                val json = gson.fromJson(resultJson, LastFMResponse::class.java)
                 val artist = json.recenttracks.track[0].artist.text
                 val track = json.recenttracks.track[0].name
                 val album = json.recenttracks.track[0].album.text

@@ -13,7 +13,7 @@ buildscript {
     }
 }
 plugins {
-    id "org.jetbrains.kotlin.jvm" version "1.9.11"
+    id "org.jetbrains.kotlin.jvm" version "1.9.10"
 }
 
 apply plugin: 'java'
@@ -22,7 +22,7 @@ apply plugin: 'application'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group 'uno.rebellious'
-version '1.9.2-SNAPSHOT'
+version '1.9.3-SNAPSHOT'
 
 mainClassName = 'uno.rebellious.twitchbot.MainKt'
 
@@ -34,13 +34,12 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.salomonbrys.kotson:kotson:2.5.0'
     implementation 'com.github.Gikkman:Java-Twirk:0.7.1'
     implementation 'com.github.kittinunf.fuel:fuel:2.3.1' //for JVM
     implementation 'com.beust:klaxon:5.6'
     implementation 'org.xerial:sqlite-jdbc:3.42.0.1'
     implementation 'io.reactivex.rxjava3:rxkotlin:3.0.1'
-    implementation 'com.jayway.jsonpath:json-path:2.8.0'
+    implementation 'com.jayway.jsonpath:json-path:2.9.0'
     implementation platform('software.amazon.awssdk:bom:2.20.146')
     implementation 'software.amazon.awssdk:dynamodb:2.20.146'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
