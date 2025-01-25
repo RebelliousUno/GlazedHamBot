@@ -7,6 +7,7 @@ import software.amazon.awssdk.services.dynamodb.model.*
 import uno.rebellious.twitchbot.BotManager
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.reflect.typeOf
 
 object DynamoDBHelper {
     val client: DynamoDbClient = createDBClient()
@@ -51,9 +52,16 @@ object DynamoDBHelper {
                 is String -> attributeValue(this)
                 is Int -> attributeValue(this)
                 is LocalDateTime -> attributeValue(this)
+                is List<*> -> attributeValue(this)
                 else -> attributeValue("")
             }
         }
+    }
+
+    fun attributeValue(value: List<*>): AttributeValue {
+        //check each value in the list is a string
+        val stringList = value.filterIsInstance<String>()
+        return AttributeValue.builder().ss(stringList).build()
     }
 
     fun attributeValue(value: String): AttributeValue {

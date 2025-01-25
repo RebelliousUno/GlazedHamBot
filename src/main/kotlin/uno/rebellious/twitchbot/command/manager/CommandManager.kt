@@ -59,6 +59,10 @@ class CommandManager(private val twirk: Twirk, private val channel: Channel) : C
 
     private fun countCommand(): Command {
         return Command(prefix, "", "", Permission(false, false, false)) { _: TwitchUser, content: List<String> ->
+            val sumCounter = database.getSumCounterForChannel(channel.channel, content[0].substring(1))
+            if (!sumCounter.isEmpty()) {
+                return@Command twirk.channelMessage(sumCounter)
+            }
             val counter = database.getCounterForChannel(
                 channel.channel,
                 Counter(content[0].substring(1))

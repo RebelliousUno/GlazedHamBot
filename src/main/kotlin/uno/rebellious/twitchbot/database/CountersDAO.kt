@@ -20,6 +20,14 @@ class CountersDAO(private val connectionList: HashMap<String, Connection>) : ICo
         }
     }
 
+    override fun createSumCounterForChannel(
+        channel: String,
+        sumCounterName: String,
+        counters: List<Counter>
+    ) {
+        TODO("Not yet implemented")
+    }
+
     override fun createCounterForChannel(
         channel: String,
         counter: Counter
@@ -92,6 +100,10 @@ class CountersDAO(private val connectionList: HashMap<String, Connection>) : ICo
             }
         }
         return Counter("")
+    }
+
+    override fun getSumCounterForChannel(channel: String, sumCounterName: String, consistentRead: Boolean): String {
+        TODO("Not yet implemented")
     }
 
     override fun resetTodaysCounterForChannel(channel: String, counter: Counter) {

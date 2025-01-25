@@ -58,6 +58,21 @@ class CountersDynamoDBDAO : ICounters {
             }
     }
 
+    override fun createSumCounterForChannel(
+        channel: String,
+        sumCounterName: String,
+        counters: List<Counter>
+    ) {
+        val ddb = DynamoDBHelper.client
+        val item = mapOf(
+            keyField to channel,
+            sortField to sumCounterName.lowercase(Locale.ENGLISH),
+            "counters" to counters.map { it.command }
+        ).mapValues { DynamoDBHelper.attributeValue(it) }
+        val request = PutItemRequest.builder().item(item).tableName(tableName).build()
+        ddb.putItem(request)
+    }
+
     override fun createCounterForChannel(channel: String, counter: Counter) {
         val ddb = DynamoDBHelper.client
         val item = mapOf(
@@ -95,9 +110,38 @@ class CountersDynamoDBDAO : ICounters {
         ddb.updateItem(request)
     }
 
+    override fun getSumCounterForChannel(channel: String, sumCounterName: String, consistentRead: Boolean): String {
+        val ddb = DynamoDBHelper.client
+        val request = DynamoDBHelper.itemRequest(
+            tableName,
+            mapOf(keyField to channel, sortField to sumCounterName),
+            consistentRead
+        )
+        val response = ddb.getItem(request)
+        return if (response.hasItem())
+            with(response.item()) {
+                val counters = this["counters"]?.ss() ?: emptyList()
+                if (counters.isNotEmpty()) {
+                    val c = counters.map { getCounterForChannel(channel, Counter(it), consistentRead) }
+                    val sumTotal = c.sumOf { it.total }
+                    val totalsString = c.joinToString(", ") { "Total ${it.plural}: ${it.total}" }
+                    "$totalsString. Overall Total $sumTotal"
+                } else {
+                    ""
+                }
+            }
+        else {
+            ""
+        }
+    }
+
     override fun getCounterForChannel(channel: String, counter: Counter, consistentRead: Boolean): Counter {
         val ddb = DynamoDBHelper.client
-        val request = DynamoDBHelper.itemRequest(tableName, mapOf("channel" to channel, "counter" to counter.command), consistentRead)
+        val request = DynamoDBHelper.itemRequest(
+            tableName,
+            mapOf("channel" to channel, "counter" to counter.command),
+            consistentRead
+        )
         val response = ddb.getItem(request)
         return if (response.hasItem()) {
             with(response.item()) {

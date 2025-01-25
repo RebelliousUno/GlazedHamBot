@@ -24,6 +24,7 @@ class CounterCommands(
         commandList.add(resetAllCountersCommand())
         commandList.add(meanCounterListCommand())
         commandList.add(meanCounterCommand())
+        commandList.add(sumCounterCommand())
     }
 
     private fun meanCounterCommand(): Command {
@@ -194,6 +195,35 @@ class CounterCommands(
             } catch (e: NumberFormatException) {
                 twirk.channelMessage("${content[2]} is not a valid number to increment by")
             }
+        }
+    }
+
+    private fun sumCounterCommand(): Command {
+        val helpString =
+            "Usage: ${prefix}sumcounter counterName counter1 counter2 - Creates a counter that will return the value for each counter plus the sum of the totals of that counter"
+        return Command(
+            prefix,
+            "sumcounter",
+            helpString,
+            Permission.MOD_ONLY
+        ) { _: TwitchUser, content: List<String> ->
+            if (content.size == 3) {
+                try {
+                    val counterNames = content[2].split(" ").map { database.getCounterForChannel(channel, Counter(it)) }.filter { !it.isEmpty() }
+//                    val counter1 = database.getCounterForChannel(channel, Counter(counterNames[0]))
+//                    val counter2 = database.getCounterForChannel(channel, Counter(counterNames[1]))
+                    if (counterNames.isEmpty()) {
+                        twirk.channelMessage(helpString)
+                    } else {
+                        database.createSumCounterForChannel(channel, content[1], counterNames)
+                    }
+                } catch (e: IndexOutOfBoundsException) {
+                    twirk.channelMessage(helpString)
+                }
+            } else {
+                twirk.channelMessage(helpString)
+            }
+
         }
     }
 

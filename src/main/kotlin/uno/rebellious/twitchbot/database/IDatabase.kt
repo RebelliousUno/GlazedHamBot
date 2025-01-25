@@ -43,10 +43,12 @@ interface ISettings {
 }
 
 interface ICounters {
+    fun createSumCounterForChannel(channel: String, sumCounterName: String, counters: List<Counter>)
     fun createCounterForChannel(channel: String, counter: Counter)
     fun removeCounterForChannel(channel: String, counter: Counter)
     fun incrementCounterForChannel(channel: String, counter: Counter, by: Int = 1)
     fun getCounterForChannel(channel: String, counter: Counter, consistentRead: Boolean = false): Counter
+    fun getSumCounterForChannel(channel: String, sumCounterName: String, consistentRead: Boolean = false): String
     fun resetTodaysCounterForChannel(channel: String, counter: Counter)
     fun showCountersForChannel(channel: String, includeStream: Boolean): List<Counter>
 }
