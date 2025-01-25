@@ -44,7 +44,8 @@ class TestCounterCommands {
             "deletecounter",
             "meancounterlist",
             "resetallcounters",
-            "mean"
+            "mean",
+            "sumcounter"
         )
         assertTrue(commandList.containsAll(counterCommands.commandList.map { it.command }))
     }
